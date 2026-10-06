@@ -1,0 +1,19 @@
+{
+  "name": "orbit",
+  "version": "0.2.0",
+  "description": "Save, connect, and recall knowledge in your own Obsidian vault.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Orbit",
+    "shortDescription": "Shared knowledge for your agents, stored in Obsidian",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Set up Orbit",
+      "Save this to Orbit",
+      "Check Orbit for relevant context"
+    ]
+  }
+}

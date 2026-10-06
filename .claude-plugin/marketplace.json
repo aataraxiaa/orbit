@@ -1,0 +1,13 @@
+{
+  "name": "orbit",
+  "owner": {
+    "name": "aataraxiaa"
+  },
+  "plugins": [
+    {
+      "name": "orbit",
+      "source": "./",
+      "description": "Save, connect, and recall knowledge in your Obsidian vault."
+    }
+  ]
+}

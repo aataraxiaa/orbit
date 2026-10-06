@@ -1,0 +1,6 @@
+{
+  "name": "orbit",
+  "version": "0.2.0",
+  "description": "Save, connect, and recall knowledge in your own Obsidian vault. Skills-first, explicit actions, no hooks.",
+  "skills": "./skills/"
+}

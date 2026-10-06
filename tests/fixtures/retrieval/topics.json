@@ -1,0 +1,272 @@
+[
+  {
+    "name": "Atlas",
+    "symbol": "RollbackCoordinator",
+    "decision": "Release migrations in small reversible stages. Keep the previous schema readable until rollback is no longer needed.",
+    "question": "How can Atlas undo a failed database deployment?",
+    "terms": "reversible migration rollback staged deployment",
+    "old": "Atlas previously planned a single irreversible cutover. That decision is superseded.",
+    "detail": "The rollback rehearsal must finish before the Friday change window.",
+    "questions": {
+      "development": {
+        "symbol": "Which component implements reversible database changes?",
+        "paraphrase": "What is the recovery strategy when a database release goes wrong?",
+        "scope": "What safeguards are required when rolling out schema changes?",
+        "history": "What deployment approach was abandoned?",
+        "source": "What must be completed before the scheduled change window?",
+        "multi": "Explain the migration strategy and the prerequisite for the Friday release."
+      },
+      "heldout": {
+        "symbol": "Where is RollbackCoordinator documented?",
+        "paraphrase": "How do we retain the ability to back out a schema rollout?",
+        "scope": "Which database rollout policy applies in this project?",
+        "history": "Before staged releases were adopted, how was the switch meant to happen?",
+        "source": "When does the exercise proving we can reverse changes need to finish?",
+        "multi": "What protects older readers during rollout, and what exercise gates the release?"
+      }
+    }
+  },
+  {
+    "name": "Beacon",
+    "symbol": "SessionRegistry",
+    "decision": "Reconnect to the existing terminal process using its session identity. Display unknown state while checking whether it survived.",
+    "question": "How does Beacon avoid presenting an uncertain terminal as idle?",
+    "terms": "terminal process session reconnect unknown checking",
+    "old": "Beacon previously treated a missing heartbeat as idle. That decision is superseded.",
+    "detail": "The session lease lasts ninety seconds after transport loss.",
+    "questions": {
+      "development": {
+        "symbol": "Which component keeps track of terminal process identity?",
+        "paraphrase": "How should the terminal appear while we are unsure whether its process survived?",
+        "scope": "What should reconnection do with an existing shell?",
+        "history": "How was a missing heartbeat interpreted under the old policy?",
+        "source": "How long can transport remain disconnected before its lease runs out?",
+        "multi": "Explain how shell reconnection works and how long its lease survives disconnection."
+      },
+      "heldout": {
+        "symbol": "Find the behavior implemented by SessionRegistry.",
+        "paraphrase": "What do we show while checking whether a shell is still alive?",
+        "scope": "Should a reconnect attach to the old process or create another?",
+        "history": "What status did the earlier implementation assign when heartbeats stopped?",
+        "source": "What grace period follows losing the transport?",
+        "multi": "How do we identify the process to reattach to, and what is the disconnection grace period?"
+      }
+    }
+  },
+  {
+    "name": "Cedar",
+    "symbol": "AttachmentDisclosure",
+    "decision": "Show a disclosure when a document is included in a conversation. Removing the document removes its disclosure.",
+    "question": "When should Cedar tell someone their document is being shared?",
+    "terms": "document attachment sharing disclosure conversation",
+    "old": "Cedar previously displayed the disclosure even after removal. That decision is superseded.",
+    "detail": "The disclosure must remain readable with larger accessibility text.",
+    "questions": {
+      "development": {
+        "symbol": "Which component controls document sharing notices?",
+        "paraphrase": "What happens to the notice after an attached document is removed?",
+        "scope": "When should a conversation include a document sharing notice?",
+        "history": "What did removal do to the notice under the earlier behavior?",
+        "source": "What accessibility requirement applies to the sharing message?",
+        "multi": "Describe when the document notice appears and its accessibility constraint."
+      },
+      "heldout": {
+        "symbol": "Find AttachmentDisclosure and its responsibilities.",
+        "paraphrase": "Should a conversation still warn about a file that is no longer attached?",
+        "scope": "What indication should users see when a document accompanies a message?",
+        "history": "Which obsolete behavior kept a notice visible after the attachment was gone?",
+        "source": "How should the notice behave when someone increases their text size?",
+        "multi": "When should the sharing notice disappear, and how must enlarged text be handled?"
+      }
+    }
+  },
+  {
+    "name": "Delta",
+    "symbol": "PaymentLedger",
+    "decision": "Deduplicate payment callbacks using the provider event identifier. Keep the ledger entry and processing receipt in one transaction.",
+    "question": "How does Delta prevent a repeated callback from charging twice?",
+    "terms": "duplicate payment callback event idempotent ledger",
+    "old": "Delta previously deduplicated using the customer's name. That decision is superseded.",
+    "detail": "Keep provider event identifiers for thirteen months.",
+    "questions": {
+      "development": {
+        "symbol": "Which component owns payment callback bookkeeping?",
+        "paraphrase": "How do repeated provider notifications avoid creating a second charge?",
+        "scope": "What makes callback processing safe to retry?",
+        "history": "Which identifier did the earlier duplicate check use?",
+        "source": "How long must identifiers from payment provider events be retained?",
+        "multi": "What identifies duplicate payment events, and how long do we keep that information?"
+      },
+      "heldout": {
+        "symbol": "What behavior does PaymentLedger implement?",
+        "paraphrase": "How do we ensure a retried notification cannot bill a customer again?",
+        "scope": "Which writes must succeed together when handling a provider callback?",
+        "history": "What was wrong with the old customer-based duplicate detection policy?",
+        "source": "When can the retained provider event identifiers be discarded?",
+        "multi": "How is double billing prevented, and what retention period supports that check?"
+      }
+    }
+  },
+  {
+    "name": "Ember",
+    "symbol": "CacheGeneration",
+    "decision": "Publish a completed cache generation atomically. Keep the previous generation available if a refresh is interrupted.",
+    "question": "What can Ember read if a cache refresh crashes?",
+    "terms": "cache generation refresh interrupted previous atomic",
+    "old": "Ember previously deleted its old cache before rebuilding. That decision is superseded.",
+    "detail": "Refresh receipts include the source revision and generation checksum.",
+    "questions": {
+      "development": {
+        "symbol": "Which component publishes cache versions?",
+        "paraphrase": "What remains usable if rebuilding cached data is interrupted?",
+        "scope": "How should completed cached data become visible?",
+        "history": "What did the previous rebuild process remove first?",
+        "source": "Which provenance fields must a refresh receipt contain?",
+        "multi": "Explain publication of refreshed cached data and what its receipt records."
+      },
+      "heldout": {
+        "symbol": "Find CacheGeneration and the rule it enforces.",
+        "paraphrase": "Can readers continue using the old cached data after a rebuild fails?",
+        "scope": "What must happen before a replacement generation becomes visible?",
+        "history": "Which discarded approach destroyed the usable cache before rebuilding?",
+        "source": "What information lets us trace and check a published refresh?",
+        "multi": "How do failed refreshes affect readers, and what identifies a successful generation?"
+      }
+    }
+  },
+  {
+    "name": "Finch",
+    "symbol": "PermissionBroker",
+    "decision": "Grant access only to the selected vault and configuration directory. A plugin installation does not establish filesystem access.",
+    "question": "Why can Finch load the plugin but still fail to read notes?",
+    "terms": "plugin filesystem permission vault directory access",
+    "old": "Finch previously assumed installation also granted directory permissions. That decision is superseded.",
+    "detail": "Verify access by writing and reading a uniquely labeled disposable note.",
+    "questions": {
+      "development": {
+        "symbol": "Which component handles filesystem grants?",
+        "paraphrase": "Why might installed tooling still be unable to open notes?",
+        "scope": "Which directories should receive access grants?",
+        "history": "What did installation supposedly grant under the earlier assumption?",
+        "source": "What concrete exercise proves the agent has write and read access?",
+        "multi": "Explain the access boundary and how to prove the needed permissions exist."
+      },
+      "heldout": {
+        "symbol": "Where is PermissionBroker described?",
+        "paraphrase": "Why does loading an extension not prove it can use the vault?",
+        "scope": "How broad should the filesystem permission grant be?",
+        "history": "Which obsolete assumption equated installation with directory access?",
+        "source": "How can we demonstrate permissions work without modifying real notes?",
+        "multi": "What locations should be authorized, and what disposable check verifies that authorization?"
+      }
+    }
+  },
+  {
+    "name": "Grove",
+    "symbol": "SourceArchive",
+    "decision": "Preserve original source bytes and record extraction coverage. A partial transcript must not be described as a complete recording.",
+    "question": "How does Grove show that only part of a recording was transcribed?",
+    "terms": "partial transcript source extraction coverage recording",
+    "old": "Grove previously marked every copied file fully integrated. That decision is superseded.",
+    "detail": "The missing segment starts at minute forty-two.",
+    "questions": {
+      "development": {
+        "symbol": "Which component retains captured originals?",
+        "paraphrase": "How should incomplete transcription be represented?",
+        "scope": "What must be retained alongside extracted recording text?",
+        "history": "What completion claim did the earlier file-copy workflow make?",
+        "source": "Where does the unavailable part of the recording begin?",
+        "multi": "How do we describe extraction completeness, and where is the missing audio?"
+      },
+      "heldout": {
+        "symbol": "What does SourceArchive preserve?",
+        "paraphrase": "Can a transcript covering only some of a recording count as complete?",
+        "scope": "How should original evidence and extraction gaps be recorded?",
+        "history": "Why was the old fully-integrated label on copied files misleading?",
+        "source": "At what timestamp does the untranscribed segment start?",
+        "multi": "What must remain available when transcription is partial, and what segment is absent?"
+      }
+    }
+  },
+  {
+    "name": "Harbor",
+    "symbol": "ConflictResolver",
+    "decision": "Reject updates based on stale content hashes. Read the latest user edits and reconcile before replacing the note.",
+    "question": "How does Harbor avoid overwriting someone's newer edits?",
+    "terms": "stale content hash conflict user edits reconcile",
+    "old": "Harbor previously retried conflicting writes without rereading. That decision is superseded.",
+    "detail": "Never expire the write lock solely because it is old.",
+    "questions": {
+      "development": {
+        "symbol": "Which component handles conflicting note writes?",
+        "paraphrase": "How do we avoid replacing a note with an outdated version?",
+        "scope": "What is required before retrying an update after user edits?",
+        "history": "How did the old implementation retry conflicting writes?",
+        "source": "Is the age of a write lock sufficient reason to remove it?",
+        "multi": "Explain how a conflicting edit is handled and the rule for aging write locks."
+      },
+      "heldout": {
+        "symbol": "Find ConflictResolver and its update policy.",
+        "paraphrase": "What should happen when the stored digest no longer matches the user\u2019s note?",
+        "scope": "How do we reconcile changes before replacing current content?",
+        "history": "Which prior retry strategy could discard intervening edits?",
+        "source": "What must never be used as the sole justification for expiring a lock?",
+        "multi": "How are newer edits protected, and may an old lock be expired automatically?"
+      }
+    }
+  },
+  {
+    "name": "Iris",
+    "symbol": "EvidenceReader",
+    "decision": "Read the paragraph around a search match before quoting it. A matching sentence can be qualified or negated by adjacent text.",
+    "question": "Why does Iris read beyond the matching search sentence?",
+    "terms": "search evidence paragraph qualifier negation adjacent",
+    "old": "Iris previously answered directly from isolated search snippets. That decision is superseded.",
+    "detail": "Code blocks must retain their surrounding heading when retrieved.",
+    "questions": {
+      "development": {
+        "symbol": "Which component expands search matches before citation?",
+        "paraphrase": "Why can an isolated matching sentence be unsafe to quote?",
+        "scope": "How much context should be read before answering from a search result?",
+        "history": "What evidence did the earlier answering process rely on?",
+        "source": "What context must stay attached to a retrieved code block?",
+        "multi": "Explain the contextual reading rule and the requirement for retrieved code."
+      },
+      "heldout": {
+        "symbol": "What responsibility belongs to EvidenceReader?",
+        "paraphrase": "How do we catch qualifications that reverse the meaning of a matching sentence?",
+        "scope": "What should surround a search hit before it is used as evidence?",
+        "history": "How did the old approach turn isolated snippets directly into answers?",
+        "source": "When returning a code excerpt, which surrounding structure must be preserved?",
+        "multi": "What additional context protects prose interpretations and code excerpts?"
+      }
+    }
+  },
+  {
+    "name": "Juniper",
+    "symbol": "IdentityResolver",
+    "decision": "Resolve people using stable identity and context. Two people with the same display name must remain separate entities.",
+    "question": "How does Juniper tell apart two contacts with identical names?",
+    "terms": "people identity display name ambiguity separate context",
+    "old": "Juniper previously merged contacts based on name similarity. That decision is superseded.",
+    "detail": "Use the organization and project context to disambiguate contacts.",
+    "questions": {
+      "development": {
+        "symbol": "Which component distinguishes contacts?",
+        "paraphrase": "How should two people sharing a display name be represented?",
+        "scope": "What information determines whether contacts are the same person?",
+        "history": "What criterion caused contacts to merge under the earlier rule?",
+        "source": "Which contextual attributes should resolve a contact-name collision?",
+        "multi": "Explain identity resolution and the context needed when names collide."
+      },
+      "heldout": {
+        "symbol": "Find IdentityResolver and its matching rule.",
+        "paraphrase": "Why is a matching display name insufficient to combine two contacts?",
+        "scope": "What prevents different people from becoming a single entity?",
+        "history": "Which abandoned matching approach depended on similar names?",
+        "source": "What additional information should be checked when contact names are identical?",
+        "multi": "How are same-name people kept distinct, and which affiliations help tell them apart?"
+      }
+    }
+  }
+]
