@@ -1,6 +1,6 @@
 # Install and test Orbit
 
-Orbit requires Python 3.11 or later and a host that can execute local scripts and access your vault.
+Orbit requires Python 3.10 or later and a host that can execute local scripts and access your vault.
 SQLite FTS5 support enables indexed search. No third-party Python dependencies are required.
 
 ## Install from GitHub
@@ -23,9 +23,14 @@ Start a new conversation and ask to set up Orbit. Choose an existing vault or re
 one. Grant access to the selected vault and effective config directory using your host's controls.
 Repeat setup and a write/read check in each host. Installation alone does not verify filesystem access.
 
-For Claude Desktop or Cowork, download `orbit-plugin.zip` from GitHub Releases and use the
-custom-plugin upload control if supported. Script execution and vault access must be verified there.
-These app workflows have not passed runtime acceptance.
+For Cowork in Claude Desktop, open **Customize > Plugins > Add > Add marketplace** and
+add the GitHub repository `aataraxiaa/orbit`. Install Orbit from that marketplace so
+updates come from the repository. A manually uploaded ZIP is a separate installation route.
+Connect your existing vault folder through Cowork's
+folder access controls. Run the packaged `scripts/orbit.py --help` with Python before setup,
+then verify writes and retrieval using the path Cowork actually exposes.
+Installing skills in the Chat tab does not establish access to your local vault.
+Cowork and Chat have not passed runtime acceptance.
 
 ## Develop locally
 
@@ -45,6 +50,10 @@ is named `orbit-local`.
 The build creates `dist/orbit-plugin.zip` and `dist/orbit-project.zip`. The project archive contains
 source, tests, and a built local marketplace. The plugin archive contains runtime files only.
 Reinstall or reload after rebuilding. Vault bindings live outside the plugin.
+
+For Python compatibility changes, also run the full test suite and smoke script with
+Python 3.10, the minimum supported interpreter. Use a real interpreter rather than
+mocking its version. Cache corruption recovery and locked-cache preservation must pass.
 
 ## Verify product behavior
 

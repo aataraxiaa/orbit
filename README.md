@@ -3,9 +3,9 @@
 A skills-first plugin for saving, connecting, and recalling knowledge in a local Obsidian vault.
 Speak naturally: “Save that to Orbit”, “Check our deployment decisions”, or “What does this connect to?”
 
-Version 0.2.0 is a public prerelease for cross-host testing. Markdown and preserved sources remain authoritative.
+Version 0.2.1 is a prerelease for cross-host testing. Markdown and preserved sources remain authoritative.
 No MCP, server, daemon, hooks, scheduled capture, cloud service, or required Obsidian community plugin.
-Python 3.11+ handles storage and validation. Indexed retrieval uses the Python runtime's SQLite FTS5 support.
+Python 3.10+ handles storage and validation. Indexed retrieval uses the Python runtime's SQLite FTS5 support.
 
 ## Install
 

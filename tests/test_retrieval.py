@@ -158,6 +158,22 @@ class RetrievalTest(unittest.TestCase):
                 retrieval.search(self.root, 'needle')
         self.assertEqual(path.read_bytes(), original)
 
+    def test_unknown_database_error_preserves_cache(self):
+        self.write('a.md', 'needle')
+        cache = Path(retrieval.refresh(self.root)['cache'])
+        original = cache.read_bytes()
+        inode = cache.stat().st_ino
+        for message in ('unknown database error', 'database disk image is malformed: unknown cause'):
+            with self.subTest(message=message):
+                error = sqlite3.DatabaseError(message)
+                with patch.object(retrieval, 'connect', side_effect=error):
+                    with self.assertRaises(sqlite3.DatabaseError) as raised:
+                        retrieval.refresh(self.root)
+                self.assertIs(raised.exception, error)
+                self.assertEqual(cache.stat().st_ino, inode)
+                self.assertEqual(cache.read_bytes(), original)
+        self.assertEqual(retrieval.search(self.root, 'needle')['total'], 1)
+
 
 if __name__ == '__main__':
     unittest.main()

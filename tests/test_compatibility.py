@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -28,6 +29,19 @@ class CompatibilityTest(unittest.TestCase):
     def make_legacy(self):
         (self.root / '.orbit').rename(self.root / '.second-brain')
         (self.root / 'ORBIT.md').rename(self.root / 'SECOND_BRAIN.md')
+
+    def test_cli_preflight_runs_with_current_interpreter_without_vault(self):
+        env = {'ORBIT_CONFIG': str(self.base / 'unbound.json'),
+               'ORBIT_CACHE': str(self.base / 'unbound-cache')}
+        for flag, expected in (('--help', 'setup'), ('--version', orbit.VERSION)):
+            with self.subTest(flag=flag):
+                result = subprocess.run([sys.executable, str(Path(orbit.__file__)), flag],
+                                        cwd=self.base, env=env, capture_output=True,
+                                        text=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(expected, result.stdout)
+        self.assertFalse(Path(env['ORBIT_CONFIG']).exists())
+        self.assertFalse(Path(env['ORBIT_CACHE']).exists())
 
     def test_legacy_identity_rules_journals_search_and_capture_survive(self):
         self.make_legacy()

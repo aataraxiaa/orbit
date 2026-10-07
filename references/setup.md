@@ -1,6 +1,6 @@
 # Set up a host
 
-Orbit uses the host's existing execution and filesystem tools with Python 3.11+.
+Orbit uses the host's existing execution and filesystem tools with Python 3.10+.
 The plugin contains skills and scripts. Knowledge and configuration live outside it.
 
 ## Resolve the shared binding
@@ -94,11 +94,26 @@ launch option with both resolved directories. Keep the actual code directory as 
 Continue using the shared Orbit config; do not reset it just because Codex
 created it.
 
-## Connect Claude Desktop or Cowork
+## Connect Cowork in Claude Desktop
 
-Upload `dist/orbit-plugin.zip` through the plugin UI, or use its supported local
-marketplace control. Use the app's native directory-permission flow for the vault and
-config parent. Cowork may expose a different mounted path.
+Use **Customize > Plugins > Add > Add marketplace** to add `aataraxiaa/orbit`, then
+install Orbit from that marketplace. Prefer the repository installation for updates.
+Use the packaged ZIP only for a manual installation or local testing.
+Connect the user's selected vault folder through Cowork's folder
+access controls. Use the mounted path visible to its tools, which may differ from the
+Mac path. Grant access to the effective config parent separately if required.
+
+Locate `scripts/orbit.py` in the installed plugin and run it with `--help` using the
+available Python interpreter. Python 3.10 is supported. Record the interpreter version
+and any actual helper error before diagnosing runtime incompatibility. No vault binding
+is needed for `--help`. The helper is a Python file, not a required `orbit` executable
+on PATH. Missing plugin references or scripts are an installation problem, separate
+from a missing vault selection.
+
+The Chat tab and Cowork have different execution environments. Installing the skills
+in Chat does not prove local vault access. If Chat cannot reach the vault, use Cowork
+with the selected folder connected, or Claude Code. Do not describe the desktop app
+alone as proof that scripts execute on the user's Mac.
 
 Verify script execution and file access from the actual conversation. If the app cannot
 execute helpers or grant access, identify that precise limitation and give a concrete

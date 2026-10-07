@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Orbit mechanics. Python 3.11+, standard library only."""
+"""Orbit mechanics. Python 3.10+, standard library only."""
 from __future__ import annotations
 import argparse
 import collections
@@ -15,10 +15,10 @@ import sys
 import tempfile
 import uuid
 
-if sys.version_info < (3, 11):
-    raise SystemExit('Orbit requires Python 3.11 or later. Run this helper with a supported Python interpreter.')
+if sys.version_info < (3, 10):
+    raise SystemExit('Orbit requires Python 3.10 or later. Run this helper with a supported Python interpreter.')
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 INTERNAL = '.orbit'
 STOP = set('a an and are as at be by for from how i in is it my of on or that the this to was we what when why with you your'.split())
 

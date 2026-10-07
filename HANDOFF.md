@@ -1,6 +1,6 @@
 # Orbit handoff
 
-Updated 2026-10-06. Orbit v0.2.0 prerelease.
+Updated 2026-10-07. Orbit v0.2.1 prerelease.
 
 ## Scope
 
@@ -23,6 +23,12 @@ Metadata fields and note prose remain user-owned. Unknown metadata blocks must r
 Sources/assets originals cannot participate as canonical identities or ordinary indexed search results.
 
 ## Verification and limitations
+
+The v0.2.1 patch supports Python 3.10. Startup previously rejected it, and cache
+recovery depended on SQLite error attributes introduced in Python 3.11. The fallback
+recognizes exact corruption messages and preserves locked or unknown-error caches.
+All 65 tests and the isolated smoke workflow pass on Python 3.10.20 and 3.14.6 on macOS.
+Cowork setup and its mounted vault access remain unverified in the real app.
 
 Read current test/evaluation and host receipts in the project artifact directory printed by
 ~/.agents/bin/agent-task-dir, under review-artifacts/v2/. The plan is review-artifacts/v2-plan.md.

@@ -107,8 +107,12 @@ def refresh(root, rebuild=False):
     except sqlite3.DatabaseError as error:
         if 'db' in locals():
             db.close()
-        code = getattr(error, 'sqlite_errorcode', 0) & 0xff
-        if code not in (sqlite3.SQLITE_CORRUPT, sqlite3.SQLITE_NOTADB):
+        code = getattr(error, 'sqlite_errorcode', None)
+        if code is not None:
+            corrupt = code & 0xff in (sqlite3.SQLITE_CORRUPT, sqlite3.SQLITE_NOTADB)
+        else:
+            corrupt = str(error) in ('database disk image is malformed', 'file is not a database')
+        if not corrupt:
             raise
         path.unlink(missing_ok=True)
         db = connect(path)

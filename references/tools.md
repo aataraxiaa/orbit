@@ -5,7 +5,7 @@ Do not assume the working directory is the plugin
 or vault. Use an absolute script path and quote shell arguments. Prefer writing JSON
 plans with the host file editor; never interpolate source text into shell commands.
 
-Use the host agent’s existing execution tools with Python 3.11+:
+Use the host agent’s existing execution tools with Python 3.10+:
 
 ```sh
 python3 /absolute/plugin/scripts/orbit.py setup /absolute/vault --create

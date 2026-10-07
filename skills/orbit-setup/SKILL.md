@@ -9,8 +9,10 @@ Connect this host to the user's shared vault and prove it can save and retrieve 
 An existing binding identifies the vault; it does not prove this host has access.
 
 1. Read [host setup](../../references/setup.md) and [tools](../../references/tools.md).
-2. Locate the installed helper and determine where this host's tools execute. Check
-   Python support, current permission policy, `ORBIT_CONFIG`, and
+2. Locate the installed `scripts/orbit.py` and determine where this host's tools execute.
+   Run it with `--help` using the available Python interpreter before setup. Python 3.10+
+   is supported; report the actual command and error if it fails. Check
+   current permission policy, `ORBIT_CONFIG`, and
    `ORBIT_VAULT`. Read the effective config if accessible. Distinguish a denied
    read from a missing binding. Never infer a vault from the repo or plugin location.
 3. Reuse the selected vault unless the user requests a switch. If no selection exists,
