@@ -5,39 +5,26 @@ description: Set up Orbit, choose or create an Obsidian vault, connect this agen
 
 # Set up Orbit
 
-Connect this host to the user's shared vault and prove it can save and retrieve a note.
-An existing binding identifies the vault; it does not prove this host has access.
+Connect this host through Orbit's MCP tools and prove it can save and retrieve a note.
+Read [host setup](../../references/setup.md) and [tools](../../references/tools.md).
 
-1. Read [host setup](../../references/setup.md) and [tools](../../references/tools.md).
-2. Locate the installed `scripts/orbit.py` and determine where this host's tools execute.
-   Run it with `--help` using the available Python interpreter before setup. Python 3.10+
-   is supported; report the actual command and error if it fails. Check
-   current permission policy, `ORBIT_CONFIG`, and
-   `ORBIT_VAULT`. Read the effective config if accessible. Distinguish a denied
-   read from a missing binding. Never infer a vault from the repo or plugin location.
-3. Reuse the selected vault unless the user requests a switch. If no selection exists,
-   ask for an existing vault or a location for a new one. A second agent on the same
-   machine normally shares the binding; it still needs its own access and write check.
-4. Check this host's access before setup writes using the applicable
-   [host procedure](../../references/setup.md). If access is blocked, tell the user
-   exactly which paths need access and give the supported commands or settings edit
-   with their actual paths filled in. Do not silently change host permission settings.
-   Wait for the user to grant access, then retry and verify. A fresh chat alone does
-   not grant access. Preserve the selected paths so setup can resume without asking again.
-5. Run setup with the selected path. Use `--create` only for an explicitly requested
-   new vault. Rerun setup after an interrupted attempt or from another agent; preserve
-   the existing marker, rules, notes, and unknown config fields. Read the rules file reported by doctor, `ORBIT.md` or legacy `SECOND_BRAIN.md`,
-   and follow its conventions. Change existing rules only when the user requests it.
-6. Run doctor, then perform the [setup write check](../../references/setup.md)
-   through this host's tools on every setup, including an already-bound vault. Update
-   the existing setup-check note with its read hash; do not create one note per agent.
-   Search and read back the new receipt. Doctor alone does not prove sandbox write access.
-7. Report the vault, config location, persistent access changes, and checks actually
-   passed in this host. Link the binding and setup-check note using their verified
-   absolute paths from this run; never use placeholder or guessed links. Identify any
-   restart or user action still required. Request a fresh-chat recall check separately;
-   do not claim another host passed until tested.
+1. Discover Orbit's MCP tools and call `orbit_doctor`. If tools are missing, report a
+   failed MCP connection. Do not substitute shell execution and claim setup passed.
+   An unconfigured-vault tool error means the connection works but needs a binding.
+2. Reuse the reported vault unless the user requests a switch. If unconfigured, ask
+   for an existing vault or a location for an explicitly requested new one. Never
+   infer a vault from cwd or plugin location, or create another vault to repair access.
+3. Call `orbit_setup` with the selected absolute path. Use `create: true` only when
+   creating a new vault was requested. On denied access follow the host procedure;
+   preserve the selection and retry after a supported permission grant.
+4. Run `orbit_doctor`. Read its reported rules file with `orbit_read` and follow existing
+   conventions. Preserve identity, rules, unknown config fields and user content.
+5. Perform the [setup write check](../../references/setup.md) through `orbit_apply`,
+   `orbit_search` and `orbit_read`. Update the existing labeled record with its current
+   hash. A diagnostic or no-op write is insufficient.
+6. Report the vault and checks actually passed. A fresh conversation must recall the
+   receipt without rebinding; test each other app separately before claiming support.
 
-Plugin upgrades preserve the binding. A remote or mounted environment may need its own
-config containing the path its tools can access. Never claim local access from a matching
-path string or assume GUI applications inherit shell environment variables.
+Upgrades preserve the binding outside the plugin. Mounted environments may require
+another config containing their actual accessible path to the same vault. Matching
+path strings, a successful installation, and shell tests are not native-host acceptance.

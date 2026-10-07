@@ -17,7 +17,7 @@ def main():
     for name in ('skills', 'references', 'scripts', '.claude-plugin', '.codex-plugin'):
         shutil.copytree(ROOT / name, plugin / name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'eval.py'))
         shipped.update(p.relative_to(ROOT) for p in (ROOT / name).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc' and p.name != 'eval.py')
-    for name in ('README.md', 'LOCAL_TEST.md', 'HANDOFF.md'):
+    for name in ('README.md', 'LOCAL_TEST.md', 'HANDOFF.md', '.mcp.json', '.codex.mcp.json', 'manifest.json'):
         shutil.copy2(ROOT / name, plugin / name)
         shipped.add(Path(name))
     for stale in plugin.rglob('*'):
@@ -31,6 +31,9 @@ def main():
     with zipfile.ZipFile(DEST / 'orbit-plugin.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
         for relative in sorted(shipped):
             archive.write(plugin / relative, relative)
+    with zipfile.ZipFile(DEST / 'orbit.mcpb', 'w', zipfile.ZIP_DEFLATED) as archive:
+        for relative in sorted(shipped):
+            archive.write(plugin / relative, relative)
     with zipfile.ZipFile(DEST / 'orbit-project.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
         project = set(shipped)
         project.update(Path(name) for name in ('AGENTS.md', '.gitignore', 'scripts/eval.py', '.agents/plugins/marketplace.json'))
@@ -42,6 +45,6 @@ def main():
         for relative in ('.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json'):
             archive.write(market / relative, Path('orbit/dist/marketplace') / relative)
         archive.write(DEST / 'orbit-plugin.zip', 'orbit/dist/orbit-plugin.zip')
-    print(json.dumps({'project_zip': str(DEST / 'orbit-project.zip'), 'plugin_zip': str(DEST / 'orbit-plugin.zip'), 'marketplace': str(market)}, indent=2))
+    print(json.dumps({'project_zip': str(DEST / 'orbit-project.zip'), 'plugin_zip': str(DEST / 'orbit-plugin.zip'), 'desktop_extension': str(DEST / 'orbit.mcpb'), 'marketplace': str(market)}, indent=2))
 
 if __name__ == '__main__': main()

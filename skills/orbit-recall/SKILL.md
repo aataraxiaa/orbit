@@ -5,6 +5,10 @@ description: Check Orbit for a topic, retrieve saved decisions or sources, recov
 
 # Recall from Orbit
 
+Use Orbit's MCP tools for all vault operations. Discover the callable tools first.
+If unavailable, report the connection failure and use the setup skill; do not fall
+back to shell commands. Unprefixed operation names below mean the `orbit_` MCP tools.
+
 Read [tools](../../references/tools.md). Use the configured vault; never assume cwd.
 If unconfigured, route to setup. Read the rules file reported by doctor, ORBIT.md or legacy SECOND_BRAIN.md, for conventions when needed.
 

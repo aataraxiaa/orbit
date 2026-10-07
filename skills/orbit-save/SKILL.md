@@ -5,6 +5,10 @@ description: Save selected answers, insights, decisions, conversation context, f
 
 # Save to Orbit
 
+Use Orbit's MCP tools for all vault operations. Discover the callable tools first.
+If unavailable, report the connection failure and use the setup skill; do not fall
+back to shell commands. Unprefixed operation names below mean the `orbit_` MCP tools.
+
 You make the knowledge decisions; tools handle mechanics. Read [format](../../references/format.md)
 and [tools](../../references/tools.md). Establish the vault binding; if absent use setup.
 Read the rules file reported by doctor, ORBIT.md or legacy SECOND_BRAIN.md, and respect existing organization.

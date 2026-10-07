@@ -1,16 +1,22 @@
 # Orbit handoff
 
-Updated 2026-10-07. Orbit v0.2.1 prerelease.
+Updated 2026-10-07. Orbit v0.3.0 prerelease, not yet accepted in all desktop surfaces.
 
 ## Scope
 
-Keep skills plus deterministic Python helpers. No MCP, server, daemon, hooks or background capture.
+The user superseded the no-MCP constraint on 2026-10-07. The target is an MCP-backed
+marketplace plugin for the ChatGPT/Codex and Claude desktop apps, including Cowork.
+CLI support is not an acceptance target. Preserve the Python engine and Markdown
+vault contract. A disposable probe established Codex desktop and Cowork transport. Production-artifact
+save/read, cross-app and fresh-conversation acceptance remain separate gates. Do not
+publish another desktop-support claim based on CLI or helper tests alone.
 The user authorized the Orbit rename and publication to public aataraxiaa/orbit.
 Personal-vault migration remains separate from development and disposable-vault acceptance.
 The public source repository is https://github.com/aataraxiaa/orbit.
 
 ## Modules
 
+- scripts/mcp_server.py exposes validated MCP schemas and delegates to the existing engine.
 - scripts/orbit.py owns setup, config, safe paths, authoritative writes, read and recovery.
 - scripts/retrieval.py owns a machine-local incremental FTS5 passage index, scoped ranking and current evidence checks.
 - scripts/knowledge.py owns catalogs, explicit relationships, durable integration stages and maintenance diagnostics.
@@ -27,8 +33,12 @@ Sources/assets originals cannot participate as canonical identities or ordinary 
 The v0.2.1 patch supports Python 3.10. Startup previously rejected it, and cache
 recovery depended on SQLite error attributes introduced in Python 3.11. The fallback
 recognizes exact corruption messages and preserves locked or unknown-error caches.
-All 65 tests and the isolated smoke workflow pass on Python 3.10.20 and 3.14.6 on macOS.
-Cowork setup and its mounted vault access remain unverified in the real app.
+The v0.3.0 suite has 71 passing tests on Python 3.10.20 and 3.14.6 on macOS.
+The isolated smoke workflow passes on both. Native Codex plugin installation and
+resolved-server setup/save/search/read/fresh-process read pass. The launcher discovers
+an installed supported Python when the app resolves python3 to Apple Python 3.9.
+Production MCP vault setup in Cowork remains unverified in the real app. The probe
+used a native Mac MCP process, separate from the shell sandbox.
 
 Read current test/evaluation and host receipts in the project artifact directory printed by
 ~/.agents/bin/agent-task-dir, under review-artifacts/v2/. The plan is review-artifacts/v2-plan.md.
@@ -39,3 +49,12 @@ Do not claim semantic matching, arbitrary YAML support, whole-vault transactions
 
 Run python3 -m unittest discover -s tests -v, python3 scripts/smoke.py and python3 scripts/package.py
 before handing off a changed artifact. Use disposable vaults with isolated ORBIT_CONFIG and ORBIT_CACHE.
+
+## v0.3 candidate
+
+MCP is the skills' primary route. Codex and Claude have distinct launch manifests; the
+Claude variable is not expanded by Codex. The MCPB is a separate Claude Chat extension
+artifact. None of these artifacts installs Python; the desktop runtime needs Python
+3.10+ on PATH or in a standard Homebrew bin directory. Ordinary ChatGPT chat remains unverified and no remote
+server or vault upload is included. Publication and host receipts must identify the
+exact candidate and distinguish production behavior from the disposable probe.

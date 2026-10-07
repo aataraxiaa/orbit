@@ -21,7 +21,7 @@ class PackageTest(unittest.TestCase):
             manifest = json.loads((ROOT / name / 'plugin.json').read_text())
             self.assertEqual(manifest['name'], 'orbit')
             self.assertNotIn('hooks', manifest)
-            self.assertNotIn('mcpServers', manifest)
+            self.assertTrue((ROOT / manifest['mcpServers']).is_file())
             self.assertTrue((ROOT / manifest['skills']).is_dir())
 
     def test_distributable(self):
@@ -32,6 +32,8 @@ class PackageTest(unittest.TestCase):
             self.assertIn('.claude-plugin/plugin.json', names)
             self.assertIn('.codex-plugin/plugin.json', names)
             self.assertIn('scripts/orbit.py', names)
+            for required in ('scripts/mcp_server.py', '.mcp.json', '.codex.mcp.json', 'manifest.json'):
+                self.assertIn(required, names)
             self.assertFalse(any('__pycache__' in n or 'write.lock' in n for n in names))
         for path in ('.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json'):
             manifest = json.loads((ROOT / 'dist/marketplace' / path).read_text())

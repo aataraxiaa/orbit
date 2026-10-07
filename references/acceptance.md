@@ -5,8 +5,9 @@
 Run tests/test_orbit.py for creation and binding, fresh-process recall, manual edits,
 canonical/alias ranking, byte-exact capture, deduplication, cross-note links, ambiguity,
 conflicts, path containment, recoverable interruptions and protection of later edits.
-Package tests verify manifests, skill references and ZIP, including the absence of
-server configuration.
+Package tests verify manifests, skill references and ZIP, including host-specific MCP launch configuration and the desktop extension.
+MCP subprocess tests exercise setup, conflict-checked save, search/read and restart
+binding. They also reject invalid JSON arguments and launch extracted packages.
 
 ## Agent behavior (manual evaluation; not claimed tested by unit tests)
 
@@ -33,8 +34,8 @@ Use an isolated sample vault and ordinary chat prompts:
 
 ## Host matrix (requires the actual applications)
 
-For Codex, Claude Code, Claude Desktop chat, and Cowork separately:
-- Install plugin, load each skill, resolve its bundled references/scripts.
+For Codex desktop, Claude Desktop Chat via MCPB, and Cowork separately:
+- Install the exact artifact, discover MCP tools and call doctor. Plugin skills alone do not pass.
 - Choose or create vault; verify persistent config and scoped access.
 - Save/read/search through the actual execution route.
 - Start a fresh conversation outside the vault's working directory; repeat recall.
@@ -42,7 +43,9 @@ For Codex, Claude Code, Claude Desktop chat, and Cowork separately:
 - Restart the app; verify the binding and required tools still work.
 - Check missing permissions produce a repair path, never an accidental second vault.
 
-These checks are outstanding until performed on the target host versions. Plugin support
+A disposable probe passed Codex desktop and Cowork transport. These production
+checks remain outstanding until performed on the exact artifact and target host versions.
+Ordinary ChatGPT chat is a separate unverified surface. CLI support is not an acceptance target. Plugin support
 alone does not establish local filesystem reachability. No GUI smoke test is implied by
 a successful ZIP build or by a test in the development environment.
 

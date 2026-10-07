@@ -5,6 +5,10 @@ description: Explicitly review or repair Orbit, correct saved knowledge, find me
 
 # Maintain Orbit
 
+Use Orbit's MCP tools for all vault operations. Discover the callable tools first.
+If unavailable, report the connection failure and use the setup skill; do not fall
+back to shell commands. Unprefixed operation names below mean the `orbit_` MCP tools.
+
 Read [format](../../references/format.md) and [tools](../../references/tools.md).
 Scope work to the user's request. Run maintain for bounded integration and provenance
 signals; run catalog and relations for navigation and recorded relationship evidence.
@@ -29,5 +33,5 @@ A report should name concrete findings and affected paths, the changes actually 
 and any remaining issues. Mechanical validation does not prove factual correctness.
 
 Resume incomplete integrations from their durable records. Keep operation recovery
-separate from semantic processing. Rebuild a corrupt search cache with index --rebuild;
+separate from semantic processing. Rebuild a corrupt search cache with `orbit_index` with `rebuild: true`;
 never repair it by rewriting authoritative notes. Review only affected maps and claims.

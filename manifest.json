@@ -1,0 +1,26 @@
+{
+  "manifest_version": "0.3",
+  "name": "orbit",
+  "display_name": "Orbit",
+  "version": "0.3.0",
+  "description": "Save and recall knowledge in your own Markdown vault.",
+  "author": {
+    "name": "Orbit"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "scripts/mcp_server.py",
+    "mcp_config": {
+      "command": "python3",
+      "args": [
+        "${__dirname}/scripts/mcp_server.py"
+      ]
+    }
+  },
+  "compatibility": {
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  },
+  "tools_generated": true
+}

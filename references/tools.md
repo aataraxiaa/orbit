@@ -1,27 +1,24 @@
 # Tool access
 
-Resolve the installed plugin root from the skill's directory using `../..`.
-Do not assume the working directory is the plugin
-or vault. Use an absolute script path and quote shell arguments. Prefer writing JSON
-plans with the host file editor; never interpolate source text into shell commands.
+Use the installed Orbit MCP tools. Their names are `orbit_setup`, `orbit_doctor`,
+`orbit_search`, `orbit_read`, `orbit_context`, `orbit_apply`, `orbit_capture`,
+`orbit_recover`, `orbit_index`, `orbit_catalog`, `orbit_relations`, `orbit_maintain`,
+and `orbit_integration`. The host may prefix names with its MCP server namespace.
+Discover the actual tools rather than guessing a callable name. Missing tools are
+an installation/startup failure; never substitute shell execution and claim MCP works.
 
-Use the host agent’s existing execution tools with Python 3.10+:
+Each tool accepts a JSON object. Tool discovery provides explicit argument schemas.
+Pass `plan` directly to `orbit_apply` and `record` directly to `orbit_integration`;
+no temporary JSON files or shell quoting are needed. `orbit_read` uses `path`, `start`
+and `count`. `orbit_search` uses `query`, optional `scope` and `limit`.
 
-```sh
-python3 /absolute/plugin/scripts/orbit.py setup /absolute/vault --create
-python3 /absolute/plugin/scripts/orbit.py doctor
-python3 /absolute/plugin/scripts/orbit.py search 'deployment rollback'
-python3 /absolute/plugin/scripts/orbit.py read 'Knowledge/Atlas.md'
-python3 /absolute/plugin/scripts/orbit.py context 'Knowledge/Atlas' --depth 1
-python3 /absolute/plugin/scripts/orbit.py capture /absolute/source.pdf
-python3 /absolute/plugin/scripts/orbit.py apply /absolute/plan.json --dry-run
-python3 /absolute/plugin/scripts/orbit.py apply /absolute/plan.json
-```
+Vault precedence is the optional absolute `vault` argument, ORBIT_VAULT, then persistent
+config. `orbit_setup` takes an explicit absolute `path`, optional `create` and `bind`.
+ORBIT_CONFIG selects config at process launch. Never infer the vault from cwd. See
+[setup](setup.md) for desktop installation, bindings and permissions.
 
-Vault precedence: `--vault PATH`, ORBIT_VAULT, persistent config at
-`~/.config/orbit/config.json`. ORBIT_CONFIG overrides config location.
-An explicit vault selection is never inferred from cwd. Each machine/sandbox must
-bind a path it can actually access. Do not assume a GUI process inherits shell env vars.
+The optional `scripts/orbit.py` CLI remains available for engineering and recovery.
+It is not the desktop skill's execution route or evidence of a working MCP connection.
 
 ## Save plan
 
@@ -62,8 +59,8 @@ returns incoming and outgoing link neighbors with bounded depth, not their full 
 
 ## Recovery
 
-`doctor` lists pending journal ids. `recover ID` completes a prepared operation;
-`recover ID --rollback` restores its before-state. Both refuse subsequent user edits.
+`doctor` lists pending journal ids. `orbit_recover` with `operation: ID` completes a prepared operation;
+`orbit_recover` with `operation: ID, rollback: true` restores its before-state. Both refuse subsequent user edits.
 On abrupt process death, a write.lock may remain. Inspect .orbit/write.lock,
 verify the owner process is no longer running and no host is writing, then remove only
 that stale lock before recovery. Do not auto-expire a lock on elapsed time alone.
@@ -77,17 +74,11 @@ The cache defaults to `cache/` beside the selected config file; ORBIT_CACHE can
 select another machine-local directory. Never put caches inside the synced vault.
 The cache is rebuildable. Notes and integration records are authoritative.
 
-```sh
-python3 /absolute/plugin/scripts/orbit.py index
-python3 /absolute/plugin/scripts/orbit.py index --rebuild
-python3 /absolute/plugin/scripts/orbit.py search 'rollback decision' --scope atlas
-python3 /absolute/plugin/scripts/orbit.py catalog --limit 50 --offset 0
-python3 /absolute/plugin/scripts/orbit.py catalog --scope atlas
-python3 /absolute/plugin/scripts/orbit.py relations 'Knowledge/Atlas'
-python3 /absolute/plugin/scripts/orbit.py maintain --limit 20
-python3 /absolute/plugin/scripts/orbit.py integration
-python3 /absolute/plugin/scripts/orbit.py integration /absolute/update.json
-```
+Call `orbit_index` with `rebuild: true` to rebuild the cache. Use `orbit_catalog`
+with `limit`, `offset` and optional `scope` for pagination. `orbit_relations` accepts
+an optional `target`. `orbit_maintain` accepts a bounded `limit`. `orbit_integration`
+without `record` lists processing records; pass the update object below to advance one.
+
 
 Search scope matches exact project metadata or a vault-relative path prefix. Catalog
 scope matches project or topic metadata. Search returns the best passage and opening
@@ -111,7 +102,7 @@ the live repository before using a historical claim as current guidance.
 ## Advance a source integration
 
 Capture returns a `processing` record containing source_sha256 and version. Save extracted
-text in a source note using apply. Then submit an update file using the following shape.
+text in a source note using apply. Then submit a `record` object to `orbit_integration` using the following shape.
 All note hashes come from read; operation IDs come from committed apply receipts.
 
 ```json
@@ -138,6 +129,6 @@ retries converge. If later edits invalidate verified evidence, maintenance repor
 fact; revise evidence and reverify deliberately rather than ignoring the change.
 
 If external edits make both recovery and rollback conflict, inspect the prepared journal
-and current notes. `recover ID --abandon` marks that operation abandoned without changing
+and current notes. `orbit_recover` with `operation: ID, abandon: true` marks that operation abandoned without changing
 any note. It preserves partial writes and records current hashes, then permits a new plan
 based on fresh reads. This is explicit conflict settlement, not successful completion.
