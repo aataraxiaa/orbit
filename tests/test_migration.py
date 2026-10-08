@@ -74,6 +74,71 @@ class MigrationTest(unittest.TestCase):
         with self.assertRaisesRegex(orbit.OrbitError, 'already exists'):
             migration.migrate(self.root)
 
+    def test_project_field_resolves_decision_and_session_without_metadata_changes(self):
+        self.put('Old/Atlas.md', note('atlas', 'project', 'Mobile Chats and Tabs component',
+                                     project='Mobile Chats and Tabs'))
+        self.put('Old/Decision.md', note('decision', 'decision', 'Decision',
+                                        project='Mobile Chats and Tabs'))
+        self.put('Old/Session.md', note('session', 'session', 'Session',
+                                       project='mobile chats and tabs'))
+        self.put('Knowledge/Related.md', note('related', 'knowledge', 'Related',
+                                             project='Mobile Chats and Tabs'))
+        before = self.snapshot()
+        preview = migration.migrate(self.root)
+        self.assertEqual(before, self.snapshot())
+        result = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        self.assertTrue(result['verified'])
+        folder = 'Projects/Mobile Chats and Tabs component/'
+        for old, new in [('Old/Atlas.md', 'Overview.md'),
+                         ('Old/Decision.md', 'Decisions/Decision.md'),
+                         ('Old/Session.md', 'Sessions/Session.md')]:
+            self.assertEqual((self.root / (folder + new)).read_bytes(), before[old])
+        self.assertEqual(migration.migrate(self.root)['status'], 'unchanged')
+        migration.migrate(self.root, 'rollback', operation=result['operation'])
+        self.assertEqual(before, self.snapshot())
+
+    def test_project_field_collision_refuses_without_changes(self):
+        self.put('Old/Atlas.md', note('atlas', 'project', 'Atlas component', project='Shared'))
+        self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Shared'))
+        for title, fields in [('Shared', {}), ('Other component', {'project': 'Shared'})]:
+            with self.subTest(title=title):
+                self.put('Other.md', note('other', 'project', title, **fields))
+                before = self.snapshot()
+                with self.assertRaisesRegex(orbit.OrbitError, 'Ambiguous project'):
+                    migration.migrate(self.root)
+                self.assertEqual(before, self.snapshot())
+
+    def test_previous_release_format_two_is_compatible_without_changes(self):
+        preview = migration.migrate(self.root)
+        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        marker = json.loads((self.root / '.orbit/vault.json').read_bytes())
+        marker['orbit_version'] = '0.4.0'
+        self.put('.orbit/vault.json', json.dumps(marker))
+        before = self.snapshot()
+        result = migration.migrate(self.root)
+        self.assertEqual(result['status'], 'unchanged')
+        self.assertEqual(result['source_version'], '0.4.0')
+        self.assertEqual(result['target_version'], '0.4.1')
+        self.assertTrue(result['compatible'])
+        self.assertEqual(before, self.snapshot())
+
+    def test_missing_project_refuses_instead_of_guessing_sole_project(self):
+        self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Missing'))
+        before = self.snapshot()
+        with self.assertRaisesRegex(orbit.OrbitError, 'No matching project'):
+            migration.migrate(self.root)
+        self.assertEqual(before, self.snapshot())
+
+    def test_project_field_requires_scalar_string(self):
+        self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Shared'))
+        for value in (['Shared'], ['Shared', 'Other']):
+            with self.subTest(value=value):
+                self.put('Old/Atlas.md', note('atlas', 'project', 'Atlas', project=value))
+                before = self.snapshot()
+                with self.assertRaisesRegex(orbit.OrbitError, 'No matching project'):
+                    migration.migrate(self.root)
+                self.assertEqual(before, self.snapshot())
+
     def interrupt(self):
         preview = migration.migrate(self.root)
         atomic = orbit.atomic
@@ -121,7 +186,7 @@ class MigrationTest(unittest.TestCase):
         self.put('.orbit/vault.json', '{"schema":1,"id":"stable"}')
         self.put('Other.md', note('other', 'project', 'Atlas'))
         self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Atlas'))
-        with self.assertRaisesRegex(orbit.OrbitError, 'unambiguous'):
+        with self.assertRaisesRegex(orbit.OrbitError, 'Ambiguous project'):
             migration.migrate(self.root)
 
     def test_unsupported_links_and_metadata_links_refuse(self):
