@@ -8,7 +8,7 @@ from urllib.parse import quote, unquote, urlsplit
 
 import orbit
 
-TARGET = '0.4.0'
+TARGET = '0.4.1'
 FORMAT = 2
 
 
@@ -65,6 +65,10 @@ def _segment(value):
 def _destinations(notes):
     projects = [n for n in notes if n['type'] == 'project']
     identities = orbit.identities(projects)
+    for project in projects:
+        name = project['meta'].get('project')
+        if isinstance(name, str) and name.strip():
+            identities[name.casefold()].add(project['path'])
     mapping = {}
     warnings = []
     for n in notes:
@@ -78,9 +82,13 @@ def _destinations(notes):
             mapping[old] = 'Projects/' + _segment(n['title']) + '/Overview.md'
         elif kind in ('decision', 'session'):
             project = orbit.strings(n['meta'].get('project'))
-            matches = orbit.resolve(project[0], identities) if len(project) == 1 else []
-            if len(matches) != 1:
+            if len(project) != 1:
                 raise orbit.OrbitError('A decision/session needs one unambiguous project: ' + old)
+            matches = orbit.resolve(project[0], identities)
+            if not matches:
+                raise orbit.OrbitError('No matching project for ' + old + ': ' + project[0])
+            if len(matches) > 1:
+                raise orbit.OrbitError('Ambiguous project for ' + old + ': ' + project[0] + ' matches ' + ', '.join(matches))
             owner = next(p for p in projects if p['path'] == matches[0])
             folder = 'Decisions' if kind == 'decision' else 'Sessions'
             mapping[old] = f"Projects/{_segment(owner['title'])}/{folder}/{Path(old).name}"

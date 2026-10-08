@@ -4,7 +4,7 @@ A plugin for saving, connecting, and recalling knowledge in your own Obsidian va
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.4.0 adds structured notes and recoverable migrations and remains a desktop prerelease. Markdown and preserved
+Version 0.4.1 adds structured notes and recoverable migrations and remains a desktop prerelease. Markdown and preserved
 sources remain authoritative. No cloud service, scheduled capture, hooks or required
 Obsidian community plugin. Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew
 bin directories when `python3` is older; neither the plugin nor MCPB installs Python. Search uses SQLite FTS5.
@@ -21,7 +21,7 @@ tools, bind your selected vault, save a labeled receipt and read it back. Instal
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.4.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.4.0)
+same engine. Download it from [v0.4.1](https://github.com/aataraxiaa/orbit/releases/tag/v0.4.1)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary

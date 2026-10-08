@@ -1,6 +1,6 @@
 # Format 2 compatibility
 
-Call `orbit_migrate` with `action: "plan"` and `target_version: "0.4.0"`.
+Call `orbit_migrate` with `action: "plan"` and `target_version: "0.4.1"`.
 An unchanged result confirms the engine's format and schema compatibility checks.
 Report any schema warnings separately. This does not prove semantic correctness
 or mean that every manually added note follows the standard organization.

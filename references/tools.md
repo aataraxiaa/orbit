@@ -152,7 +152,7 @@ batch. The common identity, metadata preservation and link checks remain errors.
 pending operation IDs. A legacy marker without a release reports unknown.
 
 `orbit_migrate` accepts `action` (plan, apply, resume, rollback), optional
-`target_version`, `plan_id`, and `operation`. The installed target is 0.4.0.
+`target_version`, `plan_id`, and `operation`. The installed target is 0.4.1.
 
 - Plan is the default and writes nothing. It returns proposed moves, warnings,
   changes, source/target formats and a plan_id bound to the current inputs.

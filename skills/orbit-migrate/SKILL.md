@@ -18,8 +18,8 @@ have an unknown source release. Preserve that uncertainty.
 
 | Source format | Target format and release | Instructions |
 |---|---|---|
-| 1, including markers without data_format | 2 in Orbit 0.4.0 | [Format 1 to 2](references/format-1-to-2.md) |
-| 2 | 2 in Orbit 0.4.0 | [Compatibility check](references/format-2-check.md) |
+| 1, including markers without data_format | 2 in Orbit 0.4.1 | [Format 1 to 2](references/format-1-to-2.md) |
+| 2 | 2 in Orbit 0.4.1 | [Compatibility check](references/format-2-check.md) |
 | Prepared migration | Recorded target | [Recovery](references/recovery.md) |
 | Any other pair or downgrade | Unsupported | Stop and report the observed versions. Do not modify the marker to bypass routing. |
 

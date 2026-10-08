@@ -165,7 +165,7 @@ class MCPTest(unittest.TestCase):
                     archive.extractall(extracted)
                 if archive_name.endswith('.mcpb'):
                     manifest = json.loads((extracted / 'manifest.json').read_text())
-                    self.assertEqual(manifest['version'], '0.4.0')
+                    self.assertEqual(manifest['version'], '0.4.1')
                     transport = manifest['server']['mcp_config']
                     configurations = [(transport, '${__dirname}', None)]
                 else:

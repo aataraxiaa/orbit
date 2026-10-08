@@ -1,9 +1,12 @@
 # Format 1 to format 2
 
-Target Orbit 0.4.0. A marker without data_format is format 1; its exact originating
+Target Orbit 0.4.1. A marker without data_format is format 1; its exact originating
 release may be unknown. The engine routes by format and refuses other targets.
 
-The preview uses explicit note types and project identities. Projects move to
+The preview uses explicit note types and project identities, including the single
+project field declared by a project note. A shared label must resolve uniquely;
+title, ID, path and alias matches remain supported. Do not rename valid notes to
+work around a missing project-field match in Orbit 0.4.0; update the plugin first. Projects move to
 Projects/<project>/Overview.md. Their decisions and sessions move beneath that
 project. People, sources, maps, schemas, and reusable knowledge use the standard
 top-level folders. Untyped notes remain intact and are reported for classification.
@@ -17,7 +20,7 @@ that would break are explicit blockers. Do not work around them with broad text
 replacement. Historical operation receipts remain unchanged; affected source
 integration receipts are flagged for re-verification.
 
-Call `orbit_migrate` with `action: "apply"`, `target_version: "0.4.0"`, and the
+Call `orbit_migrate` with `action: "apply"`, `target_version: "0.4.1"`, and the
 preview's `plan_id`. It rechecks the plan under the vault writer lock and saves
 exact before-images in a durable migration journal before changing files. Keep
 that journal as the recoverable backup. It contains private note content.

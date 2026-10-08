@@ -71,3 +71,11 @@ receipts remain preserved; changed integration evidence is flagged for review.
 The existing suite results above describe v0.3.0, not this candidate. Current
 release test receipts are in review-artifacts/structure-release/. No personal
 vault migration or native desktop acceptance is inferred from those checks.
+
+## 0.4.1 migration patch
+
+The 0.4.0 migration project lookup omitted a project note's own project field.
+A decision could use the same project field as the sole project note yet fail
+when that note had a different display title. The patch accepts explicit unique
+project-field identities while preserving collision refusal. Data format stays 2;
+existing format-2 vaults require only the migration skill's compatibility check.
