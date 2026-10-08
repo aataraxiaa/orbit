@@ -9,7 +9,7 @@ import re
 import sqlite3
 import stat
 
-SCHEMA = 3
+SCHEMA = 4
 BUDGET = 12000
 
 
@@ -87,11 +87,13 @@ def connect(path):
 def initialize(db):
     db.executescript('''
         CREATE TABLE IF NOT EXISTS notes(path TEXT PRIMARY KEY, signature TEXT, sha256 TEXT,
-            identity TEXT, title TEXT, aliases TEXT, project TEXT, status TEXT);
+            identity TEXT, title TEXT, aliases TEXT, project TEXT, status TEXT,
+            note_type TEXT, summary TEXT, schema_version TEXT, observed TEXT, topics TEXT);
+        CREATE INDEX IF NOT EXISTS note_kind ON notes(note_type,status,project);
         CREATE TABLE IF NOT EXISTS passages(id INTEGER PRIMARY KEY, path TEXT, start INTEGER,
             end INTEGER, section TEXT, body TEXT);
         CREATE INDEX IF NOT EXISTS passage_path ON passages(path);
-        CREATE VIRTUAL TABLE IF NOT EXISTS search USING fts5(title, aliases, section, body, tokenize='porter unicode61');
+        CREATE VIRTUAL TABLE IF NOT EXISTS search USING fts5(title, aliases, section, body, summary, tokenize='porter unicode61');
     ''')
     db.execute(f'PRAGMA user_version={SCHEMA}')
 
@@ -136,12 +138,14 @@ def refresh(root, rebuild=False):
                 match = re.search(r'^#\s+(.+)$', text, re.M)
                 title = str(meta.get('title') or (match[1] if match else Path(relative).stem))
                 aliases = orbit.strings(meta.get('aliases'))
-                db.execute('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?)', (relative, current[relative], orbit.digest(raw),
-                    str(meta.get('id', '')), title, json.dumps(aliases), str(meta.get('project', '')), str(meta.get('status', 'current'))))
+                summary = str(meta.get('summary', ''))
+                db.execute('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)', (relative, current[relative], orbit.digest(raw),
+                    str(meta.get('id', '')), title, json.dumps(aliases), str(meta.get('project', '')), str(meta.get('status', 'current')),
+                    str(meta.get('type', '')), summary, str(meta.get('schema_version', '')), str(meta.get('observed', '')), json.dumps(orbit.strings(meta.get('topics')))))
                 for start, end, section, body in passages(text):
                     rowid = db.execute('INSERT INTO passages(path,start,end,section,body) VALUES(?,?,?,?,?)',
                         (relative, start, end, section, body)).lastrowid
-                    db.execute('INSERT INTO search(rowid,title,aliases,section,body) VALUES(?,?,?,?,?)', (rowid,title,' '.join(aliases),section,body))
+                    db.execute('INSERT INTO search(rowid,title,aliases,section,body,summary) VALUES(?,?,?,?,?,?)', (rowid,title,' '.join(aliases),section,body,summary))
         return {'mode': 'sqlite-fts5-passages', 'cache': str(path), 'notes': len(current),
             'passages': db.execute('SELECT count(*) FROM passages').fetchone()[0],
             'inventoried': len(current), 'reparsed': len(changed), 'deleted': len(removed)}
@@ -149,7 +153,41 @@ def refresh(root, rebuild=False):
         db.close()
 
 
-def search(root, query, limit=8, scope=None):
+def catalog(root, scope=None, limit=50, offset=0, note_type=None, status=None):
+    freshness = refresh(root)
+    db = connect(Path(freshness['cache']))
+    try:
+        sql = "FROM notes WHERE path NOT IN ('ORBIT.md','SECOND_BRAIN.md')"
+        params = []
+        if note_type:
+            sql += ' AND note_type=?'
+            params.append(note_type)
+        else:
+            sql += " AND note_type!='schema'"
+        if status:
+            sql += ' AND status=?'
+            params.append(status)
+        if scope:
+            prefix = scope.rstrip('/') + '/'
+            sql += ' AND (project=? OR path=? OR substr(path,1,?)=? OR EXISTS (SELECT 1 FROM json_each(notes.topics) WHERE value=?))'
+            params.extend([scope, scope, len(prefix), prefix, scope])
+        offset = max(0, offset)
+        with db:
+            total = db.execute('SELECT count(*) ' + sql, params).fetchone()[0]
+            rows = db.execute('SELECT * ' + sql + " ORDER BY note_type!='map',lower(title),path LIMIT ? OFFSET ?",
+                              [*params, max(1, min(limit, 200)), offset]).fetchall()
+        entries = [{'id': r['identity'] or None, 'path': r['path'], 'title': r['title'], 'type': r['note_type'],
+                    'status': r['status'], 'summary': r['summary'], 'project': r['project'] or None,
+                    'topics': json.loads(r['topics']), 'schema_version': r['schema_version'] or None,
+                    'observed': r['observed'] or None} for r in rows]
+        markdown = '# Knowledge catalog\n\n' + '\n'.join(f"- [[{n['path']}|{n['title']}]] — {n['summary']}" for n in entries) + '\n'
+        return {'total': total, 'entries': entries, 'offset': offset, 'more': offset + len(entries) < total,
+                'markdown': markdown, 'written': False, 'freshness': freshness}
+    finally:
+        db.close()
+
+
+def search(root, query, limit=8, scope=None, note_type=None, status=None):
     import orbit
     terms = list(dict.fromkeys(orbit.tokens(query)))
     freshness = refresh(root)
@@ -166,10 +204,19 @@ def search(root, query, limit=8, scope=None):
         db = connect(Path(freshness['cache']))
         try:
             db.execute('BEGIN')
-            sql = '''SELECT n.*,p.start,p.end,p.section,p.id AS passage_id,bm25(search,5,4,2,1) AS rank
+            sql = '''SELECT n.*,p.start,p.end,p.section,p.id AS passage_id,bm25(search,5,4,2,1,3) AS rank
                 FROM search JOIN passages p ON p.id=search.rowid JOIN notes n ON n.path=p.path
                 WHERE search MATCH ?'''
             params = [match]
+            sql += " AND n.path NOT IN ('ORBIT.md','SECOND_BRAIN.md')"
+            if note_type:
+                sql += ' AND n.note_type=?'
+                params.append(note_type)
+            else:
+                sql += " AND n.note_type!='schema'"
+            if status:
+                sql += ' AND n.status=?'
+                params.append(status)
             if scope:
                 sql += " AND (n.project=? OR n.path=? OR substr(n.path,1,?)=?)"
                 prefix = scope.rstrip('/') + '/'
@@ -207,8 +254,10 @@ def search(root, query, limit=8, scope=None):
             opening = overview[row['path']]
             excerpts[opening['start']] = opening
         candidate = {'path': row['path'], 'title': row['title'], 'id': row['identity'] or None,
-            'project': row['project'] or None, 'status': row['status'], 'sha256': row['sha256'],
-            'score': -row['rank'], 'matched': [t for t in terms if t in set(orbit.tokens(row['body'] + ' ' + row['title'] + ' ' + ' '.join(json.loads(row['aliases']))))],
+            'project': row['project'] or None, 'status': row['status'], 'type': row['note_type'],
+            'schema_version': row['schema_version'] or None, 'observed': row['observed'] or None, 'sha256': row['sha256'],
+            'summary': row['summary'],
+            'score': -row['rank'], 'matched': [t for t in terms if t in set(orbit.tokens(row['body'] + ' ' + row['title'] + ' ' + row['summary'] + ' ' + ' '.join(json.loads(row['aliases']))))],
             'start': min(excerpts), 'end': max(p['end'] for p in excerpts.values()),
             'section': row['section'], 'snippets': []}
         result['results'].append(candidate)

@@ -206,7 +206,7 @@ class VaultTest(unittest.TestCase):
 
     def test_recovery_preserves_crlf_bytes(self):
         original = note().replace('\n', '\r\n')
-        p = self.root / 'Knowledge/Atlas.md'; p.parent.mkdir(); p.write_bytes(original.encode())
+        p = self.root / 'Knowledge/Atlas.md'; p.parent.mkdir(exist_ok=True); p.write_bytes(original.encode())
         opid = '00000000-0000-0000-0000-000000000002'
         record = {'id': opid, 'status': 'prepared', 'writes': [{'path': 'Knowledge/Atlas.md', 'before': original, 'after': note(body='Changed')}]}
         orbit.atomic(self.root / '.orbit/operations' / (opid + '.json'), orbit.encode(record))

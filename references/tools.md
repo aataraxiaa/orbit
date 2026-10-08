@@ -3,7 +3,7 @@
 Use the installed Orbit MCP tools. Their names are `orbit_setup`, `orbit_doctor`,
 `orbit_search`, `orbit_read`, `orbit_context`, `orbit_apply`, `orbit_capture`,
 `orbit_recover`, `orbit_index`, `orbit_catalog`, `orbit_relations`, `orbit_maintain`,
-and `orbit_integration`. The host may prefix names with its MCP server namespace.
+`orbit_integration`, `orbit_schema`, and `orbit_migrate`. The host may prefix names with its MCP server namespace.
 Discover the actual tools rather than guessing a callable name. Missing tools are
 an installation/startup failure; never substitute shell execution and claim MCP works.
 
@@ -132,3 +132,41 @@ If external edits make both recovery and rollback conflict, inspect the prepared
 and current notes. `orbit_recover` with `operation: ID, abandon: true` marks that operation abandoned without changing
 any note. It preserves partial writes and records current hashes, then permits a new plan
 based on fresh reads. This is explicit conflict settlement, not successful completion.
+
+## Schemas and typed retrieval
+
+Search and catalog accept optional `note_type` and `status` strings. Filters apply
+before result limits. Example: `{"query":"rollout","note_type":"session","scope":"atlas"}`.
+Results include type, observed date, schema version and current content hash.
+Default catalog/search exclude schemas and vault rules; select `note_type: "schema"`
+explicitly. A scoped or typed search never falls back to unfiltered results.
+
+`orbit_schema` accepts optional `note_type`. It returns effective definitions and
+findings. Definitions come from bundled templates overridden by Schemas/*.md.
+`orbit_apply` returns schema warnings; strict findings refuse the entire proposed
+batch. The common identity, metadata preservation and link checks remain errors.
+
+## Versioned migration
+
+`orbit_doctor` includes migration data_format, source_version, target_version and
+pending operation IDs. A legacy marker without a release reports unknown.
+
+`orbit_migrate` accepts `action` (plan, apply, resume, rollback), optional
+`target_version`, `plan_id`, and `operation`. The installed target is 0.4.0.
+
+- Plan is the default and writes nothing. It returns proposed moves, warnings,
+  changes, source/target formats and a plan_id bound to the current inputs.
+- Apply requires the preview plan_id and recomputes under the writer lock. The
+  journal contains exact before-images and backup hashes before any file changes.
+- Resume requires an operation ID and continues its recorded direction.
+- Rollback requires an operation ID and restores before-images, including a
+  previously committed migration if affected files still match recorded states.
+
+Recovery preflights all affected files and refuses subsequent edits. The marker
+is written last. Prepared migrations block normal writes and coherent graph/search
+reads. Explicit note reads remain available for inspection. Source assets are never
+rewritten. Affected integration receipts preserve historical paths/hashes and flag
+verification as stale. Rebuild SQLite after commit or rollback. Exact backups live
+in the returned migration journal path and must be protected like private notes.
+
+See the single [migration skill](../skills/orbit-migrate/SKILL.md) for supported routes.

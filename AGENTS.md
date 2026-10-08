@@ -13,3 +13,15 @@ vault or code-directory location. Preserve unknown note fields and user-written 
 Run `python3 -m unittest discover -s tests -v`, `python3 scripts/smoke.py`, and rebuild
 with `python3 scripts/package.py` before handing off a changed installable artifact.
 Distinguish mechanical test results from untested real-host/LLM behavior.
+
+## Release migrations
+
+Every Orbit release must include an up-to-date migration skill for upgrading existing
+Orbit data from the previous release to the new release. Cover changes to schemas,
+metadata, folder layout, and persistent state. If no migration is needed, the skill
+must verify compatibility and report that no changes are required.
+Preserve stable note identities, links, original sources, unknown metadata, and
+user-written content. Provide a dry run, a recoverable backup, and safe reruns.
+Verify the migration on disposable copies of older vaults, including an interrupted
+run and a repeated run, before release. Do not release a data-format change without
+a tested migration path and documented supported source versions.

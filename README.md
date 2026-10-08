@@ -4,7 +4,7 @@ A plugin for saving, connecting, and recalling knowledge in your own Obsidian va
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.3.0 is a desktop-integration prerelease. Markdown and preserved
+Version 0.4.0 adds structured notes and recoverable migrations and remains a desktop prerelease. Markdown and preserved
 sources remain authoritative. No cloud service, scheduled capture, hooks or required
 Obsidian community plugin. Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew
 bin directories when `python3` is older; neither the plugin nor MCPB installs Python. Search uses SQLite FTS5.
@@ -21,7 +21,7 @@ tools, bind your selected vault, save a labeled receipt and read it back. Instal
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.3.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.3.0)
+same engine. Download it from [v0.4.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.4.0)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
@@ -32,7 +32,7 @@ A disposable probe established transport in Codex desktop and Cowork. That is no
 acceptance of this production artifact. See [installation and testing](LOCAL_TEST.md)
 and [acceptance](references/acceptance.md) for the remaining native checks.
 
-## Use the four skills
+## Use the five skills
 
 | Skill | Behavior |
 |---|---|
@@ -40,6 +40,7 @@ and [acceptance](references/acceptance.md) for the remaining native checks.
 | orbit-save | Integrate selected content, update affected knowledge and maps, verify recall |
 | orbit-recall | Orient through maps or retrieve scoped evidence, follow relationships, cite sources |
 | orbit-maintain | Inspect incomplete integration, stale evidence, links and provenance; repair requested issues |
+| orbit-migrate | Preview, apply, resume, or roll back the appropriate versioned migration |
 
 ## Set up and inspect
 
@@ -48,7 +49,7 @@ and [acceptance](references/acceptance.md) for the remaining native checks.
 with current hashes. The plugin's skills guide source interpretation and verification.
 See [tool contracts](references/tools.md) for all operations.
 
-Setup preserves existing conventions and notes. The config defaults to ~/.config/orbit/config.json.
+Fresh setup creates format-2 folders and schema notes. Setup preserves existing notes; upgrading their organization is explicit. The config defaults to ~/.config/orbit/config.json.
 ORBIT_CONFIG isolates a different config. ORBIT_VAULT and the explicit `vault` argument explicitly override the binding.
 The helper never infers a vault from the working directory.
 
@@ -57,12 +58,56 @@ when no new config or explicit override is selected, and accepts `SECOND_BRAIN_*
 variables when their `ORBIT_*` equivalents are unset. Existing vaults retain `.second-brain`
 state and `SECOND_BRAIN.md` rules, including their UUIDs, recovery records and shared writer lock.
 New vaults use `.orbit` and `ORBIT.md`. Conflicting old and new state directories or rules files
-require manual resolution. Orbit does not rename user-owned vault folders or rewrite their notes.
+require manual resolution. Setup does not rename notes; the migration tool provides guarded note moves with link repairs and backup journals.
+
+## Structured knowledge and sessions
+
+Format 2 uses this organization:
+
+```text
+Projects/<project>/Overview.md
+Projects/<project>/Decisions/
+Projects/<project>/Sessions/
+Knowledge/
+People/
+Sources/
+Schemas/
+Maps/
+```
+
+Keep each durable fact in one canonical note. Session summaries capture the objective,
+outcomes, open questions, next actions, observed date, and links to current knowledge.
+Saving a session is explicit; there is no automatic transcript capture.
+
+Versioned Markdown schema notes describe the required fields and sections for each type.
+Validation warns by default. Set a schema to strict when missing fields should block a
+save. Use `orbit_schema` to inspect definitions and findings. The common identity and
+content-preservation checks always apply. See [the data contract](references/format.md).
+
+Use `orbit_search` or `orbit_catalog` with `note_type: "session"` to resume a project,
+or `note_type: "decision"` and `status: "current"` for current decisions. Ordinary
+results exclude schema notes and vault rules. SQLite indexes passages, summaries, and
+metadata incrementally; Markdown remains authoritative.
+
+## Upgrade an existing vault
+
+Update the plugin, start a fresh conversation, and ask to migrate your Orbit vault.
+There is one `orbit-migrate` skill. It selects version-specific reference instructions
+using the observed data format and target release, previews changes, and calls the
+migration engine with the preview's digest. Format 1 upgrades to format 2; format 2
+receives a compatibility check. Unknown formats and downgrades are refused.
+
+Legacy markers do not identify an exact originating app release. Orbit reports that
+release as unknown and routes by data format. Backups retain exact affected file bytes;
+interrupted runs can resume or roll back, refusing subsequent human edits. Ambiguous
+project ownership and unsupported links block the plan rather than guess. Original
+assets and historical receipts remain intact. Affected integration verification becomes
+historical and needs re-verification. Plugin installation never migrates a vault silently.
 
 ## Retrieve evidence efficiently
 
 Search maintains a rebuildable local passage index. It inventories files on each request and reparses changed content.
-Titles and aliases affect ranking. Results include matching passages, opening context, line numbers, scope and content hashes.
+Titles, aliases, and summaries affect ranking. Type and status filters distinguish sessions, decisions, and current knowledge. Results include matching passages, opening context, line numbers, scope and content hashes.
 Selected evidence is checked against live files before return. External edits after that check remain possible.
 
 The cache lives beside the selected config, outside the vault. ORBIT_CACHE overrides its directory.
@@ -71,8 +116,8 @@ source notes must retain extracted text so it is retrievable. Originals remain a
 
 Search is lexical, not semantic. Agents expand indirect questions and follow maps and links.
 QMD was evaluated as a local candidate but is not a runtime dependency. No model downloads occur during recall.
-When indexing is unavailable, unscoped search reports degradation and uses the original live lexical scan.
-Scoped search reports unavailable rather than returning unrelated projects. The indexed response has a 12,000-character
+When indexing is unavailable, unfiltered search reports degradation and uses the original live lexical scan.
+Scoped or typed search reports unavailable rather than returning unrelated notes. The indexed response has a 12,000-character
 serialized limit, not a guaranteed token limit. Read additional windows when results are truncated.
 
 ## Maintain knowledge and navigation
@@ -99,7 +144,7 @@ External editors do not honor the helper lock. Checks immediately before writes 
 Recovery refuses subsequent edits. Explicit `orbit_recover` with `abandon: true` preserves current files and releases a conflicted operation
 for replanning; it does not undo partial writes. Journals contain historical content and require the same protection as notes.
 
-The parser supports common YAML scalars and lists, not arbitrary YAML interpretation. No automatic rename or deletion operation.
+The parser supports common YAML scalars and lists, not arbitrary YAML interpretation. Ordinary saving cannot rename or delete notes. Explicit migrations perform guarded moves.
 
 ## Test, package and install
 

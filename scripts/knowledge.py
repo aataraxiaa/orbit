@@ -6,16 +6,9 @@ import re
 STAGES = ('captured', 'extracted', 'integrated', 'verified')
 
 
-def catalog(root, scope=None, limit=50, offset=0):
-    import orbit
-    notes = [n for n in orbit.scan(root) if n['path'] not in ('ORBIT.md', 'SECOND_BRAIN.md') and not n['path'].startswith('Sources/assets/')]
-    if scope:
-        notes = [n for n in notes if scope in orbit.strings(n['meta'].get('project')) + orbit.strings(n['meta'].get('topics'))]
-    notes.sort(key=lambda n: (n['type'] != 'map', n['title'].casefold(), n['path']))
-    offset = max(0, offset)
-    entries = [{k: n[k] for k in ('id', 'path', 'title', 'type', 'status')} | {'summary': str(n['meta'].get('summary', '')), 'project': n['meta'].get('project'), 'topics': orbit.strings(n['meta'].get('topics'))} for n in notes[offset:offset + max(1, min(limit, 200))]]
-    markdown = '# Knowledge catalog\n\n' + '\n'.join(f"- [[{n['path']}|{n['title']}]] — {n['summary']}" for n in entries) + '\n'
-    return {'total': len(notes), 'entries': entries, 'offset': offset, 'more': offset + len(entries) < len(notes), 'markdown': markdown, 'written': False}
+def catalog(root, scope=None, limit=50, offset=0, note_type=None, status=None):
+    import retrieval
+    return retrieval.catalog(root, scope, limit, offset, note_type, status)
 
 
 def relations(root, target=None):
@@ -116,8 +109,10 @@ def _load_record(root, path):
 
 def init_capture(root, receipt):
     import orbit
+    import migration
     path = _record_path(root, receipt['sha256'])
     with orbit.lock(root):
+        migration.ensure_writable(root)
         if path.exists():
             record = _load_record(root, path)
             _source(root, record)
@@ -130,6 +125,7 @@ def init_capture(root, receipt):
 
 def integration(root, record=None):
     import orbit
+    import migration
     if record is None:
         folder = orbit.safe(root, orbit.internal(root) + '/integrations')
         records, errors = [], []
@@ -147,6 +143,7 @@ def integration(root, record=None):
     if set(record) - allowed:
         raise orbit.OrbitError('Unknown integration update fields')
     with orbit.lock(root):
+        migration.ensure_writable(root)
         if not path.exists():
             raise orbit.OrbitError('Capture the source before integration')
         current = _load_record(root, path)
@@ -185,10 +182,13 @@ def integration(root, record=None):
                 raise orbit.OrbitError('Integration requires committed operations')
             committed = {}
             for operation in operations:
-                journal = json.loads(orbit.safe(root, orbit.internal(root) + '/operations/' + operation + '.json').read_text())
+                journal_path = orbit.safe(root, orbit.internal(root) + '/operations/' + operation + '.json')
+                if not journal_path.exists():
+                    journal_path = orbit.safe(root, orbit.internal(root) + '/migrations/' + operation + '.json')
+                journal = json.loads(journal_path.read_text())
                 if journal['status'] != 'committed':
                     raise orbit.OrbitError('Integration operation is not committed')
-                committed.update({w['path']: orbit.digest(w['after'].encode()) for w in journal['writes']})
+                committed.update({w['path']: orbit.digest(w['after'].encode()) for w in journal['writes'] if w['after'] is not None})
             candidate['operations'] = operations
             if any(not isinstance(note, dict) or not isinstance(note.get('path'), str) or not isinstance(note.get('sha256'), str) for note in notes):
                 raise orbit.OrbitError('Affected notes require path and sha256')
@@ -213,6 +213,8 @@ def integration(root, record=None):
                 verified.update(check['paths'])
             if verified != expected:
                 raise orbit.OrbitError('Recall verification must cover all affected notes')
+            if candidate.get('migration', {}).get('verification_stale'):
+                candidate['migration'] = dict(candidate['migration'], verification_stale=False)
         if unchanged:
             return current
         candidate['version'] += 1

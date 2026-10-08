@@ -17,8 +17,10 @@ Read [host setup](../../references/setup.md) and [tools](../../references/tools.
 3. Call `orbit_setup` with the selected absolute path. Use `create: true` only when
    creating a new vault was requested. On denied access follow the host procedure;
    preserve the selection and retry after a supported permission grant.
-4. Run `orbit_doctor`. Read its reported rules file with `orbit_read` and follow existing
-   conventions. Preserve identity, rules, unknown config fields and user content.
+4. Run `orbit_doctor`. Read its reported rules file with `orbit_read`. Preserve
+   identity, rules, unknown config fields and user content. Fresh vaults use format 2
+   and the standard folders with schema notes. Existing vaults are not reorganized;
+   use [migrate](../orbit-migrate/SKILL.md) when the user requests their upgrade.
 5. Perform the [setup write check](../../references/setup.md) through `orbit_apply`,
    `orbit_search` and `orbit_read`. Update the existing labeled record with its current
    hash. A diagnostic or no-op write is insufficient.

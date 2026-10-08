@@ -1,6 +1,6 @@
 # Orbit handoff
 
-Updated 2026-10-07. Orbit v0.3.0 prerelease, not yet accepted in all desktop surfaces.
+Updated 2026-10-07. Orbit v0.4.0 prerelease, not yet accepted in all desktop surfaces.
 
 ## Scope
 
@@ -21,7 +21,7 @@ The public source repository is https://github.com/aataraxiaa/orbit.
 - scripts/retrieval.py owns a machine-local incremental FTS5 passage index, scoped ranking and current evidence checks.
 - scripts/knowledge.py owns catalogs, explicit relationships, durable integration stages and maintenance diagnostics.
 - scripts/eval.py evaluates labeled synthetic helper retrieval from tests/fixtures/retrieval.
-- Four skills own source interpretation, useful map curation, knowledge integration and evidence-based answers.
+- Five skills own source interpretation, useful map curation, knowledge integration and evidence-based answers.
 
 The derived cache stays outside the synced vault, keyed to vault identity and canonical path.
 Source integration records stay in .orbit/integrations for new vaults, or the existing legacy state directory. They survive cache loss.
@@ -50,7 +50,7 @@ Do not claim semantic matching, arbitrary YAML support, whole-vault transactions
 Run python3 -m unittest discover -s tests -v, python3 scripts/smoke.py and python3 scripts/package.py
 before handing off a changed artifact. Use disposable vaults with isolated ORBIT_CONFIG and ORBIT_CACHE.
 
-## v0.3 candidate
+## Desktop distribution
 
 MCP is the skills' primary route. Codex and Claude have distinct launch manifests; the
 Claude variable is not expanded by Codex. The MCPB is a separate Claude Chat extension
@@ -58,3 +58,16 @@ artifact. None of these artifacts installs Python; the desktop runtime needs Pyt
 3.10+ on PATH or in a standard Homebrew bin directory. Ordinary ChatGPT chat remains unverified and no remote
 server or vault upload is included. Publication and host receipts must identify the
 exact candidate and distinguish production behavior from the disposable probe.
+
+## Format-2 release
+
+Version 0.4.0 adds standard project/decision/session organization, seven optional
+versioned Markdown schemas, and type/status-aware SQLite search and catalog.
+`structure.py` owns schemas, `migration.py` owns format routes and recoverable
+backup journals. One orbit-migrate skill selects version-specific reference files.
+The supported routes are legacy format 1 to 2 and format-2 compatibility checks.
+Missing legacy release metadata remains unknown. Source assets and historical
+receipts remain preserved; changed integration evidence is flagged for review.
+The existing suite results above describe v0.3.0, not this candidate. Current
+release test receipts are in review-artifacts/structure-release/. No personal
+vault migration or native desktop acceptance is inferred from those checks.

@@ -76,3 +76,14 @@ Claude reads `.mcp.json` with `${CLAUDE_PLUGIN_ROOT}`. The MCPB uses `${__dirnam
 Do not reuse the Claude placeholder in Codex: it previously reached Python literally
 and failed before initialization. Package tests launch all extracted configurations,
 but native host variable resolution remains a separate check.
+
+## Verify migration and sessions
+
+Use an isolated format-1 fixture containing a project, decision, session, source
+asset, inbound/outbound links and unknown metadata. Call orbit_migrate with plan,
+then apply using the returned plan_id. Verify moved paths, stable IDs, original
+asset hashes and repaired links. Rebuild SQLite and recall with note_type=session.
+A second plan must return unchanged. Test interrupted resume and rollback, and
+confirm a subsequent human edit causes recovery refusal without additional writes.
+The migration suite covers these mechanical cases. Separately test the packaged
+plugin in each desktop host before claiming native migration acceptance.

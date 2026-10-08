@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "orbit",
   "display_name": "Orbit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Save and recall knowledge in your own Markdown vault.",
   "author": {
     "name": "Orbit"

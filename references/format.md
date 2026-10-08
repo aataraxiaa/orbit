@@ -2,8 +2,12 @@
 
 Markdown and preserved sources are authoritative. No required Obsidian community plugin,
 server, account, or API key. All hosts use the same vault and the same note identities.
-Respect ORBIT.md and existing folder conventions. Default to Knowledge/, Maps/,
-and Sources/ when no convention exists. Do not restructure an existing vault at setup.
+Data format 2 uses Projects/<project>/Overview.md, with Decisions/ and Sessions/
+within each project. Use Knowledge/ for reusable knowledge, People/ for people,
+Sources/ for source notes and assets, Schemas/ for note contracts, and Maps/ for
+navigation. This contract supersedes earlier folder defaults. Preserve user prose
+and unknown metadata. Setup does not restructure an existing vault; orbit-migrate
+performs an explicit, versioned migration.
 
 ## Minimal note
 
@@ -42,10 +46,38 @@ source_hash, capture_scope. The tool reads common YAML scalars and lists; it is 
 full YAML parser. Preserve existing user YAML and unknown fields when editing.
 When first integrating an older note, add missing fields without discarding its content.
 
-Types are descriptive, not a rigid taxonomy: project, concept, person, organization,
-decision, reference, source, synthesis, map. Avoid turning every fact into a file.
+Types include project, concept, person, organization, decision, reference, source,
+synthesis, session, schema, and map. Avoid turning every fact into a file.
 Use short observations or subsections inside coherent notes. Split only when it improves
 reuse and recall. A source can inform many topics without duplicating its original bytes.
+
+## Versioned schemas and sessions
+
+`orbit_schema` returns the effective schemas and validation findings. Fresh vaults
+receive schema notes for project, decision, session, concept, person, source, and
+map. Each schema has `schema_for`, integer `schema_version`, `required_fields`,
+`required_sections`, and `validation: "warn"` or `"strict"`. The fields are flat
+scalars and lists supported by the engine. A matching Schemas/*.md note overrides
+the bundled default. Multiple schemas for one type are an error. Unknown types
+retain the common note contract without a type-specific schema.
+
+Missing type-specific fields and sections warn by default. Strict schemas reject
+nonconforming proposed notes before writes. A note may declare schema_version;
+an omitted version uses the effective schema. No missing facts are invented.
+
+Sessions are explicitly requested summaries with project identity, observed date,
+and Objective, Outcomes, Open questions, Next actions, and Connections sections.
+Use Projects/<project>/Sessions/<date>-<descriptive-name>.md and a stable note ID.
+Record decisions in their canonical decision notes and link from the session.
+Read linked notes for current facts; a session records historical context.
+Session capture is not automatic. Use one coherent project overview, not another
+copy of the decisions and session history.
+
+Search and catalog accept note_type and status filters. Default results omit
+schema notes and vault rules; request note_type="schema" to find schema notes.
+SQLite indexes summaries and typed metadata as well as passages. Deleting the
+cache loses no authoritative knowledge. Index schema, note schema, vault data
+format, and application release versions are independent.
 
 ## Identity and relationships
 

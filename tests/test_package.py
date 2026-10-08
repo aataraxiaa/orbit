@@ -11,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class PackageTest(unittest.TestCase):
     def test_skill_references_and_no_hooks(self):
         skills = list((ROOT / 'skills').glob('*/SKILL.md'))
-        self.assertEqual(len(skills), 4)
+        self.assertEqual(len(skills), 5)
+        self.assertEqual([p.parent.name for p in skills if 'migrate' in p.parent.name], ['orbit-migrate'])
         for p in skills:
             text = p.read_text()
             self.assertTrue(text.startswith('---\nname:'))
@@ -33,6 +34,9 @@ class PackageTest(unittest.TestCase):
             self.assertIn('.codex-plugin/plugin.json', names)
             self.assertIn('scripts/orbit.py', names)
             for required in ('scripts/mcp_server.py', '.mcp.json', '.codex.mcp.json', 'manifest.json'):
+                self.assertIn(required, names)
+            for required in ('scripts/migration.py', 'scripts/structure.py', 'references/schemas/Session.md',
+                             'skills/orbit-migrate/SKILL.md', 'skills/orbit-migrate/references/format-1-to-2.md'):
                 self.assertIn(required, names)
             self.assertFalse(any('__pycache__' in n or 'write.lock' in n for n in names))
         for path in ('.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json'):

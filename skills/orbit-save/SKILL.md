@@ -11,7 +11,10 @@ back to shell commands. Unprefixed operation names below mean the `orbit_` MCP t
 
 You make the knowledge decisions; tools handle mechanics. Read [format](../../references/format.md)
 and [tools](../../references/tools.md). Establish the vault binding; if absent use setup.
-Read the rules file reported by doctor, ORBIT.md or legacy SECOND_BRAIN.md, and respect existing organization.
+Read the rules file reported by doctor, ORBIT.md or legacy SECOND_BRAIN.md.
+Use the format-2 organization in [format](../../references/format.md). If doctor
+reports format 1, route an upgrade request to [migrate](../orbit-migrate/SKILL.md);
+ordinary saving must not silently reorganize an older vault.
 
 ## Identify the request
 
@@ -20,6 +23,16 @@ Read the rules file reported by doctor, ORBIT.md or legacy SECOND_BRAIN.md, and 
 selection. Preserve the scope, uncertainty and useful wording of the selected output.
 Ask only when the referent or destination is genuinely ambiguous. Do not make the user
 choose an extraction flow. Infer useful structure from the content.
+
+For format 2, consult `orbit_schema` for the note type. Keep one project overview
+at Projects/<project>/Overview.md. Put its decisions and sessions beneath that
+project; put reusable concepts in Knowledge/ and people in People/. Use an existing
+project's stable ID as project metadata. Do not create duplicate project identities.
+
+For an explicit session save, record the objective, outcomes, open questions,
+next actions, verified observed date, and connections. Update canonical knowledge
+first and link it from the session. A session is a continuation record, not a copy
+of every decision or a transcript. Preserve only the requested conversation scope.
 
 ## Discover before drafting
 
@@ -74,7 +87,7 @@ from capture alone. For large sources, finish coherent batches and resume record
 
 Before completing a substantial integration, revisit affected older notes and map
 explanations. Create a compact entry map and useful project/topic maps when the collection
-lacks orientation. Reuse existing maps; do not impose a folder migration. Apply maps with
+lacks orientation. Reuse existing maps; use the migration skill for folder changes. Apply maps with
 the same hash checks as notes. Never rewrite a full catalog on every small save.
 
 Return a short receipt: what was saved, clickable paths, significant existing-note

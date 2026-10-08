@@ -44,6 +44,30 @@ class RetrievalTest(unittest.TestCase):
         path.with_name('b.md').unlink()
         self.assertEqual(retrieval.search(self.root, 'rollover')['total'], 0)
 
+    def test_typed_sessions_summary_search_and_rebuild(self):
+        for path, kind, state in [('Projects/Atlas/Sessions/Review.md', 'session', 'archived'),
+                                  ('Projects/Atlas/Decisions/Rollout.md', 'decision', 'current')]:
+            target = self.write(path, 'Details and qualifications.', 'atlas')
+            target.write_text(target.read_text().replace('project: atlas',
+                f'project: atlas\ntype: {kind}\nstatus: {state}\nsummary: zephyr deployment\nschema_version: 1\nobserved: 2026-10-07'))
+        session = retrieval.search(self.root, 'zephyr', note_type='session')['results']
+        self.assertEqual([n['path'] for n in session], ['Projects/Atlas/Sessions/Review.md'])
+        self.assertEqual(session[0]['type'], 'session')
+        self.assertEqual(session[0]['observed'], '2026-10-07')
+        self.assertEqual(retrieval.search(self.root, 'zephyr', status='current')['results'][0]['type'], 'decision')
+        self.assertEqual(retrieval.catalog(self.root, note_type='session')['total'], 1)
+        self.assertEqual(retrieval.catalog(self.root, scope='Projects/Atlas', status='current')['total'], 1)
+        self.assertEqual(retrieval.refresh(self.root)['reparsed'], 0)
+        retrieval.refresh(self.root, rebuild=True)
+        self.assertEqual(retrieval.search(self.root, 'zephyr', note_type='session')['results'][0]['sha256'], session[0]['sha256'])
+
+    def test_schema_notes_require_explicit_type_filter(self):
+        target = self.write('Schemas/Test.md', 'oranges')
+        target.write_text(target.read_text().replace('project: alpha', 'project: alpha\ntype: schema'))
+        self.assertEqual(retrieval.search(self.root, 'oranges')['total'], 0)
+        self.assertEqual(retrieval.search(self.root, 'oranges', note_type='schema')['total'], 1)
+        self.assertEqual(retrieval.catalog(self.root)['total'], 0)
+
     def test_same_size_preserved_mtime_edit_is_found(self):
         path = self.write('a.md', 'before')
         retrieval.refresh(self.root)

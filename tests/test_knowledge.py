@@ -137,6 +137,26 @@ class KnowledgeTest(unittest.TestCase):
         self.assertEqual(len(current['operations']), 2)
         self.assertEqual(self.advance(current, 'verified', verification=[{'query': 'staged rollout', 'paths': paths}])['stage'], 'verified')
 
+    def test_migrated_evidence_can_be_reverified_from_real_migration_receipt(self):
+        import migration
+        current = self.integrated()
+        marker = self.root / '.orbit/vault.json'
+        data = json.loads(marker.read_text())
+        data.pop('data_format')
+        data.pop('orbit_version')
+        marker.write_text(json.dumps(data))
+        preview = migration.migrate(self.root)
+        migrated = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        current = knowledge.integration(self.root)['records'][0]
+        path = 'Projects/Atlas/Overview.md'
+        extract = 'Projects/Extract/Overview.md'
+        verified = self.advance(current, 'verified', operations=[migrated['operation']],
+            notes=[{'path': path, 'sha256': orbit.read(self.root, path)['sha256']}],
+            extraction=[{'path': extract, 'sha256': orbit.read(self.root, extract)['sha256']}],
+            verification=[{'query': 'staged deployment', 'paths': [path]}], errors=[])
+        self.assertFalse(verified['migration']['verification_stale'])
+        self.assertEqual(verified['stage'], 'verified')
+
     def test_legacy_relations_pagination_and_malformed_record(self):
         content = note(body='- applies_to [[Other]] — rollback requirement.\n- learned_from [[Other]] — source reasoning.\n## Possible connections\n- depends_on [[Other]] — inferred from shared constraints.')
         batch = plan(content=content)
