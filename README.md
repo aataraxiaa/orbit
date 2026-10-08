@@ -9,6 +9,30 @@ sources remain authoritative. No cloud service, scheduled capture, hooks or requ
 Obsidian community plugin. Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew
 bin directories when `python3` is older; neither the plugin nor MCPB installs Python. Search uses SQLite FTS5.
 
+## How Orbit works
+
+Orbit keeps your knowledge in Markdown files that you can read and edit in Obsidian.
+The agent decides what to save and how it connects to existing notes. Orbit's local
+Python engine checks and writes those changes. On retrieval, it refreshes a local SQLite index.
+
+```mermaid
+flowchart LR
+    You["You"] --> Agent["Agent and Orbit skills"]
+    Agent <-->|"Local MCP tools"| Engine["Python storage engine"]
+    Engine <-->|"Read and checked writes"| Vault["Markdown vault and source assets"]
+    Obsidian["Obsidian"] <-->|"Read and edit"| Vault
+    Vault -->|"Derived note text and metadata"| Index["Local SQLite search cache"]
+    Engine <-->|"Search and catalog"| Index
+```
+
+The Markdown vault is the source of truth. SQLite contains a rebuildable copy of
+searchable content, so losing the index does not lose your notes. Recovery journals
+and integration records inside the vault are separate persistent state and are not
+disposable search caches.
+
+Read [the knowledge structure](#structured-knowledge-and-sessions) for where notes
+belong, and [how SQLite works](#how-sqlite-supports-retrieval) for what the index stores.
+
 ## Install
 
 Add the GitHub marketplace `aataraxiaa/orbit` in the app's plugin controls and install
@@ -62,32 +86,109 @@ require manual resolution. Setup does not rename notes; the migration tool provi
 
 ## Structured knowledge and sessions
 
-Format 2 uses this organization:
+Format 2 separates project context from knowledge you can reuse across projects.
+This illustrative vault shows the intended homes for notes. The example names are
+not files that setup creates.
 
 ```text
-Projects/<project>/Overview.md
-Projects/<project>/Decisions/
-Projects/<project>/Sessions/
+Projects/
+  Atlas/
+    Overview.md
+    Decisions/
+      Staged rollout.md
+    Sessions/
+      Planning session.md
 Knowledge/
+  Reversible migrations.md
 People/
+  Alex.md
 Sources/
+  Migration design paper.md
+  assets/
+    migration-design.pdf
 Schemas/
+  Project.md
+  Decision.md
+  Session.md
+  ...
 Maps/
+  Engineering.md
+ORBIT.md
+.orbit/
 ```
 
-Keep each durable fact in one canonical note. Session summaries capture the objective,
-outcomes, open questions, next actions, observed date, and links to current knowledge.
-Saving a session is explicit; there is no automatic transcript capture.
+| Location | What belongs here |
+|---|---|
+| `Projects/<project>/Overview.md` | The project's purpose and current state, with links to decisions, knowledge, sources, and sessions. |
+| `Projects/<project>/Decisions/` | Choices specific to that project, including rationale and alternatives. |
+| `Projects/<project>/Sessions/` | Dated summaries of work, outcomes, open questions, and next actions. |
+| `Knowledge/` | Reusable concepts and explanations that can inform more than one project. |
+| `People/` | Notes about people, linked from relevant projects and knowledge. |
+| `Sources/` | Source notes with provenance and extracted text. Original files live under `Sources/assets/`. |
+| `Schemas/` | Versioned Markdown definitions of the fields and sections expected for each note type. |
+| `Maps/` | Authored navigation notes that explain how related notes fit together. |
+| `ORBIT.md` | Vault rules that guide the agent. |
+| `.orbit/` | Vault identity, recovery journals, migration backups, and processing records managed by Orbit. |
+
+### Projects and knowledge without duplication
+
+The strongest objection to separate `Projects/` and `Knowledge/` folders is that an
+agent could write the same explanation twice. If both copies later change, you have
+to decide which one to trust. The folder layout alone cannot prevent that.
+
+Orbit's convention is to keep each durable fact in one canonical note and link to
+it wherever it is useful. For example, Atlas's decision note records **why Atlas
+chose a staged rollout**. The knowledge note explains **how reversible migrations
+work in general**. Another project can link to that same knowledge note without
+copying it into its own folder.
+
+```mermaid
+flowchart TD
+    Map["Maps: Engineering"] --> Atlas["Atlas: Overview"]
+    Map --> Knowledge["Knowledge: Reversible migrations"]
+    Atlas --> Decision["Atlas decision: Staged rollout"]
+    Atlas --> Session["Atlas: Planning session"]
+    Session -->|"Records the outcome and links to"| Decision
+    Decision -->|"Applies the principle in"| Knowledge
+    Other["Another project"] -->|"Reuses"| Knowledge
+    Knowledge -->|"Cites"| Source["Sources: Migration design paper"]
+    Source -->|"Preserves the original"| Asset["Sources/assets: PDF"]
+```
+
+These arrows illustrate links between notes. Folders give a note one physical home;
+wikilinks connect it across folders. A stable `id` identifies the note, while fields
+such as `type`, `project`, and `status` describe it for validation and filtering.
+Typed prose relationships can add meaning and evidence to a link.
+
+A project overview gives brief orientation and links to the detailed notes. A session
+records what happened at a particular time and links to current knowledge. Historical
+summaries and short quotations can overlap with other notes without becoming competing
+current explanations. Project-specific facts can stay in the project; they do not all
+need a second note in `Knowledge/`.
+
+The save skill tells the agent to search and read related notes before updating or
+creating one. The engine rejects duplicate stable IDs, but it does not detect two
+notes with different IDs that say the same thing. The standard folder layout is guided
+by skills and migrations; ordinary saves do not enforce every note's folder placement.
+Checking an existing vault for repeated content still requires reading the notes.
+
+### Sessions and schemas
+
+Saving a session is explicit. There is no automatic transcript capture. Session
+summaries capture the objective, outcomes, open questions, next actions, observed
+date, and links to current knowledge. Read those linked notes when resuming work,
+since the session describes the state at the time it was saved.
 
 Versioned Markdown schema notes describe the required fields and sections for each type.
-Validation warns by default. Set a schema to strict when missing fields should block a
-save. Use `orbit_schema` to inspect definitions and findings. The common identity and
-content-preservation checks always apply. See [the data contract](references/format.md).
+For example, projects need `Purpose` and `Current state` sections, while decisions
+need `Rationale` and `Alternatives`. Validation warns by default. Set a schema to
+strict when missing fields should block a save. Use `orbit_schema` to inspect definitions
+and findings. The common identity and content-preservation checks always apply.
+See [the data contract](references/format.md) and [bundled schemas](references/schemas).
 
 Use `orbit_search` or `orbit_catalog` with `note_type: "session"` to resume a project,
 or `note_type: "decision"` and `status: "current"` for current decisions. Ordinary
-results exclude schema notes and vault rules. SQLite indexes passages, summaries, and
-metadata incrementally; Markdown remains authoritative.
+results exclude schema notes and vault rules.
 
 ## Upgrade an existing vault
 
@@ -104,21 +205,87 @@ project ownership and unsupported links block the plan rather than guess. Origin
 assets and historical receipts remain intact. Affected integration verification becomes
 historical and needs re-verification. Plugin installation never migrates a vault silently.
 
-## Retrieve evidence efficiently
+## How SQLite supports retrieval
 
-Search maintains a rebuildable local passage index. It inventories files on each request and reparses changed content.
-Titles, aliases, and summaries affect ranking. Type and status filters distinguish sessions, decisions, and current knowledge. Results include matching passages, opening context, line numbers, scope and content hashes.
-Selected evidence is checked against live files before return. External edits after that check remain possible.
+SQLite is an embedded database accessed through Python's standard `sqlite3` module.
+Orbit stores the index in a local `.sqlite3` file. There is no database server to run
+or separate SQL service to install. The Python installation must support SQLite FTS5,
+the full-text search extension that indexes words in your notes.
 
-The cache lives beside the selected config, outside the vault. ORBIT_CACHE overrides its directory.
-`orbit_index` with `rebuild: true` rebuilds derived data without rewriting notes. Indexed search excludes original assets under Sources/assets;
-source notes must retain extracted text so it is retrievable. Originals remain available for explicit reads.
+### What the database stores
 
-Search is lexical, not semantic. Agents expand indirect questions and follow maps and links.
-QMD was evaluated as a local candidate but is not a runtime dependency. No model downloads occur during recall.
-When indexing is unavailable, unfiltered search reports degradation and uses the original live lexical scan.
-Scoped or typed search reports unavailable rather than returning unrelated notes. The indexed response has a 12,000-character
-serialized limit, not a guaranteed token limit. Read additional windows when results are truncated.
+| Table | Derived content | Purpose |
+|---|---|---|
+| `notes` | Paths, file signatures, content hashes, IDs, titles, aliases, summaries, and other searchable metadata. | Catalog notes, filter results, and track which files changed. |
+| `passages` | Note text split into passages, with the file path, section heading, and start and end lines. | Return relevant evidence without loading whole notes into the agent's context. |
+| `search` | An FTS5 index of titles, aliases, headings, passage text, and summaries. | Find and rank word matches. |
+
+This is intentional duplication of storage, with one direction of authority. Orbit
+regenerates the database from Markdown. You edit the notes, not the database. SQLite
+also stores passage text, so protect the cache as you would the notes themselves.
+
+The cache defaults to `~/.config/orbit/cache` when using the default Orbit config.
+With another selected config, it defaults to a `cache` directory beside that config.
+`ORBIT_CACHE` overrides the cache directory, which must remain outside the vault.
+The database filename is derived from the vault's identity and absolute path. Each
+machine can build its own cache from the same synced Markdown vault.
+
+### What happens when you search
+
+```mermaid
+flowchart TD
+    Query["Search or catalog request"] --> Inventory["Inventory Markdown file signatures"]
+    Inventory --> Changed{"New, changed, or removed files?"}
+    Changed -->|"Yes"| Refresh["Reparse changed notes and remove stale rows"]
+    Changed -->|"No"| SQL["Query SQLite with scope, type, and status filters"]
+    Refresh --> SQL
+    SQL --> Kind{"Request type"}
+    Kind -->|"Catalog"| Catalog["Return paginated note metadata"]
+    Kind -->|"Search"| Rank["Rank matching passages"]
+    Rank --> Verify["Check selected evidence against live file hashes"]
+    Verify --> Results["Return passages, opening context, paths, and line numbers"]
+```
+
+There is no background file watcher. Search and catalog requests inventory the vault,
+then reparse only files whose signatures changed. This picks up edits made in Obsidian
+as well as edits made through Orbit. File inventory still grows with the number of
+files, even when none need reparsing.
+
+Search applies scope, type, and status filters before limiting results. FTS5 uses
+BM25 ranking, with extra weight for titles, aliases, headings, and summaries. Exact
+title and alias matches receive priority. Orbit returns the best matching passage
+per note with opening context, then checks selected evidence against live files.
+Edits after that check remain possible.
+
+The indexed response has a 12,000-character serialized limit, not a guaranteed token
+limit. Agents can read additional windows when results are truncated. This reduces
+how much text recall needs to send to the agent while keeping citations traceable.
+
+### Index boundaries and rebuilding
+
+Original assets under `Sources/assets/` are not indexed. A source note needs saved
+extracted text for that content to be searchable. Hidden directories are skipped.
+Schema notes and vault rules can exist in the index, but ordinary search and catalog
+results exclude them. Requesting `note_type: "schema"` exposes schema notes.
+
+SQLite currently supports search and the catalog. Context traversal and explicit
+relationship inspection still read Markdown notes directly. The database is not a
+complete graph of every relationship, and schemas in `Schemas/` describe Markdown
+notes rather than SQL tables.
+
+`orbit_index` with `rebuild: true` recreates the derived index without rewriting notes.
+The engine also rebuilds an incompatible index schema. Rebuilding SQLite is separate
+from migrating the vault's data format, which can move notes or update persistent
+state and therefore needs the migration skill and backups.
+
+Search is lexical, not semantic. Agents expand indirect questions and follow maps
+and links. There are no embedding models or model downloads during recall. QMD was
+evaluated as a local candidate but is not a runtime dependency.
+
+When indexing is unavailable, unfiltered search reports degradation and uses the live
+lexical scan. Scoped or typed search reports unavailable rather than returning unrelated
+notes. See [the retrieval implementation](scripts/retrieval.py) for the table definitions,
+refresh logic, filters, and ranking.
 
 ## Maintain knowledge and navigation
 
