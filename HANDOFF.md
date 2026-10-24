@@ -7,8 +7,8 @@ Updated 2026-10-24. Orbit v0.5.0 beta release. Native acceptance remains incompl
 The user superseded the no-MCP constraint on 2026-10-07. The target is an MCP-backed
 marketplace plugin for the ChatGPT/Codex and Claude desktop apps, including Cowork.
 CLI support is not an acceptance target. Preserve the Python engine and Markdown
-vault contract. A disposable probe established Codex desktop and Cowork transport. Production-artifact
-save/read, cross-app and fresh-conversation acceptance remain separate gates. Do not
+vault contract. A disposable probe established Codex desktop and Cowork transport. Installed
+0.5.0 save/search/read passed in one Codex desktop conversation; cross-app and fresh-conversation acceptance remain separate gates. Do not
 publish another desktop-support claim based on CLI or helper tests alone.
 The user authorized the Orbit rename and publication to public aataraxiaa/orbit.
 Personal-vault migration remains separate from development and disposable-vault acceptance.
@@ -80,7 +80,7 @@ when that note had a different display title. The patch accepts explicit unique
 project-field identities while preserving collision refusal. Data format stays 2;
 existing format-2 vaults require only the migration skill's compatibility check.
 
-## 0.5.0 named Orbits candidate
+## 0.5.0 named Orbits release
 
 `scripts/registry.py` owns the named schema-2 config and immutable operation targets.
 Dispatch resolves once and adds the target receipt. Existing storage, per-vault locks
@@ -96,10 +96,9 @@ Current mechanical verification belongs in review-artifacts/orbit-only under the
 artifact directory. Native desktop, cross-app, fresh-chat and LLM selection acceptance
 are separate. Building the candidate does not install or publish it.
 
-The local vault's state and rules were renamed to `.orbit` and `ORBIT.md` with a
-full backup. Its installed 0.4.1 runtime still uses a temporary single-vault binding.
-Install/reload this candidate and replace that local binding with the prepared named
-registry together. This local installation step is not a shipped migration route.
+The 0.5.0 prerelease is published and its MCP tools are installed in Codex desktop.
+The former local single-folder binding was repaired to the named registry with a backup.
+This local configuration repair is not a shipped migration route.
 
 ## Setup and routing follow-up
 
@@ -110,7 +109,20 @@ folder. User-facing language is Orbit and folder; Obsidian remains optional.
 Agent guidance prioritizes the current request's explicit destination, then conversation
 selection, then the sole entry, otherwise asks. Confirmations require target receipts
 and content readback. Mechanical evidence is under review-artifacts/setup-routing.
-Native LLM destination selection and desktop acceptance remain unverified.
+The broader native routing matrix remains unverified. The bounded Codex checks below passed.
+
+## 2026-10-24 native verification
+
+Installed 0.5.0 MCP tools passed named-folder registration, save/search/read, registration
+rename and format compatibility checks for two folders in one Codex desktop conversation.
+Fresh-conversation, concurrent-chat, restart, Claude and cross-app acceptance remain separate.
+Personal content organization and physical folder renames were authorized one-time local
+operations. They added no plugin code or general relocation tool. Keep private notes,
+paths and migration backups out of the repository and release packages.
+
+The built-in format-1 migrator can refuse collisions in an already-organized nested
+collection because it computes destinations by note type and filename. A custom full
+organization is not equivalent to orbit-format, and must not be advertised as such.
 
 ## Format existing notes
 

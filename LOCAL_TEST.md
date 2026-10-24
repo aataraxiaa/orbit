@@ -25,8 +25,9 @@ but does not publish it to an extension directory or establish automatic updates
 Ordinary ChatGPT chat has not been established by the local plugin route.
 
 The disposable connection probe passed transport in Codex desktop and Cowork.
-The production engine's native-app save/read and fresh-conversation acceptance remain
-pending until recorded for this exact candidate. See [setup](references/setup.md).
+Installed 0.5.0 MCP setup, save/search/read, registration rename and format compatibility
+checks passed in one Codex desktop conversation on 2026-10-24. Fresh-conversation,
+Claude and cross-app acceptance remain pending. See [setup](references/setup.md).
 
 ## Develop locally
 
@@ -87,7 +88,7 @@ confirm a subsequent human edit causes recovery refusal without additional write
 The migration suite covers these mechanical cases. Separately test the packaged
 plugin in each desktop host before claiming native migration acceptance.
 
-## Verify named Orbits in the 0.5.0 candidate
+## Verify named Orbits in 0.5.0
 
 Use isolated config/cache and disposable Personal and Work paths. Register both and
 list them. Save different content to the same relative note path in concurrent chats.

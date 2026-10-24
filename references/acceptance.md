@@ -43,8 +43,12 @@ For Codex desktop, Claude Desktop Chat via MCPB, and Cowork separately:
 - Restart the app; verify the binding and required tools still work.
 - Check missing permissions produce a repair path, never an accidental second vault.
 
-A disposable probe passed Codex desktop and Cowork transport. These production
-checks remain outstanding until performed on the exact artifact and target host versions.
+A disposable probe passed Codex desktop and Cowork transport. On 2026-10-24, installed
+0.5.0 MCP tools passed registration, save/search/read and format compatibility checks
+for two named folders in one Codex desktop conversation, including after their names
+and physical paths changed. The physical moves and registry-path updates were a
+separate authorized filesystem workflow, not a shipped relocation tool.
+Fresh-conversation, restart, Claude and cross-app checks remain outstanding.
 Ordinary ChatGPT chat is a separate unverified surface. CLI support is not an acceptance target. Plugin support
 alone does not establish local filesystem reachability. No GUI smoke test is implied by
 a successful ZIP build or by a test in the development environment.

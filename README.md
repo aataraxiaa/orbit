@@ -5,8 +5,9 @@ Each Orbit holds Markdown notes and source files. Obsidian is an optional editor
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.5.0 is a beta release with named independent Orbits. Native desktop acceptance
-remains pending. Markdown and preserved sources remain authoritative. No cloud service,
+Version 0.5.0 is a published beta release with named independent Orbits. Installed MCP
+setup, save, search and read passed in Codex desktop on October 24, 2026. Cross-app and
+fresh-conversation acceptance remain pending. Markdown and preserved sources remain authoritative. No cloud service,
 scheduled capture or bundled hooks. Python 3.10+ must be installed. The launcher checks
 PATH and standard Homebrew bin directories when `python3` is older; neither the plugin
 nor MCPB installs Python. Search uses SQLite FTS5.
@@ -56,9 +57,10 @@ It is not the same distribution channel as the Cowork marketplace plugin. Ordina
 ChatGPT chat remains a separate, unverified surface; this release adds no remote
 connector and does not upload or host the Orbit.
 
-A disposable probe established transport in Codex desktop and Cowork. That is not
-acceptance of this production artifact. See [installation and testing](LOCAL_TEST.md)
-and [acceptance](references/acceptance.md) for the remaining native checks.
+A disposable probe established transport in Codex desktop and Cowork. Installed 0.5.0
+MCP tools subsequently passed named-folder setup, save, search and read in one Codex
+desktop conversation. This does not establish Claude, cross-app or fresh-conversation
+acceptance. See [installation and testing](LOCAL_TEST.md) and [acceptance](references/acceptance.md).
 
 ## Use the six skills
 
@@ -86,9 +88,24 @@ bodies, paths, assets or the data-format marker. Existing broken links become wa
 new link problems and strict schema failures block the batch. The plugin's skills guide source interpretation and verification.
 See [tool contracts](references/tools.md) for all operations.
 
-Fresh setup creates format-2 folders and schema notes. Setup preserves existing notes; upgrading their organization is explicit. The config defaults to ~/.config/orbit/config.json.
+Setup in an empty folder creates format-2 folders and schema notes. Linking an existing
+Markdown collection preserves its notes and records format 1 if it has no Orbit marker.
+Upgrading its organization is explicit. The config defaults to ~/.config/orbit/config.json.
 ORBIT_CONFIG selects a different registry. Use an explicit `orbit` name or registered `vault` path on each call.
 The helper never infers an Orbit from the working directory.
+
+### Formatting and full organization
+
+`orbit-format` adds missing metadata in place. It does not move notes, build person or
+project overviews, extract every attachment, or infer historical creation dates.
+`orbit-migrate` upgrades a supported data format using existing note metadata; it does
+not perform a content review of an arbitrary collection.
+
+To adopt the full structure, explicitly request a content review and organization.
+Keep original sources, separate proposals from completed work, and record ambiguous
+notes for review. Record a historical date with its meaning and evidence rather than
+assuming it is the note's creation date. Custom file moves need a separate backed-up
+workflow with link repair and MCP verification; the plugin has no general file-move tool.
 
 ## Structured knowledge and sessions
 
@@ -339,8 +356,10 @@ Release ZIPs are available from [GitHub Releases](https://github.com/aataraxiaa/
 Search uses lexical matching. The previous development evaluation retrieved all required evidence
 for 50 of 60 harder synthetic questions, below the 95% target. Paraphrases and questions needing
 multiple notes remain the main gaps. This is a helper retrieval measurement, not an LLM accuracy score.
-A fresh Codex CLI conversation passed the earlier save/recall scenario. Claude execution and
-Desktop/Cowork behavior have not passed equivalent acceptance checks. See [acceptance](references/acceptance.md).
+A fresh Codex CLI conversation passed the earlier save/recall scenario. Installed 0.5.0
+MCP save/search/read passed in one Codex desktop conversation. Fresh desktop conversations,
+Claude Desktop Chat, Cowork and cross-app behavior still need equivalent checks.
+See [acceptance](references/acceptance.md).
 
 ## References
 
@@ -362,7 +381,7 @@ active selection between chats and no automatic search across Orbits.
 The registry uses config schema 2. Orbit data format remains 2. This beta change
 uses a one-time local configuration update rather than a shipped compatibility path.
 Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
-The 0.4.1 release link above is historical; this 0.5.0 candidate is not published.
+The [0.5.0 prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0) is published.
 
 ### Rename and select an Orbit
 
@@ -370,6 +389,12 @@ The 0.4.1 release link above is historical; this 0.5.0 candidate is not publishe
 notes. “Link this folder as Work” registers an existing directory; if it is already
 registered under another name, an explicit naming request uses `orbit_rename`.
 A name already used by another folder is a conflict, never an overwrite.
+
+`orbit_rename` changes the registered name only. Physically renaming or relocating
+the folder is a separate filesystem operation. Orbit 0.5.0 has no registered-path
+relocation tool, and `orbit_setup` refuses to rebind an existing name or duplicate an
+identity. A manual relocation needs a configuration backup, preserved folder identity,
+an explicit registry-path update, and save/search/read verification at the new path.
 
 “Save this to Work” overrides this conversation's selected Orbit for that request.
 “Use Personal for this conversation” switches subsequent requests in this chat.
