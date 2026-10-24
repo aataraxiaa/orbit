@@ -26,7 +26,7 @@ class MCPTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.base = Path(self.temp.name).resolve()
         self.vault = self.base / 'vault with spaces'
-        self.env = {k: v for k, v in os.environ.items() if not k.startswith(('ORBIT_', 'SECOND_BRAIN_'))}
+        self.env = {k: v for k, v in os.environ.items() if not k.startswith('ORBIT_')}
         self.env.update(ORBIT_CONFIG=str(self.base / 'binding/config.json'), ORBIT_CACHE=str(self.base / 'cache'))
 
     def run_server(self, messages, command=None, cwd=None):
@@ -43,7 +43,7 @@ class MCPTest(unittest.TestCase):
         return json.loads(response['result']['content'][0]['text'])
 
     def setup_vault(self):
-        return self.result(self.run_server([call(1, 'setup', {'path': str(self.vault), 'create': True})])[0])
+        return self.result(self.run_server([call(1, 'setup', {'path': str(self.vault), 'name': 'Test', 'create': True})])[0])
 
     def test_setup_save_search_read_and_restart_binding(self):
         setup = self.setup_vault()
@@ -83,7 +83,7 @@ class MCPTest(unittest.TestCase):
         self.assertEqual(responses[0]['result']['protocolVersion'], '2025-06-18')
         self.assertEqual(responses[1]['result'], {})
         tools = responses[2]['result']['tools']
-        self.assertEqual(len(tools), 15)
+        self.assertEqual(len(tools), 18)
         self.assertTrue(next(t for t in tools if t['name'] == 'orbit_apply')['annotations']['destructiveHint'])
         for response in responses[3:]:
             self.assertIn('error', response, response)
@@ -93,14 +93,56 @@ class MCPTest(unittest.TestCase):
 
     def test_native_python3_launch_discovers_supported_runtime(self):
         responses = self.run_server([request(1, 'tools/list')], ['python3', str(ROOT / 'scripts/mcp_server.py')])
-        self.assertEqual(len(responses[0]['result']['tools']), 15)
+        self.assertEqual(len(responses[0]['result']['tools']), 18)
+
+    def test_setup_requires_explicit_path_without_ambient_fallback_or_writes(self):
+        ordinary = self.base / 'ordinary folder'
+        ordinary.mkdir()
+        (ordinary / 'notes.md').write_text('Existing user content.\n')
+        self.setup_vault()
+        self.env['ORBIT_VAULT'] = str(self.vault)
+        cases = [({}, 'missing fields'), ({'path': ''}, 'nonempty string required'),
+                 ({'path': '.'}, 'absolute path required'),
+                 ({'path': '../ordinary folder'}, 'absolute path required')]
+        before = {str(p.relative_to(self.base)): p.read_bytes() if p.is_file() else None
+                  for p in self.base.rglob('*')}
+        for cwd in (ordinary, self.vault):
+            for arguments, diagnostic in cases:
+                with self.subTest(cwd=cwd.name, arguments=arguments):
+                    response = self.run_server([call(1, 'setup', {'name': 'Work', **arguments})], cwd=cwd)[0]
+                    self.assertEqual(response['error']['code'], -32602)
+                    self.assertIn(diagnostic, response['error']['message'])
+                    after = {str(p.relative_to(self.base)): p.read_bytes() if p.is_file() else None
+                             for p in self.base.rglob('*')}
+                    self.assertEqual(after, before)
+        self.assertFalse(Path(self.env['ORBIT_CACHE']).exists())
+
+    def test_setup_links_explicit_folder_with_spaces_and_reports_resolved_target(self):
+        self.setup_vault()
+        folder = self.base / 'Work notes with spaces'
+        folder.mkdir()
+        (folder / 'notes.md').write_bytes(b'User notes with unknown metadata.\n')
+        (folder / 'source.bin').write_bytes(bytes(range(256)))
+        original = {p: p.read_bytes() for p in folder.iterdir()}
+        self.env['ORBIT_VAULT'] = str(self.vault)
+        linked = self.result(self.run_server([
+            call(1, 'setup', {'name': 'Work', 'path': str(folder), 'create': False})
+        ], cwd=self.vault)[0])
+        self.assertEqual(linked['target']['name'], 'Work')
+        self.assertEqual(linked['target']['path'], str(folder.resolve()))
+        for path, content in original.items():
+            self.assertEqual(path.read_bytes(), content)
+        doctor = self.result(self.run_server([call(1, 'doctor', {'orbit': 'Work'})])[0])
+        self.assertEqual(doctor['target']['name'], 'Work')
+        self.assertEqual(doctor['target']['path'], str(folder.resolve()))
+        self.assertEqual(doctor['target']['vault_id'], linked['target']['vault_id'])
 
     def test_tool_discovery_accepts_common_metadata(self):
         responses = self.run_server([
             request(1, 'tools/list', {'_meta': {'progressToken': 'test'}, 'cursor': None}),
             request(2, 'tools/list', {'cursor': 'unknown-page'}),
         ])
-        self.assertEqual(len(responses[0]['result']['tools']), 15)
+        self.assertEqual(len(responses[0]['result']['tools']), 18)
         self.assertEqual(responses[1]['error']['code'], -32602)
 
     def test_operations_use_engine_validation_and_safe_paths(self):
@@ -165,7 +207,7 @@ class MCPTest(unittest.TestCase):
                     archive.extractall(extracted)
                 if archive_name.endswith('.mcpb'):
                     manifest = json.loads((extracted / 'manifest.json').read_text())
-                    self.assertEqual(manifest['version'], '0.4.1')
+                    self.assertEqual(manifest['version'], '0.5.0')
                     transport = manifest['server']['mcp_config']
                     configurations = [(transport, '${__dirname}', None)]
                 else:
@@ -181,7 +223,7 @@ class MCPTest(unittest.TestCase):
                     self.assertEqual(transport['command'], 'python3')
                     args = [arg.replace(variable, str(extracted)) if variable else arg for arg in transport['args']]
                     responses = self.run_server([request(1, 'tools/list')], [sys.executable, *args], cwd)
-                    self.assertEqual(len(responses[0]['result']['tools']), 15)
+                    self.assertEqual(len(responses[0]['result']['tools']), 18)
 
 
 if __name__ == '__main__':

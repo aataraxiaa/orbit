@@ -7,7 +7,7 @@
     {
       "name": "orbit",
       "source": "./",
-      "description": "Save, connect, and recall knowledge in your Obsidian vault."
+      "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible."
     }
   ]
 }

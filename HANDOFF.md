@@ -1,6 +1,6 @@
 # Orbit handoff
 
-Updated 2026-10-07. Orbit v0.4.0 prerelease, not yet accepted in all desktop surfaces.
+Updated 2026-10-24. Orbit v0.5.0 beta release. Native acceptance remains incomplete.
 
 ## Scope
 
@@ -21,10 +21,10 @@ The public source repository is https://github.com/aataraxiaa/orbit.
 - scripts/retrieval.py owns a machine-local incremental FTS5 passage index, scoped ranking and current evidence checks.
 - scripts/knowledge.py owns catalogs, explicit relationships, durable integration stages and maintenance diagnostics.
 - scripts/eval.py evaluates labeled synthetic helper retrieval from tests/fixtures/retrieval.
-- Five skills own source interpretation, useful map curation, knowledge integration and evidence-based answers.
+- Six skills own source interpretation, useful map curation, knowledge integration and evidence-based answers.
 
 The derived cache stays outside the synced vault, keyed to vault identity and canonical path.
-Source integration records stay in .orbit/integrations for new vaults, or the existing legacy state directory. They survive cache loss.
+Source integration records stay in .orbit/integrations. They survive cache loss.
 Metadata fields and note prose remain user-owned. Unknown metadata blocks must remain verbatim.
 Sources/assets originals cannot participate as canonical identities or ordinary indexed search results.
 
@@ -79,3 +79,47 @@ A decision could use the same project field as the sole project note yet fail
 when that note had a different display title. The patch accepts explicit unique
 project-field identities while preserving collision refusal. Data format stays 2;
 existing format-2 vaults require only the migration skill's compatibility check.
+
+## 0.5.0 named Orbits candidate
+
+`scripts/registry.py` owns the named schema-2 config and immutable operation targets.
+Dispatch resolves once and adds the target receipt. Existing storage, per-vault locks
+and path/identity cache isolation remain unchanged. There is no global active selection.
+Agents and workflow hooks pass an explicit Orbit name on every scoped call.
+
+Setup requires a name and path. Registration is atomic and preserves initialized vault
+files. The user explicitly chose a clean beta configuration with a one-time local repair;
+no schema-1 config upgrade, restore tool or Second Brain runtime compatibility ships.
+Vault data format remains 2; existing data-format migration routes remain available.
+
+Current mechanical verification belongs in review-artifacts/orbit-only under the project
+artifact directory. Native desktop, cross-app, fresh-chat and LLM selection acceptance
+are separate. Building the candidate does not install or publish it.
+
+The local vault's state and rules were renamed to `.orbit` and `ORBIT.md` with a
+full backup. Its installed 0.4.1 runtime still uses a temporary single-vault binding.
+Install/reload this candidate and replace that local binding with the prepared named
+registry together. This local installation step is not a shipped migration route.
+
+## Setup and routing follow-up
+
+`orbit_rename` changes a registry name under the same config lock as setup. It preserves
+folder paths, stable identities, content and unknown config fields. Old names refuse;
+there are no aliases or global active selections. Setup can link any existing ordinary
+folder. User-facing language is Orbit and folder; Obsidian remains optional.
+Agent guidance prioritizes the current request's explicit destination, then conversation
+selection, then the sole entry, otherwise asks. Confirmations require target receipts
+and content readback. Mechanical evidence is under review-artifacts/setup-routing.
+Native LLM destination selection and desktop acceptance remain unverified.
+
+## Format existing notes
+
+`formatting.py` and the `orbit-format` skill add absent metadata in place through
+`orbit_format`, with a preview by default. Body bytes, existing fields, custom
+metadata blocks, paths, assets and format markers remain unchanged. The parser
+conservatively refuses unsupported required values and ambiguous headers.
+Formatting uses the existing lock, atomic writes, journals and recovery. Existing
+link findings become warnings for this operation only; new graph problems,
+duplicate IDs and strict schema errors still block writes. There is no data-format
+change or additional migration route. Mechanical receipts belong in
+review-artifacts/format-notes. Native host and LLM behavior remain separate gates.

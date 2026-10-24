@@ -20,7 +20,7 @@ class KnowledgeTest(unittest.TestCase):
         self.root = self.base / 'vault'
         self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json')})
         self.env.start()
-        orbit.setup(str(self.root), create=True)
+        orbit.setup(str(self.root), 'Test', create=True)
 
     def tearDown(self):
         self.env.stop()
@@ -220,7 +220,8 @@ class KnowledgeTest(unittest.TestCase):
         current = transition(current, 'integrated', operations=[saved_source['operation'], saved['operation']], notes=[{'path': p, 'sha256': cli('read', p)['sha256']} for p in paths])
         current = transition(current, 'verified', verification=[{'query': 'Atlas deployment', 'paths': ['Knowledge/Atlas.md']}, {'query': 'Home', 'paths': ['Maps/Home.md']}])
         self.assertEqual(current['stage'], 'verified')
-        self.assertEqual(cli('capture', str(source))['processing'], current)
+        self.assertEqual(current['target']['path'], str(self.root.resolve()))
+        self.assertEqual(cli('capture', str(source))['processing'], {k: v for k, v in current.items() if k != 'target'})
         self.assertEqual(cli('catalog', '--limit', '1')['entries'][0]['path'], 'Maps/Home.md')
         self.assertTrue(cli('catalog', '--limit', '1', '--offset', '1')['entries'])
         self.assertEqual(cli('relations', 'Atlas')['relations'][0]['target'], source_path)

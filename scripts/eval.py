@@ -68,13 +68,11 @@ def aggregate(entries):
 def run(size, baseline=None):
     with tempfile.TemporaryDirectory(prefix='orbit-eval-') as temp:
         base, root = Path(temp), Path(temp) / 'vault'
-        previous = {key: os.environ.get(key) for key in ('ORBIT_CONFIG', 'ORBIT_CACHE', 'ORBIT_VAULT', 'SECOND_BRAIN_VAULT')}
+        previous = {key: os.environ.get(key) for key in ('ORBIT_CONFIG', 'ORBIT_CACHE')}
         os.environ['ORBIT_CONFIG'] = str(base / 'config.json')
         os.environ['ORBIT_CACHE'] = str(base / 'cache')
-        os.environ.pop('ORBIT_VAULT', None)
-        os.environ.pop('SECOND_BRAIN_VAULT', None)
         try:
-            orbit.setup(str(root), create=True)
+            orbit.setup(str(root), 'Test', create=True)
             cases = corpus(root, size)
             variants = {'indexed': orbit.search}
             if baseline:

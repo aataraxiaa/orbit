@@ -8,12 +8,12 @@ from urllib.parse import quote, unquote, urlsplit
 
 import orbit
 
-TARGET = '0.4.1'
+TARGET = '0.5.0'
 FORMAT = 2
 
 
 def _marker(root):
-    return orbit.internal(root) + '/vault.json'
+    return orbit.INTERNAL + '/vault.json'
 
 
 def _read(root, path):
@@ -22,7 +22,7 @@ def _read(root, path):
 
 
 def _journals(root):
-    directory = orbit.safe(root, orbit.internal(root) + '/migrations')
+    directory = orbit.safe(root, orbit.INTERNAL + '/migrations')
     return [(p, json.loads(orbit.safe(root, p.relative_to(root).as_posix()).read_bytes()))
             for p in sorted(directory.glob('*.json'))]
 
@@ -50,7 +50,7 @@ def ensure_writable(root):
 
 
 def _ordinary_pending(root):
-    folder = orbit.safe(root, orbit.internal(root) + '/operations')
+    folder = orbit.safe(root, orbit.INTERNAL + '/operations')
     if any(json.loads(p.read_bytes()).get('status') == 'prepared' for p in folder.glob('*.json')):
         raise orbit.OrbitError('Recover the pending save operation before migrating')
 
@@ -74,9 +74,9 @@ def _destinations(notes):
     for n in notes:
         old = n['path']
         kind = n['type']
-        if old in ('ORBIT.md', 'SECOND_BRAIN.md') or not kind:
+        if old in ('ORBIT.md',) or not kind:
             mapping[old] = old
-            if not kind and old not in ('ORBIT.md', 'SECOND_BRAIN.md'):
+            if not kind and old not in ('ORBIT.md',):
                 warnings.append('Unclassified note preserved: ' + old)
         elif kind == 'project':
             mapping[old] = 'Projects/' + _segment(n['title']) + '/Overview.md'
@@ -160,7 +160,7 @@ def _rewrite(text, old, new, mapping, identities):
 
 def _snapshot(root):
     result = {}
-    state = orbit.internal(root)
+    state = orbit.INTERNAL
     for base, dirs, files in os.walk(root, followlinks=False):
         dirs[:] = sorted(d for d in dirs if not d.startswith('.') or str(Path(base, d).relative_to(root)) == state)
         for directory in dirs:
@@ -236,7 +236,7 @@ def _prepare(root):
         raise orbit.OrbitError('Migration would duplicate note identities: ' + json.dumps(duplicate_ids))
     movements = [{'from': old, 'to': new} for old, new in mapping.items() if old != new]
     for path in sorted(files):
-        if not path.startswith(orbit.internal(root) + '/integrations/') or not path.endswith('.json'):
+        if not path.startswith(orbit.INTERNAL + '/integrations/') or not path.endswith('.json'):
             continue
         record = json.loads(_read(root, path))
         affected = [n for role in ('notes', 'extraction') for n in record.get(role, [])
@@ -309,7 +309,7 @@ def migrate(root, action='plan', target_version=None, plan_id=None, operation=No
             if not plan_id or plan_id != report['plan_id']:
                 raise orbit.OrbitError('Migration preview is missing or stale; run plan again')
             opid = str(uuid.uuid4())
-            journal = orbit.safe(root, orbit.internal(root) + '/migrations/' + opid + '.json')
+            journal = orbit.safe(root, orbit.INTERNAL + '/migrations/' + opid + '.json')
             record = {'id': opid, 'kind': 'migration', 'status': 'prepared', 'created': orbit.now(),
                       'plan_id': plan_id, 'source_format': 1, 'target_format': FORMAT,
                       'writes': writes, 'backup_manifest': {w['path']: orbit.digest(w['before'].encode()) if w['before'] is not None else None for w in writes}}
@@ -317,7 +317,7 @@ def migrate(root, action='plan', target_version=None, plan_id=None, operation=No
             return _execute(root, record, journal)
         if not operation or not re.fullmatch(r'[a-f0-9-]{36}', operation):
             raise orbit.OrbitError('A valid migration operation id is required')
-        journal = orbit.safe(root, orbit.internal(root) + '/migrations/' + operation + '.json')
+        journal = orbit.safe(root, orbit.INTERNAL + '/migrations/' + operation + '.json')
         if not journal.exists():
             raise orbit.OrbitError('Migration operation not found')
         record = json.loads(journal.read_bytes())

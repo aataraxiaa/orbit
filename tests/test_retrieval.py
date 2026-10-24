@@ -19,7 +19,7 @@ class RetrievalTest(unittest.TestCase):
         self.root = self.base / 'vault'
         self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json'), 'ORBIT_CACHE': str(self.base / 'cache')})
         self.env.start()
-        orbit.setup(str(self.root), create=True)
+        orbit.setup(str(self.root), 'Test', create=True)
 
     def tearDown(self):
         self.env.stop()

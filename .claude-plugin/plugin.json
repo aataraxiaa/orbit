@@ -1,7 +1,7 @@
 {
   "name": "orbit",
-  "version": "0.4.1",
-  "description": "Save, connect, and recall knowledge in your own Obsidian vault. Skills-first, explicit actions, no hooks.",
+  "version": "0.5.0",
+  "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }

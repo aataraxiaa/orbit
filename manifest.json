@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "orbit",
   "display_name": "Orbit",
-  "version": "0.4.1",
-  "description": "Save and recall knowledge in your own Markdown vault.",
+  "version": "0.5.0",
+  "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "author": {
     "name": "Orbit"
   },

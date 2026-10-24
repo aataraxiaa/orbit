@@ -55,7 +55,7 @@ def _record_path(root, sha):
     import orbit
     if not isinstance(sha, str) or not re.fullmatch('[0-9a-f]{64}', sha):
         raise orbit.OrbitError('source_sha256 must be a SHA-256 digest')
-    return orbit.safe(root, orbit.internal(root) + '/integrations/' + sha + '.json')
+    return orbit.safe(root, orbit.INTERNAL + '/integrations/' + sha + '.json')
 
 
 def _source(root, record):
@@ -127,7 +127,7 @@ def integration(root, record=None):
     import orbit
     import migration
     if record is None:
-        folder = orbit.safe(root, orbit.internal(root) + '/integrations')
+        folder = orbit.safe(root, orbit.INTERNAL + '/integrations')
         records, errors = [], []
         for p in sorted(folder.glob('*.json')):
             try:
@@ -182,9 +182,9 @@ def integration(root, record=None):
                 raise orbit.OrbitError('Integration requires committed operations')
             committed = {}
             for operation in operations:
-                journal_path = orbit.safe(root, orbit.internal(root) + '/operations/' + operation + '.json')
+                journal_path = orbit.safe(root, orbit.INTERNAL + '/operations/' + operation + '.json')
                 if not journal_path.exists():
-                    journal_path = orbit.safe(root, orbit.internal(root) + '/migrations/' + operation + '.json')
+                    journal_path = orbit.safe(root, orbit.INTERNAL + '/migrations/' + operation + '.json')
                 journal = json.loads(journal_path.read_text())
                 if journal['status'] != 'committed':
                     raise orbit.OrbitError('Integration operation is not committed')

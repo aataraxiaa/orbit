@@ -3,7 +3,7 @@
 Use the installed Orbit MCP tools. Their names are `orbit_setup`, `orbit_doctor`,
 `orbit_search`, `orbit_read`, `orbit_context`, `orbit_apply`, `orbit_capture`,
 `orbit_recover`, `orbit_index`, `orbit_catalog`, `orbit_relations`, `orbit_maintain`,
-`orbit_integration`, `orbit_schema`, and `orbit_migrate`. The host may prefix names with its MCP server namespace.
+`orbit_integration`, `orbit_schema`, `orbit_migrate`, `orbit_list`, `orbit_rename`, and `orbit_format`. The host may prefix names with its MCP server namespace.
 Discover the actual tools rather than guessing a callable name. Missing tools are
 an installation/startup failure; never substitute shell execution and claim MCP works.
 
@@ -12,10 +12,33 @@ Pass `plan` directly to `orbit_apply` and `record` directly to `orbit_integratio
 no temporary JSON files or shell quoting are needed. `orbit_read` uses `path`, `start`
 and `count`. `orbit_search` uses `query`, optional `scope` and `limit`.
 
-Vault precedence is the optional absolute `vault` argument, ORBIT_VAULT, then persistent
-config. `orbit_setup` takes an explicit absolute `path`, optional `create` and `bind`.
-ORBIT_CONFIG selects config at process launch. Never infer the vault from cwd. See
-[setup](setup.md) for desktop installation, bindings and permissions.
+Every content-scoped tool accepts `orbit` or an absolute registered `vault`, never both.
+Names are case-insensitive. An explicit path must match a registered path and identity.
+With one entry, omission selects that Orbit; multiple entries require a selector.
+Ambient vault variables do not choose an Orbit. Malformed or unsupported configuration
+refuses every Orbit operation, including explicit paths.
+
+`orbit_list` needs no selector and reports names, paths, stable IDs and availability.
+Every successful Orbit operation returns `target` with `name`, `path`, `vault_id`
+and `selection_source`. Check it before treating evidence or a save as belonging to
+an Orbit. A registered identity is verified before each operation.
+
+`orbit_setup` requires absolute `path` and `name`, with optional `create`.
+Names contain 1 to 80 characters without surrounding whitespace or control characters.
+Case collisions, name rebinding, duplicate IDs and overlapping roots refuse.
+Registration is atomic and preserves initialized Orbit files and unknown config fields.
+Config schema 2 stores `orbits: {name: {path, vault_id}}`; there is no global active selection.
+`ORBIT_CONFIG` selects config at process launch. See [setup](setup.md) for installation.
+
+`orbit_rename` requires the current `orbit` name and new `name`. It atomically changes
+only the registry name and preserves the folder, identity and unknown config fields.
+It refuses a name owned by another Orbit. Case-only changes are allowed; repeating the
+current name leaves config unchanged. The old name stops resolving after a rename.
+Neither registration nor rename creates a shared active selection.
+
+A workflow hook targets its destination explicitly, for example `orbit: "Work"` on
+its `orbit_apply` call and on the search/read calls used to prepare and verify it.
+The hook does not depend on another conversation's choice.
 
 The optional `scripts/orbit.py` CLI remains available for engineering and recovery.
 It is not the desktop skill's execution route or evidence of a working MCP connection.
@@ -45,7 +68,7 @@ journals before replacing files and returns changed paths/reasons. Individual fi
 are atomic; the whole batch is recoverable, not atomic. External tools do not honor
 our write lock: avoid concurrent editing during a save. Never blindly retry a conflict.
 
-No automatic deletion, renaming, arbitrary command execution or web fetching. Capture
+No automatic deletion, note-file renaming, arbitrary command execution or web fetching. Capture
 only copies a user-selected file; it neither extracts nor integrates it.
 
 ## Search and read
@@ -152,7 +175,7 @@ batch. The common identity, metadata preservation and link checks remain errors.
 pending operation IDs. A legacy marker without a release reports unknown.
 
 `orbit_migrate` accepts `action` (plan, apply, resume, rollback), optional
-`target_version`, `plan_id`, and `operation`. The installed target is 0.4.1.
+`target_version`, `plan_id`, and `operation`. The installed target is 0.5.0.
 
 - Plan is the default and writes nothing. It returns proposed moves, warnings,
   changes, source/target formats and a plan_id bound to the current inputs.
@@ -170,3 +193,30 @@ verification as stale. Rebuild SQLite after commit or rollback. Exact backups li
 in the returned migration journal path and must be protected like private notes.
 
 See the single [migration skill](../skills/orbit-migrate/SKILL.md) for supported routes.
+
+## Format existing notes
+
+`orbit_format` accepts `plan: {changes: [{path, expected_sha256, metadata}]}` and
+`dry_run`, which defaults to true. Select the named `orbit` on every call.
+A batch contains 1 to 50 existing public Markdown notes. `metadata` accepts only
+`title`, `type` and `summary`. Supply values supported by the note, only where
+absent. Existing populated fields must match if supplied. Missing IDs use UUID5
+from the Orbit identity and relative path; existing IDs remain stable.
+
+The tool inserts new fields at the start of frontmatter and preserves existing
+bytes, including BOM, body, unknown metadata blocks and line endings. It refuses
+malformed or unclosed frontmatter, duplicate keys, unsupported required values,
+unsafe paths and hash conflicts. This is a conservative parser, not general YAML
+support. Formatting creates no notes, folders, moves, relationships or format upgrades.
+The shared write engine may create internal lock and journal directories.
+
+The receipt includes `formatted` entries with exact `added` values and
+`before_sha256`, `after_sha256`, and `body_sha256`, alongside `changes`, `warnings`
+and `target`. Existing link findings are returned with `preserved:true`; new
+findings, duplicate IDs and strict schema errors block the operation. Ordinary
+`orbit_apply` retains its existing validation and exposes no bypass.
+
+Set `dry_run:false` to apply an authorized preview. Prepared interruptions use
+`orbit_recover` for resume or rollback, which refuses subsequent human edits.
+Developer CLI equivalent: `format PLAN.json` previews; `format PLAN.json --apply`
+writes. Use installed MCP tools for desktop acceptance.

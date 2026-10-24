@@ -118,7 +118,7 @@ class MigrationTest(unittest.TestCase):
         result = migration.migrate(self.root)
         self.assertEqual(result['status'], 'unchanged')
         self.assertEqual(result['source_version'], '0.4.0')
-        self.assertEqual(result['target_version'], '0.4.1')
+        self.assertEqual(result['target_version'], '0.5.0')
         self.assertTrue(result['compatible'])
         self.assertEqual(before, self.snapshot())
 

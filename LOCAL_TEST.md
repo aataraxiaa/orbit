@@ -12,7 +12,7 @@ use the Plugins directory. These repository installs can update from GitHub.
 For a local candidate, use the generated `dist/marketplace` source, named `orbit-local`.
 Restart the app if needed to refresh its marketplace picker.
 
-Ask to set up Orbit in a fresh conversation. The agent must discover `orbit_doctor`,
+Ask to set up Orbit in a fresh conversation. The agent must discover `orbit_list`, `orbit_doctor`,
 `orbit_setup`, `orbit_apply`, `orbit_search` and `orbit_read`. Missing tools fail the
 connection check. A shell fallback does not repair MCP or count as acceptance.
 Choose the vault once; bind the path the actual MCP process can access, normally the
@@ -54,7 +54,6 @@ mocking its version. Cache corruption recovery and locked-cache preservation mus
 ## Verify product behavior
 
 Use a disposable vault. Set `ORBIT_CONFIG` and `ORBIT_CACHE` to temporary paths outside that vault.
-Unset both `ORBIT_VAULT` and the legacy `SECOND_BRAIN_VAULT` override when testing config selection.
 The smoke script isolates these values automatically.
 
 1. Discuss a staged rollout chosen because rollback must remain possible.
@@ -87,3 +86,24 @@ A second plan must return unchanged. Test interrupted resume and rollback, and
 confirm a subsequent human edit causes recovery refusal without additional writes.
 The migration suite covers these mechanical cases. Separately test the packaged
 plugin in each desktop host before claiming native migration acceptance.
+
+## Verify named Orbits in the 0.5.0 candidate
+
+Use isolated config/cache and disposable Personal and Work paths. Register both and
+list them. Save different content to the same relative note path in concurrent chats.
+Verify every receipt names its target, then search/read each after a fresh process.
+An omitted selector with two entries, an unknown name, an unregistered path, or a
+replaced vault ID must fail before cache or vault writes. Registering initialized vaults
+must preserve bootstrap files byte-for-byte. Check concurrent registration and safe reruns after an interrupted config write. Package tests exercise extracted manifests.
+
+Native acceptance additionally requires two simultaneous conversations, one-off
+overrides, deliberate conversation switches, labelled combined recall, cross-app
+save/read and fresh-chat selection. Unit and MCP subprocess checks do not prove these.
+
+For setup and rename, link a populated ordinary folder without Obsidian, then rename
+its initial Orbit to Work. Verify all existing file bytes and identity remain unchanged.
+Save with Work and read it back from a fresh process. The old name and a conflicting
+name must fail without writing. Exercise rename concurrently with registration.
+In each native host, check explicit request destinations override a conversation's
+choice, one-off saves do not switch it, and confirmations use returned target receipts.
+Quoted mentions of another Orbit must not change the destination.

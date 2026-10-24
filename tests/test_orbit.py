@@ -29,22 +29,23 @@ class VaultTest(unittest.TestCase):
         self.root = self.base / 'vault with spaces'
         self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json')})
         self.env.start()
-        orbit.setup(str(self.root), create=True)
+        orbit.setup(str(self.root), 'Test', create=True)
 
     def tearDown(self):
         self.env.stop()
         self.temp.cleanup()
 
     def test_setup_requires_explicit_creation_and_preserves_files(self):
-        with self.assertRaises(orbit.OrbitError): orbit.setup(str(self.base / 'missing'))
+        with self.assertRaises(orbit.OrbitError): orbit.setup(str(self.base / 'missing'), 'Missing')
         p = self.root / 'manual.md'; p.write_text('User-owned content')
         original_rules = (self.root / 'ORBIT.md').read_bytes()
-        orbit.setup(str(self.root))
+        orbit.setup(str(self.root), 'Test')
         self.assertEqual(p.read_text(), 'User-owned content')
         self.assertEqual((self.root / 'ORBIT.md').read_bytes(), original_rules)
-        self.assertEqual(orbit.vault(), self.root.resolve())
+        self.assertEqual(__import__('registry').resolve().root, self.root.resolve())
 
     def run_cli(self, *args, config=None, input=None):
+        args = (*args, '--name', 'Test') if args and args[0] == 'setup' else args
         env = os.environ.copy()
         env.pop('ORBIT_VAULT', None)
         env['ORBIT_CONFIG'] = str(config or self.base / 'config.json')
@@ -64,7 +65,7 @@ class VaultTest(unittest.TestCase):
         config.write_text(json.dumps(settings))
         second_config = self.base / 'other host' / 'config.json'
         second_config.parent.mkdir()
-        second_config.write_text(json.dumps({'other_host': {'keep': True}}))
+        second_config.write_text(json.dumps({'schema': 2, 'orbits': {}, 'other_host': {'keep': True}}))
 
         for current_config in (config, config, second_config):
             with self.subTest(config=current_config):
@@ -83,26 +84,25 @@ class VaultTest(unittest.TestCase):
 
     def test_setup_retry_after_config_write_failure_preserves_initialized_vault(self):
         root = self.base / 'partially initialized'
-        config_parent = self.base / 'blocked config parent'
-        config_parent.write_text('This file prevents the config directory from being created.')
-        config = config_parent / 'config.json'
-        failed = self.run_cli('setup', str(root), '--create', config=config)
-        self.assertNotEqual(failed.returncode, 0)
-        self.assertIn('error', json.loads(failed.stderr))
+        config = self.base / 'config.json'
+        original_atomic = orbit.atomic
+        def fail_config(path, data):
+            if path == config:
+                raise OSError('injected config write failure')
+            return original_atomic(path, data)
+        with patch.object(orbit, 'atomic', fail_config), self.assertRaises(OSError):
+            orbit.setup(str(root), 'Other', create=True)
         marker = root / '.orbit/vault.json'
         original_marker = marker.read_bytes()
         rules = root / 'ORBIT.md'
         rules.write_text('# Preserve these rules after retry\n')
         manual = root / 'manual.md'
         manual.write_text('Written between setup attempts\n')
-        config_parent.unlink()
-
-        retried = self.run_cli('setup', str(root), config=config)
-        self.assertEqual(retried.returncode, 0, retried.stderr)
+        orbit.setup(str(root), 'Other')
         self.assertEqual(marker.read_bytes(), original_marker)
         self.assertEqual(rules.read_text(), '# Preserve these rules after retry\n')
         self.assertEqual(manual.read_text(), 'Written between setup attempts\n')
-        self.assertEqual(json.loads(config.read_text())['vault'], str(root.resolve()))
+        self.assertEqual(json.loads(config.read_text())['orbits']['Other']['path'], str(root.resolve()))
 
     def test_second_host_updates_one_setup_record_with_current_hash(self):
         path = 'Knowledge/Orbit setup check.md'
@@ -187,7 +187,7 @@ class VaultTest(unittest.TestCase):
         other = self.base / 'other'; other.mkdir()
         (self.root / '.orbit').rename(self.root / '.old')
         (self.root / '.orbit').symlink_to(other, target_is_directory=True)
-        with self.assertRaises(orbit.OrbitError): orbit.setup(str(self.root))
+        with self.assertRaises(orbit.OrbitError): orbit.initialize(str(self.root))
 
     def test_capture_is_byte_exact_deduplicated_and_linkable(self):
         src = self.base / 'file.pdf'; src.write_bytes(b'%PDF binary\x00\xff')

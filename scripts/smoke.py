@@ -13,15 +13,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix='orbit-smoke-') as directory:
         root = Path(directory)
         env = dict(os.environ, ORBIT_CONFIG=str(root / 'config.json'), ORBIT_CACHE=str(root / 'cache'))
-        env.pop('ORBIT_VAULT', None)
-        env.pop('SECOND_BRAIN_VAULT', None)
         def run(*args):
             completed = subprocess.run([sys.executable, str(SCRIPT), *args], cwd=root,
                                        env=env, capture_output=True, text=True, timeout=15)
             if completed.returncode:
                 raise RuntimeError(completed.stderr)
             return json.loads(completed.stdout)
-        run('setup', str(root / 'Test Vault'), '--create')
+        run('setup', str(root / 'Test Vault'), '--name', 'Test', '--create')
         def note(id, title, body):
             fields = {'id': id, 'title': title, 'type': 'concept', 'summary': body.splitlines()[0]}
             return '---\n' + '\n'.join(f'{k}: {json.dumps(v)}' for k,v in fields.items()) + '\n---\n# ' + title + '\n\n' + body

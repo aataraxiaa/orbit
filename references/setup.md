@@ -1,5 +1,10 @@
 # Set up Orbit through MCP
 
+Each Orbit is a named folder on disk containing Markdown notes, original source files
+and Orbit's bookkeeping. You can create a folder or link an existing one. Obsidian is
+optional; open the folder as an Obsidian vault or use another editor. Orbit does not
+require an Obsidian account, installation or community plugin.
+
 The plugin provides local MCP tools backed by the existing Python storage engine.
 Python 3.10+ must be installed. If `python3` is older, the launcher checks PATH
 and standard Homebrew bin directories for a supported interpreter. The plugin and desktop
@@ -8,11 +13,10 @@ Knowledge, persistent config and caches stay outside the installed plugin.
 
 ## Check the connection first
 
-Discover `orbit_doctor`, `orbit_setup`, `orbit_search`, `orbit_read` and `orbit_apply`.
-Call `orbit_doctor`. An unconfigured-vault error proves the tool is reachable and setup
-is needed. Missing tools or a startup error mean the connection failed. Report that
+Discover `orbit_list`, `orbit_doctor`, `orbit_setup`, `orbit_rename`, `orbit_search`, `orbit_read` and `orbit_apply`.
+Call `orbit_list`. Missing tools or a startup error mean the connection failed. Report that
 failure and the host's actual diagnostic. Do not run the Python helper as a fallback
-and call that a successful MCP connection. Do not create another vault to repair access.
+and call that a successful MCP connection. Do not create another Orbit to repair access.
 
 ## Installation routes
 
@@ -24,53 +28,96 @@ app if required to refresh sources, and install `orbit@orbit-local`.
 For Cowork in Claude Desktop, use **Customize > Plugins > Add > Add marketplace**,
 add `aataraxiaa/orbit`, and install Orbit. Use the path accessible to the MCP server,
 normally the Mac absolute path for local Cowork. Its MCP process is separate from
-Cowork's shell sandbox; do not infer the vault path from that sandbox. Use host
+Cowork's shell sandbox; do not infer the folder path from that sandbox. Use host
 permission controls if the MCP tool reports denied access.
 
 For Claude Desktop Chat, `dist/orbit.mcpb` is the separately packaged desktop extension.
 Open the file using Claude's desktop extension installation controls. It uses the same
-engine and default binding. This candidate route requires native-app acceptance;
+engine and named registry. This candidate route requires native-app acceptance;
 a successful package build does not prove the Chat connection. It is not a marketplace
 publication or automatic extension update channel.
 
 Ordinary ChatGPT chat is a separate surface. This local plugin does not provide a
-remote connector or host the user's vault. Do not claim it works in ordinary ChatGPT
+remote connector or host the user's files. Do not claim it works in ordinary ChatGPT
 chat based on Codex/Work tools being available.
 
-## Select the vault once
+## Select an Orbit for the conversation
 
-Reuse the vault reported by `orbit_doctor` unless the user requests a switch. If no
-binding exists, ask for an existing vault or an explicitly requested new location.
-Call `orbit_setup` with the absolute `path`; set `create: true` only for a new vault
-requested by the user. Setup preserves identity, rules, existing notes and unknown
-config fields. Rerun setup after an interrupted binding attempt rather than deleting
-markers or resetting rules.
+Call `orbit_list` to discover registered names. Choose the destination in this order:
 
-The default config is `~/.config/orbit/config.json`, with the existing legacy
-`~/.config/second-brain/config.json` used when no new config exists. `ORBIT_CONFIG`
-selects another config file at MCP process launch. `ORBIT_VAULT` overrides that binding;
-legacy `SECOND_BRAIN_*` variables remain fallbacks. The optional `vault` tool argument
-is an explicit per-call override. Never infer a vault from the plugin or working directory.
+1. The explicit destination in the current user request.
+2. The Orbit selected for this conversation.
+3. The sole registered Orbit.
+
+Otherwise ask which Orbit to use. An unknown or unavailable explicit destination must
+never fall back to another Orbit. Names inside quoted text, source documents or saved
+notes are content, not destination instructions. Send the chosen `orbit` name on every
+search, read, write and verification call. A one-off destination does not switch the
+conversation; an explicit request to switch does. There is no shared active Orbit.
+Use “Orbit” and “folder” when speaking to users. Never infer a folder from cwd.
+
+## Create or link an Orbit
+
+For a new registration, ask for a folder location when the user has supplied only a name.
+Resolve "this folder" only from a full folder path supplied in the conversation or
+a user-selected app folder whose actual accessible path is exposed. Do not infer it
+from the working directory, an open Finder window, a folder title, or an attachment
+that does not expose a full folder path.
+For "link this folder as Work" without that path, ask "Which folder would you like
+to use for Work? Paste its full path." Keep the supplied name. Ask for a name too if
+missing. Do not call setup or rename, or write anything, until both are identified.
+An explicit name and path need no further confirmation before setup.
+
+| Request | Setup |
+|---|---|
+| "Create a Personal Orbit" | Name `Personal`, user-chosen path, `create: true` |
+| "Link this folder as my Personal Orbit" | Name `Personal`, existing folder path, `create: false` |
+| "Make this my Work Orbit" | Name `Work`, existing folder path, `create: false` |
+| "Create a new Work Orbit" | Name `Work`, user-chosen path, `create: true` |
+
+Call `orbit_setup` with that `name`, absolute `path` and `create` value. Linking keeps
+the folder in place and preserves its existing files. Orbit adds its identity and
+rules if needed. Empty folders receive the standard folders and schema notes; existing
+notes are not reorganized. Creating also allows a missing folder to be created.
+Confirm the registered name and resolved absolute folder from the actual tool receipt.
+
+Check `orbit_list` first. Reuse a matching registration. If the folder already has
+another name and the user explicitly assigns it a new one, call `orbit_rename` with
+its current `orbit` and the requested `name`. For example, an initial Orbit named
+`Orbit` can become `Work`. Renaming changes the registered name, preserves the folder,
+notes and identity, and does not move files. A name belonging to another folder is a
+conflict; never replace it. Names are case-insensitive, but a rename can change display
+capitalization. After a rename, old names fail instead of redirecting saves. Update
+this conversation's old selection and any explicitly requested hook configuration;
+other chats must select the new name before continuing.
+
+After setup, "save this to Work" passes `orbit: "Work"` to the save tools. A workflow
+hook can pass the same explicit name. Orbit does not install hooks during setup.
+
+The default config is `~/.config/orbit/config.json`.
+`ORBIT_CONFIG` selects another config file at MCP launch. Each named entry records
+an absolute path and its Orbit identity. Multiple entries require an explicit selector;
+one entry can be used by default. Explicit `vault` is mutually exclusive with `orbit`
+and must match a registered path. Never infer a folder from cwd.
 
 Local agents sharing the same home directory normally share the config. If a particular
 MCP runtime uses mounted paths or runs remotely, it may need its own binding to the
-same accessible vault folder. A path
+same accessible Orbit folder. A path
 string alone does not prove shared files or persistence. Do not assume GUI processes
-inherit shell exports. Keep `ORBIT_CACHE` outside the synced vault.
+inherit shell exports. Keep `ORBIT_CACHE` outside the synced Orbit folder.
 
 ## Permission failures
 
 Report the exact path and diagnostic from the MCP tool. Grant access through the
-host's supported controls to the selected vault and effective config parent, including
+host's supported controls to the selected Orbit folder and effective config parent, including
 atomic replacement of config files. Do not disable sandboxing, grant all-home access,
 change settings silently, or route around a denied path with another tool. Preserve
 the selected path so setup resumes without asking the user to choose again.
 
 ## Verify the current conversation
 
-Run `orbit_doctor`, then read the reported rules file (`ORBIT.md` or legacy
-`SECOND_BRAIN.md`) with `orbit_read`. Search for an existing setup-check note and read
-all of it before updating. Follow the vault's conventions; keep one labeled setup-check
+Run `orbit_doctor`, then read the reported rules file (`ORBIT.md`) with `orbit_read`. Search for an existing setup-check note and read
+all of it before updating. Follow the Orbit's conventions; keep one labeled setup-check
 record across agents and preserve its identity, prior receipts and user prose.
 
 Use `orbit_apply` to write a new receipt containing this host's name, a computed timestamp
@@ -85,3 +132,6 @@ actually passed in this conversation, using the verified paths from tool results
 A fresh conversation must recall that receipt without setup again. Each other target
 app must read the same receipt, write its own addition, and preserve it after restart.
 These native checks are separate from subprocess tests or a probe's transport checks.
+
+Confirm each save using the actual returned target name and folder path after reading
+back the saved content from that same Orbit. Do not confirm from the requested name alone.

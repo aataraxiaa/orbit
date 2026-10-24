@@ -15,9 +15,9 @@ BUDGET = 12000
 
 def cache_path(root):
     import orbit
-    identity = json.loads(orbit.safe(root, orbit.internal(root) + '/vault.json').read_text())['id']
+    identity = json.loads(orbit.safe(root, orbit.INTERNAL + '/vault.json').read_text())['id']
     key = hashlib.sha256((str(root.resolve()) + '\0' + identity).encode()).hexdigest()
-    directory = Path(os.environ.get('ORBIT_CACHE') or os.environ.get('SECOND_BRAIN_CACHE') or str(orbit.config_path().parent / 'cache')).expanduser()
+    directory = Path(os.environ.get('ORBIT_CACHE') or str(orbit.config_path().parent / 'cache')).expanduser()
     if directory.resolve().is_relative_to(root.resolve()):
         raise OSError('Search cache must be outside the vault')
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -157,7 +157,7 @@ def catalog(root, scope=None, limit=50, offset=0, note_type=None, status=None):
     freshness = refresh(root)
     db = connect(Path(freshness['cache']))
     try:
-        sql = "FROM notes WHERE path NOT IN ('ORBIT.md','SECOND_BRAIN.md')"
+        sql = "FROM notes WHERE path NOT IN ('ORBIT.md')"
         params = []
         if note_type:
             sql += ' AND note_type=?'
@@ -208,7 +208,7 @@ def search(root, query, limit=8, scope=None, note_type=None, status=None):
                 FROM search JOIN passages p ON p.id=search.rowid JOIN notes n ON n.path=p.path
                 WHERE search MATCH ?'''
             params = [match]
-            sql += " AND n.path NOT IN ('ORBIT.md','SECOND_BRAIN.md')"
+            sql += " AND n.path NOT IN ('ORBIT.md')"
             if note_type:
                 sql += ' AND n.note_type=?'
                 params.append(note_type)

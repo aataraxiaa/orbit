@@ -1,17 +1,20 @@
 # Orbit
 
-A plugin for saving, connecting, and recalling knowledge in your own Obsidian vault.
+A plugin for saving, connecting, and recalling knowledge in named folders on disk.
+Each Orbit holds Markdown notes and source files. Obsidian is an optional editor.
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.4.1 adds structured notes and recoverable migrations and remains a desktop prerelease. Markdown and preserved
-sources remain authoritative. No cloud service, scheduled capture, hooks or required
-Obsidian community plugin. Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew
-bin directories when `python3` is older; neither the plugin nor MCPB installs Python. Search uses SQLite FTS5.
+Version 0.5.0 is a beta release with named independent Orbits. Native desktop acceptance
+remains pending. Markdown and preserved sources remain authoritative. No cloud service,
+scheduled capture or bundled hooks. Python 3.10+ must be installed. The launcher checks
+PATH and standard Homebrew bin directories when `python3` is older; neither the plugin
+nor MCPB installs Python. Search uses SQLite FTS5.
 
 ## How Orbit works
 
-Orbit keeps your knowledge in Markdown files that you can read and edit in Obsidian.
+Orbit keeps your knowledge in Markdown files that you can read and edit with any text
+editor. You can also open an Orbit folder as an Obsidian vault.
 The agent decides what to save and how it connects to existing notes. Orbit's local
 Python engine checks and writes those changes. On retrieval, it refreshes a local SQLite index.
 
@@ -19,15 +22,15 @@ Python engine checks and writes those changes. On retrieval, it refreshes a loca
 flowchart LR
     You["You"] --> Agent["Agent and Orbit skills"]
     Agent <-->|"Local MCP tools"| Engine["Python storage engine"]
-    Engine <-->|"Read and checked writes"| Vault["Markdown vault and source assets"]
-    Obsidian["Obsidian"] <-->|"Read and edit"| Vault
-    Vault -->|"Derived note text and metadata"| Index["Local SQLite search cache"]
+    Engine <-->|"Read and checked writes"| OrbitFolder["Named folder: Markdown and source files"]
+    Editor["Text editor or Obsidian (optional)"] <-->|"Read and edit"| OrbitFolder
+    OrbitFolder -->|"Derived note text and metadata"| Index["Local SQLite search cache"]
     Engine <-->|"Search and catalog"| Index
 ```
 
-The Markdown vault is the source of truth. SQLite contains a rebuildable copy of
+The Markdown folder is the source of truth. SQLite contains a rebuildable copy of
 searchable content, so losing the index does not lose your notes. Recovery journals
-and integration records inside the vault are separate persistent state and are not
+and integration records inside the Orbit are separate persistent state and are not
 disposable search caches.
 
 Read [the knowledge structure](#structured-knowledge-and-sessions) for where notes
@@ -40,54 +43,57 @@ Orbit. In Claude Cowork this is **Customize > Plugins > Add > Add marketplace**.
 In Codex desktop use the Plugins directory's marketplace/source controls.
 Repository marketplace installs receive updates from the repository.
 
-Start a fresh conversation and say “Set up Orbit”. The agent must call Orbit's MCP
-tools, bind your selected vault, save a labeled receipt and read it back. Installation
+Start a fresh conversation and say "Create a Personal Orbit" or "Link this folder as
+my Work Orbit". Give the agent a folder location when asked. The agent must call Orbit's
+MCP tools, register the name and folder, save a labeled receipt and read it back. Installation
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.4.1](https://github.com/aataraxiaa/orbit/releases/tag/v0.4.1)
+same engine. Download it from [v0.5.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
 ChatGPT chat remains a separate, unverified surface; this release adds no remote
-connector and does not upload or host the vault.
+connector and does not upload or host the Orbit.
 
 A disposable probe established transport in Codex desktop and Cowork. That is not
 acceptance of this production artifact. See [installation and testing](LOCAL_TEST.md)
 and [acceptance](references/acceptance.md) for the remaining native checks.
 
-## Use the five skills
+## Use the six skills
 
 | Skill | Behavior |
 |---|---|
-| orbit-setup | Select a vault, bind it persistently, verify access |
+| orbit-setup | Register a named Orbit and verify access |
 | orbit-save | Integrate selected content, update affected knowledge and maps, verify recall |
 | orbit-recall | Orient through maps or retrieve scoped evidence, follow relationships, cite sources |
 | orbit-maintain | Inspect incomplete integration, stale evidence, links and provenance; repair requested issues |
+| orbit-format | Add missing metadata to existing notes while preserving their content and paths |
 | orbit-migrate | Preview, apply, resume, or roll back the appropriate versioned migration |
 
 ## Set up and inspect
 
-`orbit_setup` selects a vault. `orbit_doctor` reports access and integrity.
+An Orbit name such as `Personal` or `Work` points to a folder you choose. You can create
+a new folder or link an existing one without moving its notes. Then say "Save this to
+Work" or "Search Personal for my travel plans". If several Orbits exist and you have
+not chosen one, the agent asks which to use.
+
+`orbit_setup` registers the name and folder. `orbit_doctor` reports access and integrity.
 `orbit_search` and `orbit_read` return evidence; `orbit_apply` saves a JSON change plan
-with current hashes. The plugin's skills guide source interpretation and verification.
+with current hashes. For existing Markdown, ask "Format these notes for Orbit".
+`orbit_format` previews missing metadata and adds it in place without changing note
+bodies, paths, assets or the data-format marker. Existing broken links become warnings;
+new link problems and strict schema failures block the batch. The plugin's skills guide source interpretation and verification.
 See [tool contracts](references/tools.md) for all operations.
 
 Fresh setup creates format-2 folders and schema notes. Setup preserves existing notes; upgrading their organization is explicit. The config defaults to ~/.config/orbit/config.json.
-ORBIT_CONFIG isolates a different config. ORBIT_VAULT and the explicit `vault` argument explicitly override the binding.
-The helper never infers a vault from the working directory.
-
-Existing Second Brain installations remain readable. Orbit uses an existing legacy config
-when no new config or explicit override is selected, and accepts `SECOND_BRAIN_*` environment
-variables when their `ORBIT_*` equivalents are unset. Existing vaults retain `.second-brain`
-state and `SECOND_BRAIN.md` rules, including their UUIDs, recovery records and shared writer lock.
-New vaults use `.orbit` and `ORBIT.md`. Conflicting old and new state directories or rules files
-require manual resolution. Setup does not rename notes; the migration tool provides guarded note moves with link repairs and backup journals.
+ORBIT_CONFIG selects a different registry. Use an explicit `orbit` name or registered `vault` path on each call.
+The helper never infers an Orbit from the working directory.
 
 ## Structured knowledge and sessions
 
 Format 2 separates project context from knowledge you can reuse across projects.
-This illustrative vault shows the intended homes for notes. The example names are
+This illustrative Orbit shows the intended homes for notes. The example names are
 not files that setup creates.
 
 ```text
@@ -127,8 +133,8 @@ ORBIT.md
 | `Sources/` | Source notes with provenance and extracted text. Original files live under `Sources/assets/`. |
 | `Schemas/` | Versioned Markdown definitions of the fields and sections expected for each note type. |
 | `Maps/` | Authored navigation notes that explain how related notes fit together. |
-| `ORBIT.md` | Vault rules that guide the agent. |
-| `.orbit/` | Vault identity, recovery journals, migration backups, and processing records managed by Orbit. |
+| `ORBIT.md` | Orbit rules that guide the agent. |
+| `.orbit/` | Orbit identity, recovery journals, migration backups, and processing records managed by Orbit. |
 
 ### Projects and knowledge without duplication
 
@@ -170,7 +176,7 @@ The save skill tells the agent to search and read related notes before updating 
 creating one. The engine rejects duplicate stable IDs, but it does not detect two
 notes with different IDs that say the same thing. The standard folder layout is guided
 by skills and migrations; ordinary saves do not enforce every note's folder placement.
-Checking an existing vault for repeated content still requires reading the notes.
+Checking an existing Orbit for repeated content still requires reading the notes.
 
 ### Sessions and schemas
 
@@ -188,11 +194,11 @@ See [the data contract](references/format.md) and [bundled schemas](references/s
 
 Use `orbit_search` or `orbit_catalog` with `note_type: "session"` to resume a project,
 or `note_type: "decision"` and `status: "current"` for current decisions. Ordinary
-results exclude schema notes and vault rules.
+results exclude schema notes and Orbit rules.
 
-## Upgrade an existing vault
+## Upgrade an existing Orbit
 
-Update the plugin, start a fresh conversation, and ask to migrate your Orbit vault.
+Update the plugin, start a fresh conversation, and ask to migrate your Orbit.
 There is one `orbit-migrate` skill. It selects version-specific reference instructions
 using the observed data format and target release, previews changes, and calls the
 migration engine with the preview's digest. Format 1 upgrades to format 2; format 2
@@ -203,7 +209,7 @@ release as unknown and routes by data format. Backups retain exact affected file
 interrupted runs can resume or roll back, refusing subsequent human edits. Ambiguous
 project ownership and unsupported links block the plan rather than guess. Original
 assets and historical receipts remain intact. Affected integration verification becomes
-historical and needs re-verification. Plugin installation never migrates a vault silently.
+historical and needs re-verification. Plugin installation never migrates an Orbit silently.
 
 ## How SQLite supports retrieval
 
@@ -226,9 +232,9 @@ also stores passage text, so protect the cache as you would the notes themselves
 
 The cache defaults to `~/.config/orbit/cache` when using the default Orbit config.
 With another selected config, it defaults to a `cache` directory beside that config.
-`ORBIT_CACHE` overrides the cache directory, which must remain outside the vault.
-The database filename is derived from the vault's identity and absolute path. Each
-machine can build its own cache from the same synced Markdown vault.
+`ORBIT_CACHE` overrides the cache directory, which must remain outside the Orbit.
+The database filename is derived from the Orbit's identity and absolute path. Each
+machine can build its own cache from the same synced Markdown folder.
 
 ### What happens when you search
 
@@ -246,8 +252,8 @@ flowchart TD
     Verify --> Results["Return passages, opening context, paths, and line numbers"]
 ```
 
-There is no background file watcher. Search and catalog requests inventory the vault,
-then reparse only files whose signatures changed. This picks up edits made in Obsidian
+There is no background file watcher. Search and catalog requests inventory the Orbit,
+then reparse only files whose signatures changed. This picks up edits made in any editor
 as well as edits made through Orbit. File inventory still grows with the number of
 files, even when none need reparsing.
 
@@ -265,7 +271,7 @@ how much text recall needs to send to the agent while keeping citations traceabl
 
 Original assets under `Sources/assets/` are not indexed. A source note needs saved
 extracted text for that content to be searchable. Hidden directories are skipped.
-Schema notes and vault rules can exist in the index, but ordinary search and catalog
+Schema notes and Orbit rules can exist in the index, but ordinary search and catalog
 results exclude them. Requesting `note_type: "schema"` exposes schema notes.
 
 SQLite currently supports search and the catalog. Context traversal and explicit
@@ -275,7 +281,7 @@ notes rather than SQL tables.
 
 `orbit_index` with `rebuild: true` recreates the derived index without rewriting notes.
 The engine also rebuilds an incompatible index schema. Rebuilding SQLite is separate
-from migrating the vault's data format, which can move notes or update persistent
+from migrating the Orbit's data format, which can move notes or update persistent
 state and therefore needs the migration skill and backups.
 
 Search is lexical, not semantic. Agents expand indirect questions and follow maps
@@ -322,10 +328,10 @@ python3 scripts/eval.py --output /absolute/evaluation.json
 python3 scripts/package.py
 ```
 
-Tests and smoke runs use disposable vaults. The evaluation uses labeled synthetic notes and reports helper retrieval only.
+Tests and smoke runs use disposable Orbits. The evaluation uses labeled synthetic notes and reports helper retrieval only.
 Real host, fresh-chat and LLM behavior are separate acceptance checks. See [acceptance](references/acceptance.md).
 Build outputs are `dist/orbit-plugin.zip`, `dist/orbit.mcpb`, and `dist/orbit-project.zip`; local marketplaces are under `dist/marketplace`.
-See [local installation](LOCAL_TEST.md). Keep personal-vault adoption separate from package verification.
+See [local installation](LOCAL_TEST.md). Keep personal Orbit adoption separate from package verification.
 Release ZIPs are available from [GitHub Releases](https://github.com/aataraxiaa/orbit/releases).
 
 ## Prerelease limitations
@@ -343,3 +349,31 @@ The design draws on [Obsidian Second Brain](https://github.com/eugeniughelbur/ob
 [Basic Memory](https://github.com/basicmachines-co/basic-memory),
 [Ars Contexta](https://github.com/agenticnotetaking/arscontexta), and [QMD](https://github.com/tobi/qmd).
 No upstream implementation code is vendored.
+
+## Named Orbits
+
+Register Personal and Work with explicit names and separate absolute folder paths using
+`orbit_setup`. `orbit_list` reports availability without choosing one. Tell the agent
+which Orbit to use in each conversation; it carries that name on every call. A one-off
+override leaves the conversation choice unchanged. Multiple entries without a choice
+refuse, including when an ambient path environment variable is set. There is no shared
+active selection between chats and no automatic search across Orbits.
+
+The registry uses config schema 2. Orbit data format remains 2. This beta change
+uses a one-time local configuration update rather than a shipped compatibility path.
+Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
+The 0.4.1 release link above is historical; this 0.5.0 candidate is not published.
+
+### Rename and select an Orbit
+
+“Rename Orbit to Work” changes the registered name without moving the folder or its
+notes. “Link this folder as Work” registers an existing directory; if it is already
+registered under another name, an explicit naming request uses `orbit_rename`.
+A name already used by another folder is a conflict, never an overwrite.
+
+“Save this to Work” overrides this conversation's selected Orbit for that request.
+“Use Personal for this conversation” switches subsequent requests in this chat.
+With no choice, Orbit uses the sole registered entry or asks when there are several.
+Unknown or unavailable names fail without saving elsewhere. Each save is confirmed
+with the actual Orbit name and path after reading back the content. Hooks pass their
+Orbit name explicitly, and must use its new name after a rename.
