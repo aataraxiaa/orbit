@@ -1,6 +1,6 @@
 # Orbit handoff
 
-Updated 2026-10-25. Orbit v0.6.0 development candidate; not published.
+Updated 2026-10-25. Orbit v0.6.0 testing prerelease.
 Native two-Mac iCloud and cross-app acceptance remain unproven.
 
 ## Scope
@@ -140,7 +140,7 @@ change or additional migration route. Mechanical receipts belong in
 review-artifacts/format-notes. Native host and LLM behavior remain separate gates.
 
 
-## 0.6.0 revision candidate
+## 0.6.0 revision prerelease
 
 Fresh empty folders use format 3 and seed the initial schema notes. Existing formats
 1/2 remain legacy until an explicitly authorized migration. Format 1 must first use

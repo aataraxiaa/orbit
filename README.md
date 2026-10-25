@@ -7,12 +7,11 @@ Each Orbit holds Markdown notes and source files. Obsidian is an optional editor
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.6.0 is a development candidate for preserving concurrent writes across
+Version 0.6.0 is a testing prerelease for preserving concurrent writes across
 computers that share an Orbit folder. It adds immutable revisions and explicit conflict
-resolution while retaining editable Markdown and a derived local SQLite index. It is
-not published. Native two-Mac iCloud and cross-app acceptance have not been established.
+resolution while retaining editable Markdown and a derived local SQLite index. Native two-Mac iCloud and cross-app acceptance have not been established.
 Published 0.5.0 passed named-folder setup, save, search and read in one Codex desktop
-conversation on October 24, 2026; that evidence does not validate this candidate.
+conversation on October 24, 2026; that evidence does not validate this release.
 
 Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew bin
 directories when `python3` is older; neither the plugin nor MCPB installs Python.
@@ -57,7 +56,7 @@ MCP tools, register the name and folder, save a labeled receipt and read it back
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.5.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0)
+same engine. Download it from [v0.6.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
@@ -422,9 +421,9 @@ refuse, including when an ambient path environment variable is set. There is no 
 active selection between chats and no automatic search across Orbits.
 
 The registry uses config schema 2 independently of note data formats. New empty folders
-in the 0.6.0 candidate use format 3; existing format-1/2 folders migrate explicitly.
+in 0.6.0 use format 3; existing format-1/2 folders migrate explicitly.
 Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
-The [0.5.0 prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0) is published.
+Get the [0.6.0 testing prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0).
 
 ### Rename and select an Orbit
 

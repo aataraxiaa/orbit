@@ -79,7 +79,7 @@ Inspect failures by category, held-out evidence and live-host behavior separatel
 
 ## 0.6.0 candidate release gates
 
-The candidate is not published. No native two-Mac iCloud or cross-app proof is claimed.
+The 0.6.0 testing prerelease does not claim native two-Mac iCloud or cross-app proof.
 Use separate disposable folder replicas with one shared vault identity, isolated configs,
 ORBIT_CACHE and ORBIT_STATE outside the folders. Keep durable commits/observations.
 

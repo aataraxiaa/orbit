@@ -1,8 +1,8 @@
 # Install and test Orbit
 
-The working source is the unpublished 0.6.0 candidate. The marketplace/release
-installation instructions below describe the published 0.5.0 beta until publication.
-Use the rebuilt local candidate for 0.6.0 testing.
+The working source is the 0.6.0 testing prerelease. Use the marketplace or the
+[v0.6.0 release packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
+for testing. Upgrade every participating installation before migrating a shared folder.
 
 Orbit requires an installed Python 3.10+ and access to
 the selected vault. SQLite FTS5 enables indexed search. There are no third-party
@@ -116,9 +116,9 @@ choice, one-off saves do not switch it, and confirmations use returned target re
 Quoted mentions of another Orbit must not change the destination.
 
 
-## Verify the 0.6.0 revision candidate
+## Verify the 0.6.0 revision prerelease
 
-This candidate is not published. Build/package checks and a simulated transport are
+Build/package checks and a simulated transport are
 mechanical evidence; native two-Mac iCloud and cross-app behavior remain unverified.
 Use disposable folders and separate config, cache and state paths for each replica.
 Copy the complete initialized folder, including .orbit/commits and .orbit/observations,
