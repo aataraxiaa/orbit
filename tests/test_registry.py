@@ -24,7 +24,7 @@ class RegistryTest(unittest.TestCase):
         self.cfg = self.base / 'config/config.json'
         self.cache = self.base / 'cache'
         env = {k: v for k, v in os.environ.items() if not k.startswith('ORBIT_')}
-        env.update(ORBIT_CONFIG=str(self.cfg), ORBIT_CACHE=str(self.cache))
+        env.update(ORBIT_STATE=str(self.base / 'state'), ORBIT_CONFIG=str(self.cfg), ORBIT_CACHE=str(self.cache))
         self.environment = patch.dict(os.environ, env, clear=True)
         self.environment.start()
         self.addCleanup(self.environment.stop)
@@ -175,7 +175,7 @@ class RegistryTest(unittest.TestCase):
         self.assertEqual(self.cfg.read_bytes(), raw)
 
     def test_unsupported_and_malformed_config_refuse(self):
-        self.cfg.parent.mkdir()
+        self.cfg.parent.mkdir(exist_ok=True)
         for data in [{'schema': 1, 'vault': str(self.personal)}, {'schema': 3}, {'schema': True}, {'schema': 2}, {'schema': 2, 'orbits': {'X': {}}},
                      {'schema': 2, 'orbits': {}, 'vault': str(self.personal)}]:
             self.cfg.write_text(json.dumps(data))
@@ -184,7 +184,7 @@ class RegistryTest(unittest.TestCase):
 
     def test_invalid_config_cannot_be_bypassed_with_explicit_path(self):
         orbit.initialize(str(self.personal), create=True)
-        self.cfg.parent.mkdir()
+        self.cfg.parent.mkdir(exist_ok=True)
         for raw in ('{invalid', '{"schema": 2}', '{"schema": 99}'):
             self.cfg.write_text(raw)
             with self.subTest(raw=raw), self.assertRaises(orbit.OrbitError):

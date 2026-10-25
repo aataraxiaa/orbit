@@ -1,6 +1,7 @@
 # Orbit handoff
 
-Updated 2026-10-24. Orbit v0.5.0 beta release. Native acceptance remains incomplete.
+Updated 2026-10-25. Orbit v0.6.0 development candidate; not published.
+Native two-Mac iCloud and cross-app acceptance remain unproven.
 
 ## Scope
 
@@ -16,6 +17,7 @@ The public source repository is https://github.com/aataraxiaa/orbit.
 
 ## Modules
 
+- scripts/replication.py owns immutable commits, unanchored observations, ancestry, local locks and checkout recovery for format 3.
 - scripts/mcp_server.py exposes validated MCP schemas and delegates to the existing engine.
 - scripts/orbit.py owns setup, config, safe paths, authoritative writes, read and recovery.
 - scripts/retrieval.py owns a machine-local incremental FTS5 passage index, scoped ranking and current evidence checks.
@@ -78,7 +80,8 @@ The 0.4.0 migration project lookup omitted a project note's own project field.
 A decision could use the same project field as the sole project note yet fail
 when that note had a different display title. The patch accepts explicit unique
 project-field identities while preserving collision refusal. Data format stays 2;
-existing format-2 vaults require only the migration skill's compatibility check.
+For the 0.5.0 release, existing format-2 folders required only its compatibility check.
+The 0.6.0 format-3 route below supersedes that target.
 
 ## 0.5.0 named Orbits release
 
@@ -90,7 +93,7 @@ Agents and workflow hooks pass an explicit Orbit name on every scoped call.
 Setup requires a name and path. Registration is atomic and preserves initialized vault
 files. The user explicitly chose a clean beta configuration with a one-time local repair;
 no schema-1 config upgrade, restore tool or Second Brain runtime compatibility ships.
-Vault data format remains 2; existing data-format migration routes remain available.
+That release retained data format 2; the 0.6.0 candidate now adds the format-3 route below.
 
 Current mechanical verification belongs in review-artifacts/orbit-only under the project
 artifact directory. Native desktop, cross-app, fresh-chat and LLM selection acceptance
@@ -135,3 +138,58 @@ link findings become warnings for this operation only; new graph problems,
 duplicate IDs and strict schema errors still block writes. There is no data-format
 change or additional migration route. Mechanical receipts belong in
 review-artifacts/format-notes. Native host and LLM behavior remain separate gates.
+
+
+## 0.6.0 revision candidate
+
+Fresh empty folders use format 3 and seed the initial schema notes. Existing formats
+1/2 remain legacy until an explicitly authorized migration. Format 1 must first use
+target_version 0.5.0 to reach 2, then a new preview targets 0.6.0 to reach 3. Format 2→3
+seeds exact Markdown/integration bytes before advancing the marker. Journals support
+preview, backup, resume, repeated runs and rollback; changed content or subsequent
+history refuses recovery. Upgrade every participating plugin first. The marker causes
+old clients to refuse only after they receive it; it cannot remotely fence offline writers.
+
+Accepted writes are immutable self-contained files under .orbit/commits. Observed
+unexplained editor content is retained under .orbit/observations without assigned ancestry.
+Both are durable data and must travel with the Markdown. SQLite remains derived.
+ORBIT_STATE defaults to ~/.local/state/orbit independently of the selected config and holds machine-local OS
+locks/checkout recovery outside the synced folder, independently of ORBIT_CACHE.
+All local app hosts sharing one physical folder must share that state base; different
+ORBIT_STATE overrides would split their local locks.
+
+orbit_sync offers status, reconcile and history with a path. It consumes already
+delivered files and never uploads, starts a daemon or proves peer freshness. Read tools
+also reconcile eligible revisions and retain observations; they do not create resolution
+commits. Different-note writes can converge after complete delivery. Concurrent heads
+and unexplained bytes block canonical recall for the affected path until an explicit
+apply supplies reviewed full content, exact expected_heads and observations. Complete
+request retries reuse one canonical request_id UUID; changed requests require a new ID.
+Integration transitions use the same revision mechanism rather than racing mutable versions.
+
+The preservation contract covers accepted Orbit writes and external bytes actually
+observed and retained. It cannot recover editor versions overwritten before observation.
+Local acceptance is distinct from successful projection, upload and remote availability.
+Operation eligibility is grouped, while Markdown checkout remains atomic per file only.
+No automatic merge, pruning or inference of deletion from missing downloaded files.
+
+Current source tests cover disposable replicas, reordered delivery and migration
+recovery. Consult the current run receipts for exact counts and candidate identity;
+older test totals above apply to their named releases. No passing mechanical suite,
+package build or prior 0.5.0 host receipt establishes native 0.6.0 iCloud or two-Mac
+behavior. Required next acceptance: install the exact candidate on both Macs and
+actual Codex/Claude hosts, exercise offline different/same-note writes, reconnect,
+resolve explicitly and confirm fresh-conversation readback. Do not migrate personal
+folders as part of development acceptance.
+
+### Candidate verification, 2026-10-25
+
+The final mechanical suite passes 188 tests on Python 3.14, including 21 engine,
+18 replica-transport, 11 format-3 migration and 5 public MCP workflow tests.
+The isolated smoke run passes. Rebuilt plugin ZIP, MCP bundle and project ZIP
+are in `dist/`. Native 0.6.0 desktop and two-Mac iCloud acceptance remain untested.
+
+Independent review found and verified fixes for aliased conflict reads, same-ID
+notes at different paths, and conflicted schema definitions. Setup interruption
+and cross-config local locking also have regression coverage. These are simulated
+transport and fresh-process MCP results, not a release activation receipt.

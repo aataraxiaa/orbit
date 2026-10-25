@@ -1,6 +1,6 @@
 {
   "name": "orbit",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "skills": "./skills/",
   "interface": {

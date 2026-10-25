@@ -55,15 +55,17 @@ def integer(minimum, maximum):
 
 
 EVIDENCE = obj({'path': TEXT, 'sha256': HASH}, ('path', 'sha256'))
-PLAN = obj({'summary': TEXT, 'changes': array(obj({
+PLAN = obj({'summary': TEXT, 'request_id': dict(TEXT, description='Stable UUID reused only when retrying this exact save.'), 'changes': array(obj({
     'path': TEXT, 'content': TEXT, 'reason': TEXT,
     'expected_sha256': {'type': ['string', 'null'], 'pattern': '^[a-f0-9]{64}$'},
+    'expected_heads': array(TEXT), 'observations': array(HASH),
 }, ('path', 'content', 'reason', 'expected_sha256')), 1, 50)}, ('changes',))
-FORMAT_PLAN = obj({'changes': array(obj({
-    'path': TEXT, 'expected_sha256': HASH,
+FORMAT_PLAN = obj({'request_id': TEXT, 'changes': array(obj({
+    'path': TEXT, 'expected_sha256': HASH, 'expected_heads': array(TEXT), 'observations': array(HASH),
     'metadata': obj({'title': TEXT, 'type': TEXT, 'summary': TEXT}),
 }, ('path', 'expected_sha256', 'metadata')), 1, 50)}, ('changes',))
 RECORD = obj({
+    'request_id': TEXT, 'expected_heads': array(TEXT), 'observations': array(HASH),
     'source_sha256': HASH, 'expected_version': integer(1, 2147483647),
     'stage': {'type': 'string', 'enum': ['captured', 'extracted', 'integrated', 'verified']},
     'coverage': obj({'status': {'type': 'string', 'enum': ['unknown', 'full', 'partial']},
@@ -74,6 +76,8 @@ RECORD = obj({
 }, ('source_sha256', 'expected_version'))
 
 TOOL_SPECS = {
+    'sync': ('Inspect or reconcile cross-device revisions already delivered to this computer. Does not upload or prove cloud synchronization. Use history with a path to read preserved alternatives; resolve explicitly through apply with expected_heads and observations. Requires format 3.',
+             obj({'action': {'type': 'string', 'enum': ['status', 'reconcile', 'history']}, 'path': TEXT})),
     'setup': ('Register an explicitly chosen name and absolute folder path. Set create=true only when the user requests a new Orbit folder. Preserves existing notes.',
               obj({'path': dict(TEXT, description='Full folder path supplied in the conversation or exposed by a user-selected app folder. If unclear, ask for the full path before calling setup; never infer it from cwd, Finder, a title or an attachment without a full folder path.'),
                    'name': TEXT, 'create': BOOL}, ('path', 'name'))),
@@ -138,6 +142,11 @@ INSTRUCTIONS = (
     ' Use orbit_schema for note contracts. Sessions link to canonical knowledge instead of duplicating it. '
     'Use orbit_format for requested in-place metadata formatting of existing notes. '
     'Use orbit_migrate for versioned upgrades; never reorganize an old Orbit during setup.'
+    ' Format 3 retains cross-device revisions. Reads may reconcile received operations, but never resolve disagreements. '
+    'When sync reports a conflict, use orbit_sync action=history and read all alternatives. '
+    'Resolve only from evidence or an explicit user decision, with the complete expected_heads and observation IDs from the current report. '
+    'An external Markdown edit may need explicit adoption; never silently discard it. '
+    'Use a stable request_id UUID for retryable saves. A committed receipt means locally durable, not uploaded or visible on every computer.'
 )
 
 
@@ -202,7 +211,7 @@ def handle(message):
         if set(params) - {'_meta', 'cursor'} or params.get('cursor') not in (None, ''):
             return error(identifier, -32602, 'Unsupported tool list parameters or cursor')
         result = {'tools': [{'name': 'orbit_' + name, 'description': description, 'inputSchema': schema,
-                             'annotations': {'readOnlyHint': name in ('list', 'doctor', 'read', 'context', 'relations', 'maintain', 'schema'),
+                             'annotations': {'readOnlyHint': name in ('list', 'doctor'),
                                              'destructiveHint': name in ('apply', 'format', 'recover', 'migrate'), 'openWorldHint': False}}
                             for name, (description, schema) in TOOL_SPECS.items()]}
     elif method == 'tools/call':
@@ -220,6 +229,8 @@ def handle(message):
                     raise ValueError(f'{key}: absolute path required')
             if action == 'recover' and arguments.get('rollback') and arguments.get('abandon'):
                 raise ValueError('Choose rollback or abandon, not both')
+            if action == 'sync' and arguments.get('action') == 'history' and not arguments.get('path'):
+                raise ValueError('History requires a note or integration path')
         except ValueError as exc:
             return error(identifier, -32602, str(exc))
         try:

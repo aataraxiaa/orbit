@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
-DATA_FORMAT = 2
+DATA_FORMAT = 3
 DIRECTORIES = ('Projects', 'Knowledge', 'People', 'Sources', 'Schemas', 'Maps')
 TEMPLATES = Path(__file__).resolve().parents[1] / 'references' / 'schemas'
 
@@ -30,8 +30,13 @@ def _finding(path, schema, severity, message):
     return {'path': path, 'schema': schema, 'severity': severity, 'message': message}
 
 
-def _definitions(root, notes):
+def _definitions(root, notes, resolving_paths=()):
     import orbit
+    import replication
+    if replication.enabled(root):
+        blocked = {p for p in replication.inspect(root)['blocked_paths'] if Path(p).parent.as_posix() == 'Schemas'}
+        if blocked - set(resolving_paths):
+            raise orbit.OrbitError('Resolve conflicting or incomplete schemas before using definitions: ' + ', '.join(sorted(blocked - set(resolving_paths))))
     defaults = {f'Schemas/{p.name}': p.read_text(encoding='utf-8') for p in sorted(TEMPLATES.glob('*.md'))}
     custom = {}
     folder = orbit.safe(root, 'Schemas')
@@ -102,8 +107,8 @@ def _headings(text):
     return headings
 
 
-def schema_warnings(root, notes):
-    definitions, findings = _definitions(root, notes)
+def schema_warnings(root, notes, resolving_paths=()):
+    definitions, findings = _definitions(root, notes, resolving_paths)
     for note in notes:
         meta = note['meta']
         kind = meta.get('type')

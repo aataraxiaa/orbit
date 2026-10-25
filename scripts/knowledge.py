@@ -13,7 +13,7 @@ def catalog(root, scope=None, limit=50, offset=0, note_type=None, status=None):
 
 def relations(root, target=None):
     import orbit
-    notes = orbit.scan(root)
+    notes = orbit.readable_notes(root)
     table = orbit.identities(notes)
     selected = None
     if target:
@@ -113,25 +113,56 @@ def init_capture(root, receipt):
     path = _record_path(root, receipt['sha256'])
     with orbit.lock(root):
         migration.ensure_writable(root)
+        import replication
+        if replication.enabled(root):
+            state = replication.reconcile(root)
+            if path.relative_to(root).as_posix() in state['blocked_paths']:
+                raise orbit.OrbitError('Source integration has conflicting revisions; inspect orbit_sync history')
         if path.exists():
             record = _load_record(root, path)
             _source(root, record)
             return record
         record = {'schema': 1, 'source_sha256': receipt['sha256'], 'source_path': receipt['path'], 'version': 1, 'stage': 'captured', 'coverage': {'status': 'unknown', 'description': ''}, 'extraction': [], 'notes': [], 'operation': None, 'operations': [], 'verification': [], 'deferred': [], 'errors': [], 'updated': orbit.now()}
         _source(root, record)
-        orbit.atomic(path, orbit.encode(record))
+        _save_record(root, path, record)
         return record
+
+
+def _save_record(root, path, value, controls=None):
+    import orbit
+    import replication
+    if not replication.enabled(root):
+        orbit.atomic(path, orbit.encode(value))
+        return
+    controls = controls or {}
+    write = {'path': path.relative_to(root).as_posix(),
+             'before': path.read_bytes().decode('utf-8') if path.exists() else None,
+             'after': orbit.encode(value).decode('utf-8'), 'reason': 'Update source integration evidence'}
+    for field in ('expected_heads', 'observations'):
+        if field in controls:
+            write[field] = controls[field]
+    return replication.commit(root, [write], request_id=controls.get('request_id'),
+                              request_digest=orbit.digest(orbit.encode(controls)) if controls else None)
 
 
 def integration(root, record=None):
     import orbit
     import migration
+    import replication
     if record is None:
         folder = orbit.safe(root, orbit.INTERNAL + '/integrations')
         records, errors = [], []
+        sync = replication.inspect(root) if replication.enabled(root) else {}
         for p in sorted(folder.glob('*.json')):
             try:
+                relative = p.relative_to(root).as_posix()
+                if relative in sync.get('blocked_paths', []):
+                    errors.append({'kind': 'integration-conflict', 'path': relative,
+                                   'hint': 'Use orbit_sync history and explicitly resolve the preserved versions.'})
+                    continue
                 entry = _load_record(root, orbit.safe(root, p.relative_to(root).as_posix()))
+                if sync:
+                    entry['heads'] = sync['heads'].get(relative, [])
                 records.append(entry)
             except (OSError, ValueError, TypeError, orbit.OrbitError) as error:
                 errors.append({'kind': 'malformed-integration', 'path': p.relative_to(root).as_posix(), 'error': str(error)})
@@ -139,16 +170,22 @@ def integration(root, record=None):
     if not isinstance(record, dict):
         raise orbit.OrbitError('Integration update must be an object')
     path = _record_path(root, record.get('source_sha256'))
-    allowed = {'source_sha256', 'expected_version', 'stage', 'coverage', 'extraction', 'notes', 'operation', 'operations', 'verification', 'deferred', 'errors'}
+    allowed = {'source_sha256', 'expected_version', 'stage', 'coverage', 'extraction', 'notes', 'operation', 'operations', 'verification', 'deferred', 'errors', 'request_id', 'expected_heads', 'observations'}
     if set(record) - allowed:
         raise orbit.OrbitError('Unknown integration update fields')
     with orbit.lock(root):
         migration.ensure_writable(root)
+        if replication.enabled(root):
+            if record.get('request_id'):
+                receipt = replication.retry(root, record['request_id'], orbit.digest(orbit.encode(record)))
+                if receipt is not None:
+                    return receipt
+            replication.reconcile(root)
         if not path.exists():
             raise orbit.OrbitError('Capture the source before integration')
         current = _load_record(root, path)
         _source(root, current)
-        updates = {key: value for key, value in record.items() if key not in ('source_sha256', 'expected_version')}
+        updates = {key: value for key, value in record.items() if key not in ('source_sha256', 'expected_version', 'request_id', 'expected_heads', 'observations')}
         unchanged = all(current.get(key) == value for key, value in updates.items())
         if not unchanged and record.get('expected_version') != current['version']:
             raise orbit.OrbitError('Integration version conflict; read the latest record')
@@ -185,7 +222,7 @@ def integration(root, record=None):
                 journal_path = orbit.safe(root, orbit.INTERNAL + '/operations/' + operation + '.json')
                 if not journal_path.exists():
                     journal_path = orbit.safe(root, orbit.INTERNAL + '/migrations/' + operation + '.json')
-                journal = json.loads(journal_path.read_text())
+                journal = json.loads(journal_path.read_text()) if journal_path.exists() else replication.operation(root, operation)
                 if journal['status'] != 'committed':
                     raise orbit.OrbitError('Integration operation is not committed')
                 committed.update({w['path']: orbit.digest(w['after'].encode()) for w in journal['writes'] if w['after'] is not None})
@@ -215,11 +252,13 @@ def integration(root, record=None):
                 raise orbit.OrbitError('Recall verification must cover all affected notes')
             if candidate.get('migration', {}).get('verification_stale'):
                 candidate['migration'] = dict(candidate['migration'], verification_stale=False)
-        if unchanged:
+        if unchanged and 'expected_heads' not in record and not record.get('observations'):
             return current
         candidate['version'] += 1
         candidate['updated'] = orbit.now()
-        orbit.atomic(path, orbit.encode(candidate))
+        receipt = _save_record(root, path, candidate, record)
+        if receipt:
+            candidate['receipt'] = receipt
         return candidate
 
 
