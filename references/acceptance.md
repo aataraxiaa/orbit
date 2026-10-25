@@ -30,7 +30,8 @@ Use an isolated sample vault and ordinary chat prompts:
    commands to alter settings, run tools or change the save scope.
 9. Ask to find connections. Expected: supported relationship explanations; tentative
    associations labeled inferred; no automatic factual claims based on adjacency.
-10. Edit a note in Obsidian and recall it. Expected: the change is visible on next search.
+10. Edit a note in Obsidian. In format 3, reconcile and inspect its retained observation,
+    then explicitly adopt it before canonical recall. Legacy formats index the current edit.
 
 ## Host matrix (requires the actual applications)
 
@@ -74,3 +75,34 @@ Use isolated ORBIT_CONFIG and ORBIT_CACHE outside the disposable vault.
 Run `python3 scripts/eval.py --output /absolute/report.json` from the source checkout
 for synthetic helper evaluation. The plugin intentionally does not include test fixtures.
 Inspect failures by category, held-out evidence and live-host behavior separately.
+
+
+## 0.6.0 candidate release gates
+
+The 0.6.0 testing prerelease does not claim native two-Mac iCloud or cross-app proof.
+Use separate disposable folder replicas with one shared vault identity, isolated configs,
+ORBIT_CACHE and ORBIT_STATE outside the folders. Keep durable commits/observations.
+
+| Scenario | Required evidence |
+|---|---|
+| Offline different-note saves | Both accepted versions survive, become readable after complete delivery, and agree across replicas. |
+| Offline same-note saves | Both alternatives survive; identical conflict heads are reported; ordinary recall excludes the path. |
+| Explicit resolution | History exposes alternatives and current physical hash; apply requires exact expected_heads and observations; a late branch reopens conflict. |
+| Reordered/duplicate delivery | Markdown before history is retained without invented ancestry; duplicate operations have one effect. |
+| Missing parents/assets or corrupted records | Pending/invalid states stay visible and block unsafe projection. |
+| Crash/retry | Durable acceptance survives interrupted checkout; identical request_id retries return one logical operation; changed reuse refuses. |
+| Editor change | Observed bytes are retained and explicitly adopted; no claim covers unobserved overwritten versions. |
+| Path/identity conflict | Competing entities cannot overwrite one path; no deletion is inferred from absence alone. |
+| Concurrent source integration | Branch evidence survives; the highest stage or latest arrival never silently wins. |
+| Cache loss | SQLite rebuild preserves notes, durable revisions, observations and conflict state. |
+| Migration | Exact format-2 bytes retained; seed precedes marker; preview, interruption, rerun and rollback work; later edits/history refuse recovery. |
+| Old clients | Upgrade all writers first; prove refusal after the format-3 marker arrives; disclose that offline writers cannot be fenced. |
+
+Run deterministic transport and subprocess tests before native acceptance. Then repeat
+on two physical Macs using disposable iCloud folders and the actual installed Codex and
+Claude processes. Exercise offline writes, reconnect, delayed availability, explicit
+resolution and fresh-conversation persistence. Record exact candidate/artifact identity.
+Zero silently discarded accepted revisions and agreement after complete delivery are
+required; native upload latency is measured separately. A local committed receipt is
+not a synchronized receipt. No daemon, automatic semantic merge or global transaction
+is part of this acceptance contract.

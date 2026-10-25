@@ -22,14 +22,20 @@ def plan(path='Knowledge/Atlas.md', content=None, sha=None):
     return {'summary': 'save test', 'changes': [{'path': path, 'content': content or note(), 'expected_sha256': sha, 'reason': 'User requested save'}]}
 
 
+def setup_legacy(root, name='Test'):
+    import structure
+    with patch.object(structure, 'DATA_FORMAT', 2), patch.object(orbit, 'VERSION', '0.5.0'):
+        return orbit.setup(str(root), name, create=True)
+
+
 class VaultTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.base = Path(self.temp.name)
         self.root = self.base / 'vault with spaces'
-        self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json')})
+        self.env = patch.dict(os.environ, {'ORBIT_STATE': str(self.base / 'state'), 'ORBIT_CONFIG': str(self.base / 'config.json')})
         self.env.start()
-        orbit.setup(str(self.root), 'Test', create=True)
+        setup_legacy(self.root)
 
     def tearDown(self):
         self.env.stop()

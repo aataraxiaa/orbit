@@ -28,7 +28,7 @@ Use “Orbit” and “folder” when speaking to users. Never infer a folder fr
 
 Named Orbit registration is separate from Orbit data format. This beta release
 uses the current named configuration directly; it adds no configuration migration.
-A format-2 Orbit needs only the compatibility check below.
+Format 2 requires explicit migration to format 3 for revision preservation. Upgrade every participating installation first; an offline old client cannot be remotely fenced.
 Never create another Orbit to avoid a migration. If no binding exists, ask for the
 user's existing Orbit path and name, then use setup with `create: false`.
 Call doctor and read its migration state. The Orbit's
@@ -38,7 +38,9 @@ have an unknown source release. Preserve that uncertainty.
 | Source format | Target format and release | Instructions |
 |---|---|---|
 | 1, including markers without data_format | 2 in Orbit 0.5.0 | [Format 1 to 2](references/format-1-to-2.md) |
-| 2 | 2 in Orbit 0.5.0 | [Compatibility check](references/format-2-check.md) |
+| 2 | 2 in Orbit 0.5.0, explicit legacy check | [Compatibility check](references/format-2-check.md) |
+| 2 | 3 in Orbit 0.6.0 | [Format 2 to 3](references/format-2-to-3.md) |
+| 3 | 3 in Orbit 0.6.0 | [Format 3 compatibility](references/format-2-to-3.md) |
 | Prepared migration | Recorded target | [Recovery](references/recovery.md) |
 | Any other pair or downgrade | Unsupported | Stop and report the observed versions. Do not modify the marker to bypass routing. |
 

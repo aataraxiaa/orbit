@@ -42,7 +42,7 @@ class StructureTest(unittest.TestCase):
             self.write({'path': path, 'text': text})
         self.assertEqual(structure.bootstrap(self.root), {})
         result = structure.check(self.root)
-        self.assertEqual(result['data_format'], 2)
+        self.assertEqual(result['data_format'], 3)
         self.assertEqual(len(result['definitions']), 7)
         self.assertEqual(result['warnings'], [])
 

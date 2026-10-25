@@ -60,10 +60,24 @@ when the saved status is reliable; include history when explaining a change.
 Schema notes are excluded from ordinary search and catalog; use orbit_schema or
 an explicit note_type="schema" filter to inspect them.
 
-Recall does not alter authoritative notes. Its derived search cache may refresh. Do not silently save the new answer or alter existing knowledge.
+In format 3, recall may reconcile delivered accepted revisions, update their local
+Markdown projection and retain unexplained external bytes as observations. It never
+creates a resolution revision. Its derived search cache may also refresh. Do not
+silently save the new answer or decide which disputed claim replaces another.
 If the user subsequently says “save that”, use the save skill with that selected output.
 
 When the user explicitly requests combined recall, make separate calls with each
 chosen name and label evidence by Orbit as well as note path. Keep identical relative
 paths distinct. Do not automatically search every Orbit. Any subsequent save needs
 one explicit destination.
+
+
+Inspect sync status attached to results. A blocked path is unavailable canonical
+evidence, not evidence that the note does not exist. Use orbit_sync action history
+with that path to inspect retained alternatives, and label any discussion as disputed.
+Do not cite one branch as settled or silently resolve during recall. Explicit adoption
+or resolution belongs to an authorized save using expected_heads and observations.
+Status/reconcile inspect local deliveries only; never describe them as upload, complete
+cloud synchronization or proof every computer is current. Native two-Mac iCloud behavior
+is unverified for the 0.6.0 candidate. Unobserved overwritten editor versions are outside
+the preservation guarantee.

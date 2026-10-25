@@ -3,7 +3,7 @@
 Use the installed Orbit MCP tools. Their names are `orbit_setup`, `orbit_doctor`,
 `orbit_search`, `orbit_read`, `orbit_context`, `orbit_apply`, `orbit_capture`,
 `orbit_recover`, `orbit_index`, `orbit_catalog`, `orbit_relations`, `orbit_maintain`,
-`orbit_integration`, `orbit_schema`, `orbit_migrate`, `orbit_list`, `orbit_rename`, and `orbit_format`. The host may prefix names with its MCP server namespace.
+`orbit_integration`, `orbit_schema`, `orbit_migrate`, `orbit_list`, `orbit_rename`, `orbit_format`, and `orbit_sync`. The host may prefix names with its MCP server namespace.
 Discover the actual tools rather than guessing a callable name. Missing tools are
 an installation/startup failure; never substitute shell execution and claim MCP works.
 
@@ -63,24 +63,29 @@ linked new notes in one plan; validation resolves against the proposed final sta
 Dry-run is useful for catching mistakes, not a request for extra user confirmation.
 The user's explicit save authorizes routine additions and updates within that scope.
 
-Apply checks expected hashes, required metadata, duplicate ids and link targets. It
-journals before replacing files and returns changed paths/reasons. Individual files
+Apply checks expected hashes, required metadata, duplicate ids and link targets.
+In format 3, `ORBIT.md` is the one plain-text exception to note metadata checks;
+its updates and external-edit adoption use the same hash, heads and observation controls.
+Conflicted schemas must be resolved before their definitions can govern saves. Legacy
+formats journal before replacement; format 3 persists immutable accepted operations
+before projection. Both return changed paths/reasons. Individual files
 are atomic; the whole batch is recoverable, not atomic. External tools do not honor
 our write lock: avoid concurrent editing during a save. Never blindly retry a conflict.
 
-No automatic deletion, note-file renaming, arbitrary command execution or web fetching. Capture
+Explicit conflict resolution can retire an alternate location of the same note or a losing identity. Its accepted versions remain in history. There is no general delete/rename command, arbitrary command execution or web fetching. Capture
 only copies a user-selected file; it neither extracts nor integrates it.
 
 ## Search and read
 
-Search inventories current Markdown on every call, including manual edits. It ranks
+Search inventories current eligible Markdown on every call. Format 3 retains
+unexplained manual edits as observations and excludes disputed paths until resolution. It ranks
 indexed passages with BM25 plus title/alias weighting and includes historical notes.
 It does NOT compute embeddings. The skill supplies alternate wording and relationship
 traversal. Do not describe results as semantic search or claim exhaustive recall.
 Search results are leads: read evidence, expanding line windows as needed. Context
 returns incoming and outgoing link neighbors with bounded depth, not their full text.
 
-## Recovery
+## Legacy save recovery
 
 `doctor` lists pending journal ids. `orbit_recover` with `operation: ID` completes a prepared operation;
 `orbit_recover` with `operation: ID, rollback: true` restores its before-state. Both refuse subsequent user edits.
@@ -90,12 +95,16 @@ that stale lock before recovery. Do not auto-expire a lock on elapsed time alone
 Committed operation journals contain before/after content: they are local history,
 not a secret-free log. Treat them like the vault in backups and access control.
 
-## Indexed search and navigation in v0.2
+## Indexed search and navigation
 
 `search` uses an incremental SQLite FTS5 passage index. Python must provide FTS5.
 The cache defaults to `cache/` beside the selected config file; ORBIT_CACHE can
 select another machine-local directory. Never put caches inside the synced vault.
-The cache is rebuildable. Notes and integration records are authoritative.
+The cache is rebuildable. Notes, integration records and format-3 immutable evidence
+are durable data. ORBIT_STATE defaults to ~/.local/state/orbit independently of the selected config and must
+also stay outside the synced folder. All local hosts writing the same folder must use
+the same ORBIT_STATE base, or the shared default, even when their configs differ.
+Use separate state directories only for separate disposable machine replicas.
 
 Call `orbit_index` with `rebuild: true` to rebuild the cache. Use `orbit_catalog`
 with `limit`, `offset` and optional `scope` for pagination. `orbit_relations` accepts
@@ -116,7 +125,8 @@ check remain possible. On cache failure unscoped search falls back to live lexic
 search and reports degradation. Scoped search fails visibly instead of silently returning
 another project's results. No embeddings or downloads are part of this search mode.
 
-Catalog and maintenance do not write notes. Use catalog output to orient and draft useful
+In format 3, read tools may reconcile accepted operations and retain observations;
+they never author a resolution revision. Catalog and maintenance do not author knowledge. Use catalog output to orient and draft useful
 maps, then save them through ordinary conflict-checked apply. Relations report recorded
 claims, never independently verified causation. Maintenance flags structural faults,
 changed integration evidence and absent code provenance. Verify code revisions against
@@ -151,7 +161,7 @@ Read the record after an interrupted transition and resume from its actual stage
 retries converge. If later edits invalidate verified evidence, maintenance reports that
 fact; revise evidence and reverify deliberately rather than ignoring the change.
 
-If external edits make both recovery and rollback conflict, inspect the prepared journal
+For legacy formats, if external edits make both recovery and rollback conflict, inspect the prepared journal
 and current notes. `orbit_recover` with `operation: ID, abandon: true` marks that operation abandoned without changing
 any note. It preserves partial writes and records current hashes, then permits a new plan
 based on fresh reads. This is explicit conflict settlement, not successful completion.
@@ -175,7 +185,9 @@ batch. The common identity, metadata preservation and link checks remain errors.
 pending operation IDs. A legacy marker without a release reports unknown.
 
 `orbit_migrate` accepts `action` (plan, apply, resume, rollback), optional
-`target_version`, `plan_id`, and `operation`. The installed target is 0.5.0.
+`target_version`, `plan_id`, and `operation`. The candidate target is 0.6.0. Explicit target 0.5.0 retains the format-1-to-2
+route and format-2 legacy compatibility check; default 0.6.0 upgrades 2 to 3.
+Format 1 requires the explicit first stage before planning 0.6.0.
 
 - Plan is the default and writes nothing. It returns proposed moves, warnings,
   changes, source/target formats and a plan_id bound to the current inputs.
@@ -196,7 +208,7 @@ See the single [migration skill](../skills/orbit-migrate/SKILL.md) for supported
 
 ## Format existing notes
 
-`orbit_format` accepts `plan: {changes: [{path, expected_sha256, metadata}]}` and
+`orbit_format` accepts `plan: {request_id?, changes: [{path, expected_sha256, metadata, expected_heads?, observations?}]}` and
 `dry_run`, which defaults to true. Select the named `orbit` on every call.
 A batch contains 1 to 50 existing public Markdown notes. `metadata` accepts only
 `title`, `type` and `summary`. Supply values supported by the note, only where
@@ -208,7 +220,8 @@ bytes, including BOM, body, unknown metadata blocks and line endings. It refuses
 malformed or unclosed frontmatter, duplicate keys, unsupported required values,
 unsafe paths and hash conflicts. This is a conservative parser, not general YAML
 support. Formatting creates no notes, folders, moves, relationships or format upgrades.
-The shared write engine may create internal lock and journal directories.
+The shared write engine may create durable revision files or legacy lock/journal
+directories, with format-3 process locks and checkout recovery outside the folder.
 
 The receipt includes `formatted` entries with exact `added` values and
 `before_sha256`, `after_sha256`, and `body_sha256`, alongside `changes`, `warnings`
@@ -220,3 +233,75 @@ Set `dry_run:false` to apply an authorized preview. Prepared interruptions use
 `orbit_recover` for resume or rollback, which refuses subsequent human edits.
 Developer CLI equivalent: `format PLAN.json` previews; `format PLAN.json --apply`
 writes. Use installed MCP tools for desktop acceptance.
+
+
+## Format 3 sync and retry contract (0.6.0 candidate)
+
+`orbit_sync` requires format 3 and the usual explicit Orbit selector.
+
+```json
+{"orbit":"Work","action":"status"}
+{"orbit":"Work","action":"reconcile"}
+{"orbit":"Work","action":"history","path":"Knowledge/Atlas.md"}
+```
+
+Status inspects without changing folder content. Reconcile retains unexplained current
+bytes and projects eligible delivered revisions. History requires path and returns
+retained versions and observations with exact text. None uploads files, polls a peer,
+starts a background worker or establishes that iCloud is current. Normal read/search
+calls also reconcile; a blocked read directs the caller to sync history.
+
+A report includes status, conflicts, pending, invalid, blocked_paths and heads keyed by
+path. Each conflict identifies its entity, paths, head IDs and observation IDs. Read all
+alternatives before deciding how they relate. Apply a reviewed full note with current
+physical SHA-256, exact expected_heads and observations. Use history.current.sha256 for the current
+physical file hash when normal read is blocked. History.current also returns path
+and exact content; content/hash are null for an absent file. Supply empty observations
+when there are none. Do not invent hashes or silently drop a branch.
+
+```json
+{
+  "orbit":"Work",
+  "plan":{
+    "request_id":"c9882341-f597-44fb-b11d-6115c6c0fb27",
+    "changes":[{
+      "path":"Knowledge/Atlas.md",
+      "expected_sha256":"<current physical file hash>",
+      "expected_heads":["<every current head ID>"],
+      "observations":["<every unresolved observation ID>"],
+      "reason":"Preserve both constraints after reviewing the alternatives",
+      "content":"<complete reviewed Markdown>"
+    }]
+  }
+}
+```
+
+`request_id` is an optional canonical UUID for format-3 apply. Reuse it only for the
+identical request: retry finds durable acceptance before stale hash validation; reuse
+with different content refuses. A committed receipt reports durability local and
+verified projection separately. If projection was interrupted, retain the request ID
+and retry the same request or reconcile; do not manufacture a second logical save.
+
+Legacy mutable save journals use orbit_recover. Format-3 accepted operations remain
+immutable: recovery reconciles them rather than rolling back or abandoning history.
+Use another explicit reviewed save to change accepted knowledge. Process locks for
+format 3 are machine-local OS locks, released by process exit; the legacy stale
+.orbit/write.lock guidance above applies only to formats 1/2.
+
+Source-integration updates retain expected_version for local optimistic checking and
+may include request_id, expected_heads and observations in the record. Conflicting
+integration revisions require explicit review; they do not automatically union evidence
+or select the highest stage. Historical operation evidence remains available even
+when later note revisions differ. Preserve stage requirements and verify current hashes.
+
+The durable guarantee covers accepted Orbit writes and observed external bytes. It
+cannot cover editor content overwritten before observation. Immutable evidence is
+required alongside Markdown, while SQLite is derived. Native iCloud/two-Mac and
+cross-app acceptance remains unverified for this candidate.
+
+
+For a path collision between different stable identities, inspect every competing
+entity's history. A resolution for that path supplies the exact union of competing
+heads and unresolved observations, and chooses the retained identity through the
+complete Markdown id field. Other identities receive tombstones; their historical
+content remains retained. Never silently choose a winner merely to unblock retrieval.

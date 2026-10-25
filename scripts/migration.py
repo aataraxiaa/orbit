@@ -8,7 +8,8 @@ from urllib.parse import quote, unquote, urlsplit
 
 import orbit
 
-TARGET = '0.5.0'
+TARGET = '0.6.0'
+LEGACY_TARGET = '0.5.0'
 FORMAT = 2
 
 
@@ -43,7 +44,7 @@ def ensure_writable(root):
             raise orbit.OrbitError('Unsupported recorded Orbit release; inspect the vault version before writing')
         if tuple(map(int, release.split('.'))) > tuple(map(int, TARGET.split('.'))):
             raise orbit.OrbitError('Vault was written by a newer Orbit release; downgrade is unsupported')
-    if type(state['data_format']) is not int or state['data_format'] not in (1, FORMAT):
+    if type(state['data_format']) is not int or state['data_format'] not in (1, 2, 3):
         raise orbit.OrbitError('Unsupported vault data format; update Orbit before writing')
     if state['pending']:
         raise orbit.OrbitError('Resume or roll back the pending migration before writing')
@@ -176,8 +177,10 @@ def _snapshot(root):
 
 
 def _prepare(root):
+    TARGET = LEGACY_TARGET
     import structure
     state = status(root)
+    state['target_version'] = LEGACY_TARGET
     ensure_writable(root)
     _ordinary_pending(root)
     notes = orbit.scan(root)
@@ -288,9 +291,11 @@ def _execute(root, record, journal, rollback=False):
     return {'status': record['status'], 'operation': record['id'], 'backup': journal.relative_to(root).as_posix(), 'verified': True}
 
 
-def migrate(root, action='plan', target_version=None, plan_id=None, operation=None):
+def _legacy_migrate(root, action='plan', target_version=None, plan_id=None, operation=None):
     root = Path(root)
-    if target_version not in (None, TARGET):
+    if status(root)['data_format'] not in (1, 2):
+        raise orbit.OrbitError('Unsupported vault format for legacy migration; downgrade is unsupported')
+    if target_version not in (None, LEGACY_TARGET):
         raise orbit.OrbitError('Unsupported migration target; supported target is ' + TARGET)
     if action == 'status':
         return status(root)
@@ -327,3 +332,138 @@ def migrate(root, action='plan', target_version=None, plan_id=None, operation=No
             raise orbit.OrbitError('Another migration is pending')
         _ordinary_pending(root)
         return _execute(root, record, journal, action == 'rollback' or record.get('direction') == 'rollback')
+
+
+def _replication_files(root):
+    files = {n['path']: _read(root, n['path']) for n in orbit.scan(root)}
+    for path in sorted(orbit.safe(root, orbit.INTERNAL + '/integrations').glob('*.json')):
+        relative = path.relative_to(root).as_posix()
+        files[relative] = _read(root, relative)
+    return files
+
+
+def _prepare_replication(root):
+    ensure_writable(root)
+    _ordinary_pending(root)
+    state = status(root)
+    if state['data_format'] == 1:
+        raise orbit.OrbitError('First migrate format 1 to 2 with target_version=0.5.0, then plan 0.6.0')
+    if state['data_format'] == 3:
+        import replication
+        report = replication.inspect(root)
+        if (report.get('invalid') or report.get('pending')
+                or not list(orbit.safe(root, orbit.INTERNAL + '/commits').glob('*.json'))):
+            raise orbit.OrbitError('Format 3 compatibility check failed: incomplete or invalid history')
+        return {'status': 'unchanged', **state, 'target_format': 3, 'compatible': True,
+                'changes': [], 'warnings': []}, None
+    import structure
+    findings = structure.schema_warnings(root, orbit.scan(root))
+    if list(structure.bootstrap(root)) or any(f.get('severity') == 'error' for f in findings):
+        raise orbit.OrbitError('Format 2 compatibility check failed; repair schemas before migration')
+    inputs = _snapshot(root)
+    if any(path.startswith((orbit.INTERNAL + '/commits/', orbit.INTERNAL + '/observations/')) for path in inputs):
+        raise orbit.OrbitError('Existing history requires inspection before migration')
+    files = _replication_files(root)
+    marker_path = _marker(root)
+    before = _read(root, marker_path)
+    marker = json.loads(before)
+    marker.update(data_format=3, orbit_version=TARGET)
+    writes = [{'path': marker_path, 'before': before, 'after': orbit.encode(marker).decode()}]
+    plan_id = orbit.digest(orbit.encode({'inputs': inputs, 'files': files, 'writes': writes, 'target': TARGET}))
+    import replication
+    seed = replication.seed_preview(root, files)
+    record = {'source_format': 2, 'target_format': 3, 'inputs': inputs, 'files': files, 'writes': writes,
+              'seed_history': {seed['path']: seed['sha256']} if seed.get('path') else {}}
+    return {'status': 'preview', **state, 'target_format': 3, 'plan_id': plan_id,
+            'changes': [{'path': marker_path, 'action': 'update'},
+                        {'path': orbit.INTERNAL + '/commits', 'action': 'seed'}],
+            'warnings': ['Upgrade every participating installation before applying; offline old clients cannot be fenced.'],
+            'schema_warnings': findings}, record
+
+
+def _execute_replication(root, record, journal, rollback=False):
+    import replication
+    marker_path = _marker(root)
+    write = record['writes'][0]
+    current = _snapshot(root)
+    baseline = record['inputs']
+    history_prefix = (orbit.INTERNAL + '/commits/', orbit.INTERNAL + '/observations/')
+    current_history = {p: h for p, h in current.items() if p.startswith(history_prefix)}
+    expected_history = record.get('seed_history')
+    for path in set(current) | set(baseline):
+        if path.startswith(history_prefix) or path == marker_path:
+            continue
+        if current.get(path) != baseline.get(path):
+            raise orbit.OrbitError('Migration recovery conflict: ' + path)
+    if _read(root, marker_path) not in (write['before'], write['after']):
+        raise orbit.OrbitError('Migration recovery conflict: ' + marker_path)
+    rollback = rollback or record.get('direction') == 'rollback'
+    history_matches = (all(expected_history.get(p) == h for p, h in current_history.items())
+                       if expected_history is not None and record['status'] == 'prepared'
+                       else current_history == expected_history)
+    if expected_history is not None and not history_matches:
+        raise orbit.OrbitError('Migration recovery conflict: subsequent or changed history')
+    direction = 'rollback' if rollback else 'forward'
+    if record['status'] != 'prepared' or record.get('direction', 'forward') != direction:
+        record.update(status='prepared', direction=direction)
+        orbit.atomic(journal, orbit.encode(record))
+    if rollback:
+        orbit.atomic(orbit.safe(root, marker_path), write['before'].encode())
+        for path in sorted(current_history):
+            orbit.safe(root, path).unlink()
+    else:
+        replication.seed(root, record['files'])
+        seeded = {p: h for p, h in _snapshot(root).items() if p.startswith(history_prefix)}
+        if seeded != expected_history:
+            raise orbit.OrbitError('Migration recovery conflict: unexpected seed history')
+        orbit.atomic(orbit.safe(root, marker_path), write['after'].encode())
+    if _read(root, marker_path) != (write['before'] if rollback else write['after']):
+        raise orbit.OrbitError('Migration verification conflict: ' + marker_path)
+    final = _snapshot(root)
+    for path, checksum in baseline.items():
+        if path != marker_path and final.get(path) != checksum:
+            raise orbit.OrbitError('Migration verification conflict: ' + path)
+    record['status'] = 'rolled-back' if rollback else 'committed'
+    orbit.atomic(journal, orbit.encode(record))
+    return {'status': record['status'], 'operation': record['id'],
+            'backup': journal.relative_to(root).as_posix(), 'verified': True,
+            'source_format': 2, 'target_format': 3}
+
+
+def migrate(root, action='plan', target_version=None, plan_id=None, operation=None):
+    root = Path(root)
+    if target_version not in (None, TARGET, LEGACY_TARGET):
+        raise orbit.OrbitError('Unsupported migration target; supported targets are 0.5.0 and ' + TARGET)
+    if action == 'status':
+        return status(root)
+    if action in ('resume', 'rollback') and operation and re.fullmatch(r'[a-f0-9-]{36}', operation):
+        journal = orbit.safe(root, orbit.INTERNAL + '/migrations/' + operation + '.json')
+        if journal.exists() and json.loads(journal.read_bytes()).get('target_format') == 3:
+            with orbit.lock(root):
+                record = json.loads(journal.read_bytes())
+                if record['status'] == 'rolled-back':
+                    if action == 'resume':
+                        raise orbit.OrbitError('Migration was rolled back; create a new plan')
+                    return {'status': 'rolled-back', 'operation': operation, 'verified': True}
+                if any(r['id'] != operation and r['status'] == 'prepared' for _, r in _journals(root)):
+                    raise orbit.OrbitError('Another migration is pending')
+                _ordinary_pending(root)
+                return _execute_replication(root, record, journal, action == 'rollback' or record.get('direction') == 'rollback')
+        return _legacy_migrate(root, action, LEGACY_TARGET, plan_id, operation)
+    if target_version == LEGACY_TARGET:
+        return _legacy_migrate(root, action, LEGACY_TARGET, plan_id, operation)
+    if action == 'plan':
+        return _prepare_replication(root)[0]
+    if action != 'apply':
+        raise orbit.OrbitError('Unknown migration action')
+    with orbit.lock(root):
+        report, record = _prepare_replication(root)
+        if report['status'] == 'unchanged':
+            return report
+        if not plan_id or plan_id != report['plan_id']:
+            raise orbit.OrbitError('Migration preview is missing or stale; run plan again')
+        opid = str(uuid.uuid4())
+        journal = orbit.safe(root, orbit.INTERNAL + '/migrations/' + opid + '.json')
+        record.update(id=opid, kind='migration', status='prepared', created=orbit.now(), plan_id=plan_id)
+        orbit.atomic(journal, orbit.encode(record))
+        return _execute_replication(root, record, journal)

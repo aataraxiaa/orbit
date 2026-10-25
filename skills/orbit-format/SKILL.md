@@ -36,7 +36,11 @@ Review the returned additions and warnings. A request to format authorizes apply
 an in-scope preview with `dry_run:false`; a request for a preview alone does not.
 Reread hash conflicts and replan. Report malformed frontmatter, strict schema
 failures or unsupported notes instead of rewriting their prose to make them pass.
-Use `orbit_recover` for a prepared interrupted operation before another write.
+For legacy prepared operations, use orbit_recover before another write. In format 3,
+accepted formatting writes use immutable revision evidence; reconcile interrupted
+projection through orbit_sync. If sync reports competing heads or unexplained external
+content, inspect history and settle the content in an explicitly authorized save before
+retrying formatting. Formatting cannot silently adopt observations or resolve branches.
 
 Formatting adds only absent required metadata. Existing IDs, custom metadata,
 body bytes, line endings, paths, assets and data-format markers stay unchanged.
@@ -49,3 +53,10 @@ Read changed notes back and compare hashes with the receipt. Verify representati
 recall with search. Report the actual returned Orbit name and absolute folder,
 changed and skipped notes, and unresolved warnings. Mechanical checks do not prove
 native desktop or fresh-conversation behavior.
+
+
+Formatting does not enable format 3 or prove synchronization. Existing format-1/2
+folders require the explicit migration workflow before revision handling applies.
+A format-3 committed receipt means locally durable acceptance, with verified projection
+reported separately; it is not an upload or peer acknowledgment. The protocol preserves
+accepted writes and observed external bytes, not editor versions lost before observation.

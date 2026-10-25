@@ -7,12 +7,16 @@ Each Orbit holds Markdown notes and source files. Obsidian is an optional editor
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the Python engine handles storage, hashes, indexing and recovery.
 
-Version 0.5.0 is a published beta release with named independent Orbits. Installed MCP
-setup, save, search and read passed in Codex desktop on October 24, 2026. Cross-app and
-fresh-conversation acceptance remain pending. Markdown and preserved sources remain authoritative. No cloud service,
-scheduled capture or bundled hooks. Python 3.10+ must be installed. The launcher checks
-PATH and standard Homebrew bin directories when `python3` is older; neither the plugin
-nor MCPB installs Python. Search uses SQLite FTS5.
+Version 0.6.0 is a testing prerelease for preserving concurrent writes across
+computers that share an Orbit folder. It adds immutable revisions and explicit conflict
+resolution while retaining editable Markdown and a derived local SQLite index. Native two-Mac iCloud and cross-app acceptance have not been established.
+Published 0.5.0 passed named-folder setup, save, search and read in one Codex desktop
+conversation on October 24, 2026; that evidence does not validate this release.
+
+Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew bin
+directories when `python3` is older; neither the plugin nor MCPB installs Python.
+There is no cloud service or background synchronization process. Your folder provider
+transports files; a local save receipt does not prove upload or delivery to another computer.
 
 ## How Orbit works
 
@@ -52,7 +56,7 @@ MCP tools, register the name and folder, save a labeled receipt and read it back
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.5.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0)
+same engine. Download it from [v0.6.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
@@ -90,7 +94,7 @@ bodies, paths, assets or the data-format marker. Existing broken links become wa
 new link problems and strict schema failures block the batch. The plugin's skills guide source interpretation and verification.
 See [tool contracts](references/tools.md) for all operations.
 
-Setup in an empty folder creates format-2 folders and schema notes. Linking an existing
+Setup in an empty folder creates format-3 state, standard folders and schema notes. Linking an existing
 Markdown collection preserves its notes and records format 1 if it has no Orbit marker.
 Upgrading its organization is explicit. The config defaults to ~/.config/orbit/config.json.
 ORBIT_CONFIG selects a different registry. Use an explicit `orbit` name or registered `vault` path on each call.
@@ -111,7 +115,7 @@ workflow with link repair and MCP verification; the plugin has no general file-m
 
 ## Structured knowledge and sessions
 
-Format 2 separates project context from knowledge you can reuse across projects.
+Formats 2 and 3 separate project context from knowledge you can reuse across projects.
 This illustrative Orbit shows the intended homes for notes. The example names are
 not files that setup creates.
 
@@ -153,7 +157,7 @@ ORBIT.md
 | `Schemas/` | Versioned Markdown definitions of the fields and sections expected for each note type. |
 | `Maps/` | Authored navigation notes that explain how related notes fit together. |
 | `ORBIT.md` | Orbit rules that guide the agent. |
-| `.orbit/` | Orbit identity, recovery journals, migration backups, and processing records managed by Orbit. |
+| `.orbit/` | Orbit identity, immutable commits and observations, migration backups, legacy journals, and processing records. |
 
 ### Projects and knowledge without duplication
 
@@ -220,8 +224,11 @@ results exclude schema notes and Orbit rules.
 Update the plugin, start a fresh conversation, and ask to migrate your Orbit.
 There is one `orbit-migrate` skill. It selects version-specific reference instructions
 using the observed data format and target release, previews changes, and calls the
-migration engine with the preview's digest. Format 1 upgrades to format 2; format 2
-receives a compatibility check. Unknown formats and downgrades are refused.
+migration engine with the preview's digest. Format 1 first upgrades to format 2 with
+explicit target `0.5.0`; a new preview targeting `0.6.0` upgrades format 2 to 3.
+Existing format 3 receives a compatibility check. Unknown formats and downgrades refuse.
+Upgrade every participating installation before enabling format 3. A client that has
+not yet received the new marker cannot be remotely fenced.
 
 Legacy markers do not identify an exact originating app release. Orbit reports that
 release as unknown and routes by data format. Backups retain exact affected file bytes;
@@ -229,6 +236,37 @@ interrupted runs can resume or roll back, refusing subsequent human edits. Ambig
 project ownership and unsupported links block the plan rather than guess. Original
 assets and historical receipts remain intact. Affected integration verification becomes
 historical and needs re-verification. Plugin installation never migrates an Orbit silently.
+
+## Shared folders and concurrent changes
+
+Format 3 retains complete accepted versions in immutable `.orbit/commits/` files.
+Keep those files and `.orbit/observations/` with the notes when copying or syncing an
+Orbit. They are durable evidence, not caches. Local locks and projection recovery state
+stay outside the synced folder; SQLite remains separately rebuildable.
+
+Call `orbit_sync` with `action: "reconcile"` to inspect delivered revisions, retain
+unexplained editor content and materialize eligible changes. `action: "status"` inspects
+without changing folder content; `action: "history"` with a note path reads alternatives.
+These calls do not contact a cloud service or determine whether every peer is current.
+Normal reads also reconcile delivered evidence, so they may update local Markdown and
+retain observations without creating a resolution revision.
+
+Independent notes converge after complete delivery. Concurrent edits to one note retain
+both versions and block ordinary recall for that note. Read its history, then use apply
+with the exact `expected_heads` and `observations` from the current conflict report and
+complete reviewed Markdown. History.current supplies current content and its physical
+hash when ordinary read is blocked. For a path collision, supply all competing heads;
+the chosen Markdown identity survives and other identities are tombstoned with history
+retained. Preserve competing claims unless evidence establishes a
+resolution. Reuse a `request_id` UUID only when retrying the exact same save plan.
+
+The preservation guarantee covers accepted Orbit writes and external content that Orbit
+has observed and retained. It cannot preserve an editor version overwritten before any
+observation. Missing ancestors/assets, malformed evidence and path collisions stay
+visible and prevent unsafe projection. Batch eligibility is checked together, but note
+replacement is per file; neither external readers nor remote computers receive a
+whole-folder transaction. No automatic text merge, history pruning or background daemon
+is included. Actual iCloud delivery and native two-Mac behavior remain unverified.
 
 ## How SQLite supports retrieval
 
@@ -272,8 +310,8 @@ flowchart TD
 ```
 
 There is no background file watcher. Search and catalog requests inventory the Orbit,
-then reparse only files whose signatures changed. This picks up edits made in any editor
-as well as edits made through Orbit. File inventory still grows with the number of
+then reparse only files whose signatures changed. In format 3, unexplained editor bytes are retained as observations and disputed notes
+are excluded until explicitly adopted; legacy formats continue to index current files. File inventory still grows with the number of
 files, even when none need reparsing.
 
 Search applies scope, type, and status filters before limiting results. FTS5 uses
@@ -331,9 +369,11 @@ It does not automatically reconcile facts or execute repository paths from notes
 
 Apply validates stable IDs, expected hashes, required metadata and link targets, including literal headings and block anchors.
 Unknown metadata blocks must remain verbatim. The skill must still preserve unrelated user prose during full-note replacement.
-Changes use per-file atomic writes and recovery journals. A batch is recoverable, not filesystem-atomic.
+Legacy changes use per-file atomic writes and recovery journals. Format 3 persists an
+immutable operation before projecting its files. A batch is recoverable, not filesystem-atomic.
 External editors do not honor the helper lock. Checks immediately before writes narrow but cannot eliminate that race.
-Recovery refuses subsequent edits. Explicit `orbit_recover` with `abandon: true` preserves current files and releases a conflicted operation
+Legacy recovery refuses subsequent edits. For legacy formats, explicit `orbit_recover`
+with `abandon: true` preserves current files and releases a conflicted operation
 for replanning; it does not undo partial writes. Journals contain historical content and require the same protection as notes.
 
 The parser supports common YAML scalars and lists, not arbitrary YAML interpretation. Ordinary saving cannot rename or delete notes. Explicit migrations perform guarded moves.
@@ -380,10 +420,10 @@ override leaves the conversation choice unchanged. Multiple entries without a ch
 refuse, including when an ambient path environment variable is set. There is no shared
 active selection between chats and no automatic search across Orbits.
 
-The registry uses config schema 2. Orbit data format remains 2. This beta change
-uses a one-time local configuration update rather than a shipped compatibility path.
+The registry uses config schema 2 independently of note data formats. New empty folders
+in 0.6.0 use format 3; existing format-1/2 folders migrate explicitly.
 Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
-The [0.5.0 prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.5.0) is published.
+Get the [0.6.0 testing prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0).
 
 ### Rename and select an Orbit
 

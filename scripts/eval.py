@@ -68,12 +68,13 @@ def aggregate(entries):
 def run(size, baseline=None):
     with tempfile.TemporaryDirectory(prefix='orbit-eval-') as temp:
         base, root = Path(temp), Path(temp) / 'vault'
-        previous = {key: os.environ.get(key) for key in ('ORBIT_CONFIG', 'ORBIT_CACHE')}
+        previous = {key: os.environ.get(key) for key in ('ORBIT_CONFIG', 'ORBIT_CACHE', 'ORBIT_STATE')}
         os.environ['ORBIT_CONFIG'] = str(base / 'config.json')
         os.environ['ORBIT_CACHE'] = str(base / 'cache')
+        os.environ['ORBIT_STATE'] = str(base / 'state')
         try:
-            orbit.setup(str(root), 'Test', create=True)
             cases = corpus(root, size)
+            orbit.setup(str(root), 'Test', create=True)
             variants = {'indexed': orbit.search}
             if baseline:
                 spec = importlib.util.spec_from_file_location('baseline_orbit', baseline)
@@ -81,7 +82,7 @@ def run(size, baseline=None):
                 spec.loader.exec_module(module)
                 variants = {'baseline': module.search, **variants}
             files = list(root.rglob('*.md'))
-            report = {'dataset_version': DATASET_VERSION, 'requested_notes': size, 'notes': len(files), 'bytes': sum(path.stat().st_size for path in files), 'expected_cases': len(cases), 'expected_heldout_cases': sum(case['split'] == 'heldout' for case in cases), 'variants': {}}
+            report = {'dataset_version': DATASET_VERSION, 'data_format': 1, 'requested_notes': size, 'notes': len(files), 'bytes': sum(path.stat().st_size for path in files), 'expected_cases': len(cases), 'expected_heldout_cases': sum(case['split'] == 'heldout' for case in cases), 'variants': {}}
             for label, search in variants.items():
                 start = time.perf_counter()
                 cold = {'query': 'RollbackCoordinator'}

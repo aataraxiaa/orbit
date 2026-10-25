@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import orbit
+from test_orbit import setup_legacy
 import knowledge
 from test_orbit import note, plan
 
@@ -18,9 +19,9 @@ class KnowledgeTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.base = Path(self.temp.name)
         self.root = self.base / 'vault'
-        self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json')})
+        self.env = patch.dict(os.environ, {'ORBIT_STATE': str(self.base / 'state'), 'ORBIT_CONFIG': str(self.base / 'config.json')})
         self.env.start()
-        orbit.setup(str(self.root), 'Test', create=True)
+        setup_legacy(self.root)
 
     def tearDown(self):
         self.env.stop()
@@ -145,8 +146,8 @@ class KnowledgeTest(unittest.TestCase):
         data.pop('data_format')
         data.pop('orbit_version')
         marker.write_text(json.dumps(data))
-        preview = migration.migrate(self.root)
-        migrated = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = migration.migrate(self.root, target_version='0.5.0')
+        migrated = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'], target_version='0.5.0')
         current = knowledge.integration(self.root)['records'][0]
         path = 'Projects/Atlas/Overview.md'
         extract = 'Projects/Extract/Overview.md'

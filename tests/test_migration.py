@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 from pathlib import Path
@@ -17,11 +18,12 @@ def note(identity, kind, title, body='', **fields):
 
 
 class MigrationTest(unittest.TestCase):
+    migrate = staticmethod(functools.partial(migration.migrate, target_version="0.5.0"))
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / 'vault'
         self.root.mkdir()
-        self.env = patch.dict(os.environ, {'ORBIT_CONFIG': self.temp.name + '/config', 'ORBIT_CACHE': self.temp.name + '/cache'})
+        self.env = patch.dict(os.environ, {'ORBIT_STATE': self.temp.name + '/state', 'ORBIT_CONFIG': self.temp.name + '/config', 'ORBIT_CACHE': self.temp.name + '/cache'})
         self.env.start()
         self.put('.orbit/vault.json', '{"schema": 1, "id": "stable", "custom": 4}\n')
         self.put('Old/Atlas.md', note('atlas', 'project', 'Atlas', '[decision](Decision.md#why)\n![asset](../Sources/assets/image.bin)\n'))
@@ -43,10 +45,10 @@ class MigrationTest(unittest.TestCase):
 
     def test_preview_apply_noop_and_exact_rollback(self):
         before = self.snapshot()
-        preview = migration.migrate(self.root)
+        preview = self.migrate(self.root)
         self.assertEqual(before, self.snapshot())
         self.assertEqual(preview['source_version'], 'unknown')
-        result = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        result = self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.assertTrue(result['verified'])
         project = (self.root / 'Projects/Atlas/Overview.md').read_bytes().decode()
         self.assertIn('Decisions/Decision.md#why', project)
@@ -57,22 +59,22 @@ class MigrationTest(unittest.TestCase):
         self.assertIn('[[Projects/Atlas/Overview#Goal|Atlas]]', decision)
         self.assertIn('`[[Old/Atlas]]`', decision)
         self.assertIn('```md\n[[Old/Atlas]]\n```', decision)
-        self.assertEqual(migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])['status'], 'unchanged')
-        migration.migrate(self.root, 'rollback', operation=result['operation'])
+        self.assertEqual(self.migrate(self.root, 'apply', plan_id=preview['plan_id'])['status'], 'unchanged')
+        self.migrate(self.root, 'rollback', operation=result['operation'])
         self.assertEqual(before, self.snapshot())
-        migration.migrate(self.root, 'rollback', operation=result['operation'])
+        self.migrate(self.root, 'rollback', operation=result['operation'])
         self.assertEqual(before, self.snapshot())
 
     def test_stale_preview_and_collision_are_read_only(self):
-        preview = migration.migrate(self.root)
+        preview = self.migrate(self.root)
         self.put('new-file.txt', 'external change')
         before = self.snapshot()
         with self.assertRaisesRegex(orbit.OrbitError, 'stale'):
-            migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+            self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.assertEqual(before, self.snapshot())
         self.put('Projects/Atlas/Overview.md', 'user file')
         with self.assertRaisesRegex(orbit.OrbitError, 'already exists'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
 
     def test_project_field_resolves_decision_and_session_without_metadata_changes(self):
         self.put('Old/Atlas.md', note('atlas', 'project', 'Mobile Chats and Tabs component',
@@ -84,17 +86,17 @@ class MigrationTest(unittest.TestCase):
         self.put('Knowledge/Related.md', note('related', 'knowledge', 'Related',
                                              project='Mobile Chats and Tabs'))
         before = self.snapshot()
-        preview = migration.migrate(self.root)
+        preview = self.migrate(self.root)
         self.assertEqual(before, self.snapshot())
-        result = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        result = self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.assertTrue(result['verified'])
         folder = 'Projects/Mobile Chats and Tabs component/'
         for old, new in [('Old/Atlas.md', 'Overview.md'),
                          ('Old/Decision.md', 'Decisions/Decision.md'),
                          ('Old/Session.md', 'Sessions/Session.md')]:
             self.assertEqual((self.root / (folder + new)).read_bytes(), before[old])
-        self.assertEqual(migration.migrate(self.root)['status'], 'unchanged')
-        migration.migrate(self.root, 'rollback', operation=result['operation'])
+        self.assertEqual(self.migrate(self.root)['status'], 'unchanged')
+        self.migrate(self.root, 'rollback', operation=result['operation'])
         self.assertEqual(before, self.snapshot())
 
     def test_project_field_collision_refuses_without_changes(self):
@@ -105,17 +107,17 @@ class MigrationTest(unittest.TestCase):
                 self.put('Other.md', note('other', 'project', title, **fields))
                 before = self.snapshot()
                 with self.assertRaisesRegex(orbit.OrbitError, 'Ambiguous project'):
-                    migration.migrate(self.root)
+                    self.migrate(self.root)
                 self.assertEqual(before, self.snapshot())
 
     def test_previous_release_format_two_is_compatible_without_changes(self):
-        preview = migration.migrate(self.root)
-        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         marker = json.loads((self.root / '.orbit/vault.json').read_bytes())
         marker['orbit_version'] = '0.4.0'
         self.put('.orbit/vault.json', json.dumps(marker))
         before = self.snapshot()
-        result = migration.migrate(self.root)
+        result = self.migrate(self.root)
         self.assertEqual(result['status'], 'unchanged')
         self.assertEqual(result['source_version'], '0.4.0')
         self.assertEqual(result['target_version'], '0.5.0')
@@ -126,7 +128,7 @@ class MigrationTest(unittest.TestCase):
         self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Missing'))
         before = self.snapshot()
         with self.assertRaisesRegex(orbit.OrbitError, 'No matching project'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
         self.assertEqual(before, self.snapshot())
 
     def test_project_field_requires_scalar_string(self):
@@ -136,11 +138,11 @@ class MigrationTest(unittest.TestCase):
                 self.put('Old/Atlas.md', note('atlas', 'project', 'Atlas', project=value))
                 before = self.snapshot()
                 with self.assertRaisesRegex(orbit.OrbitError, 'No matching project'):
-                    migration.migrate(self.root)
+                    self.migrate(self.root)
                 self.assertEqual(before, self.snapshot())
 
     def interrupt(self):
-        preview = migration.migrate(self.root)
+        preview = self.migrate(self.root)
         atomic = orbit.atomic
         count = 0
         def fail(path, data):
@@ -151,21 +153,21 @@ class MigrationTest(unittest.TestCase):
             atomic(path, data)
         with patch.object(orbit, 'atomic', side_effect=fail):
             with self.assertRaisesRegex(OSError, 'simulated'):
-                migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+                self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         return migration.status(self.root)['pending'][0]
 
     def test_interrupted_resume_blocks_writes(self):
         op = self.interrupt()
         with self.assertRaisesRegex(orbit.OrbitError, 'pending migration'):
             migration.ensure_writable(self.root)
-        self.assertEqual(migration.migrate(self.root, 'resume', operation=op)['status'], 'committed')
+        self.assertEqual(self.migrate(self.root, 'resume', operation=op)['status'], 'committed')
         self.assertEqual(migration.status(self.root)['data_format'], 2)
         migration.ensure_writable(self.root)
 
     def test_interrupted_rollback_exact_backup(self):
         before = self.snapshot()
         op = self.interrupt()
-        migration.migrate(self.root, 'rollback', operation=op)
+        self.migrate(self.root, 'rollback', operation=op)
         self.assertEqual(before, self.snapshot())
 
     def test_recovery_preflights_all_paths_before_mutation(self):
@@ -174,27 +176,27 @@ class MigrationTest(unittest.TestCase):
         before = self.snapshot()
         for action in ('resume', 'rollback'):
             with self.assertRaisesRegex(orbit.OrbitError, 'conflict'):
-                migration.migrate(self.root, action, operation=op)
+                self.migrate(self.root, action, operation=op)
             self.assertEqual(before, self.snapshot())
 
     def test_unknown_version_and_ambiguous_project_refuse(self):
         with self.assertRaisesRegex(orbit.OrbitError, 'Unsupported migration target'):
-            migration.migrate(self.root, target_version='0.3.0')
-        self.put('.orbit/vault.json', '{"schema":1,"data_format":3,"id":"stable"}')
+            self.migrate(self.root, target_version='0.3.0')
+        self.put('.orbit/vault.json', '{"schema":1,"data_format":4,"id":"stable"}')
         with self.assertRaisesRegex(orbit.OrbitError, 'Unsupported vault'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
         self.put('.orbit/vault.json', '{"schema":1,"id":"stable"}')
         self.put('Other.md', note('other', 'project', 'Atlas'))
         self.put('Old/Decision.md', note('decision', 'decision', 'Decision', project='Atlas'))
         with self.assertRaisesRegex(orbit.OrbitError, 'Ambiguous project'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
 
     def test_unsupported_links_and_metadata_links_refuse(self):
         for text in ('[nested](thing(foo).md)', '---\ncustom: "[[Old/Atlas]]"\n---\nbody'):
             self.put('manual.md', text)
             before = self.snapshot()
             with self.assertRaises(orbit.OrbitError):
-                migration.migrate(self.root)
+                self.migrate(self.root)
             self.assertEqual(before, self.snapshot())
 
     def test_every_write_boundary_recovers_forward_and_backward(self):
@@ -228,9 +230,9 @@ class MigrationTest(unittest.TestCase):
                         return unlink(path, *args, **kwargs)
                     with patch.object(orbit, 'atomic', side_effect=fail), patch.object(Path, 'unlink', fail_delete):
                         with self.assertRaises(OSError):
-                            migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+                            self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
                     op = migration.status(self.root)['pending'][0]
-                    migration.migrate(self.root, 'rollback' if rollback else 'resume', operation=op)
+                    self.migrate(self.root, 'rollback' if rollback else 'resume', operation=op)
                     if rollback:
                         self.assertEqual(original, self.snapshot())
                     else:
@@ -239,8 +241,8 @@ class MigrationTest(unittest.TestCase):
 
     def test_interrupted_committed_rollback_stays_pending_and_resume_rolls_back(self):
         before = self.snapshot()
-        preview = migration.migrate(self.root)
-        result = migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        result = self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         atomic = orbit.atomic
         calls = 0
         def fail(path, data):
@@ -251,15 +253,15 @@ class MigrationTest(unittest.TestCase):
             atomic(path, data)
         with patch.object(orbit, 'atomic', side_effect=fail):
             with self.assertRaises(OSError):
-                migration.migrate(self.root, 'rollback', operation=result['operation'])
+                self.migrate(self.root, 'rollback', operation=result['operation'])
         self.assertEqual(migration.status(self.root)['pending'], [result['operation']])
         with self.assertRaises(orbit.OrbitError):
             migration.ensure_writable(self.root)
-        self.assertEqual(migration.migrate(self.root, 'resume', operation=result['operation'])['status'], 'rolled-back')
+        self.assertEqual(self.migrate(self.root, 'resume', operation=result['operation'])['status'], 'rolled-back')
         self.assertEqual(before, self.snapshot())
 
     def test_verification_rereads_final_bytes(self):
-        preview = migration.migrate(self.root)
+        preview = self.migrate(self.root)
         atomic = orbit.atomic
         def external_edit(path, data):
             atomic(path, data)
@@ -267,23 +269,23 @@ class MigrationTest(unittest.TestCase):
                 self.put('Projects/Atlas/Overview.md', 'external edit during migration')
         with patch.object(orbit, 'atomic', side_effect=external_edit):
             with self.assertRaisesRegex(orbit.OrbitError, 'verification conflict'):
-                migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+                self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.assertTrue(migration.status(self.root)['pending'])
 
     def test_extensionless_encoded_and_reference_links(self):
         self.put('manual.md', '[project](Old/Atlas#Goal)\n[encoded](Old/%41tlas.md?mode=1#Goal)\n[ref]: <Old/Atlas.md> "Title"\n')
-        preview = migration.migrate(self.root)
-        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         text = (self.root / 'manual.md').read_text()
         self.assertIn('(Projects/Atlas/Overview#Goal)', text)
         self.assertIn('(Projects/Atlas/Overview.md?mode=1#Goal)', text)
         self.assertIn('[ref]: <Projects/Atlas/Overview.md> "Title"', text)
 
     def test_current_format_does_not_reclassify_projectless_sessions(self):
-        preview = migration.migrate(self.root)
-        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.put('Knowledge/session.md', note('session', 'session', 'Session'))
-        result = migration.migrate(self.root)
+        result = self.migrate(self.root)
         self.assertEqual(result['status'], 'unchanged')
         self.assertTrue(result['schema_warnings'])
 
@@ -291,7 +293,7 @@ class MigrationTest(unittest.TestCase):
         self.put('manual.md', '[see [Atlas]](Old/Atlas.md)\n')
         before = self.snapshot()
         with self.assertRaisesRegex(orbit.OrbitError, 'Unsupported Markdown'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
         self.assertEqual(self.snapshot(), before)
 
     def test_future_source_release_refuses_writes_and_downgrade(self):
@@ -300,26 +302,26 @@ class MigrationTest(unittest.TestCase):
         with self.assertRaisesRegex(orbit.OrbitError, 'newer Orbit'):
             migration.ensure_writable(self.root)
         with self.assertRaisesRegex(orbit.OrbitError, 'downgrade'):
-            migration.migrate(self.root)
+            self.migrate(self.root)
         self.assertEqual(self.snapshot(), before)
 
     def test_moved_custom_schema_does_not_create_duplicate_default(self):
         import structure
         template = (structure.TEMPLATES / 'Project.md').read_text().replace('orbit-schema-project-v1', 'custom-project-schema')
         self.put('Old/Custom.md', template)
-        preview = migration.migrate(self.root)
-        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         self.assertTrue((self.root / 'Schemas/Custom.md').exists())
         self.assertFalse((self.root / 'Schemas/Project.md').exists())
         self.assertFalse([w for w in structure.check(self.root)['warnings'] if w['severity'] == 'error'])
-        self.assertEqual(migration.migrate(self.root)['status'], 'unchanged')
+        self.assertEqual(self.migrate(self.root)['status'], 'unchanged')
 
     def test_integration_receipt_is_historical_not_forged(self):
         evidence = {'path': 'Old/Atlas.md', 'sha256': orbit.digest((self.root / 'Old/Atlas.md').read_bytes())}
         record = {'stage': 'verified', 'notes': [evidence], 'extraction': [], 'errors': [], 'verification': [{'historical': True}]}
         self.put('.orbit/integrations/source.json', json.dumps(record))
-        preview = migration.migrate(self.root)
-        migration.migrate(self.root, 'apply', plan_id=preview['plan_id'])
+        preview = self.migrate(self.root)
+        self.migrate(self.root, 'apply', plan_id=preview['plan_id'])
         after = json.loads((self.root / '.orbit/integrations/source.json').read_text())
         self.assertEqual(after['notes'], [evidence])
         self.assertEqual(after['verification'], record['verification'])

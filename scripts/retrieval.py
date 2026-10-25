@@ -29,6 +29,8 @@ def cache_path(root):
 
 def inventory(root):
     import orbit
+    import replication
+    blocked = set(replication.inspect(root)['blocked_paths']) if replication.enabled(root) else set()
     for base, dirs, files in os.walk(root, followlinks=False):
         base_path = Path(base)
         prefix = base_path.relative_to(root).as_posix()
@@ -37,6 +39,8 @@ def inventory(root):
         dirs[:] = sorted(d for d in dirs if not d.startswith('.') and not (base_path / d).is_symlink())
         for name in sorted(files):
             relative = name if prefix == '.' else prefix + '/' + name
+            if relative in blocked:
+                continue
             if not name.lower().endswith('.md') or relative.startswith('Sources/assets/'):
                 continue
             info = (base_path / name).lstat()

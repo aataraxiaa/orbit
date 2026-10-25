@@ -1,8 +1,9 @@
 # Shared knowledge contract
 
 Markdown and preserved sources are authoritative. No required Obsidian community plugin,
-server, account, or API key. All hosts use the same vault and the same note identities.
-Data format 2 uses Projects/<project>/Overview.md, with Decisions/ and Sessions/
+server, account, or API key. Hosts use the selected folder or its complete synced replicas with the same Orbit
+identity and stable note identities.
+Data formats 2 and 3 use Projects/<project>/Overview.md, with Decisions/ and Sessions/
 within each project. Use Knowledge/ for reusable knowledge, People/ for people,
 Sources/ for source notes and assets, Schemas/ for note contracts, and Maps/ for
 navigation. This contract supersedes earlier folder defaults. Preserve user prose
@@ -140,3 +141,36 @@ Markdown evidence and full or partial coverage. Integration binds affected note 
 to committed write operations. Verification runs recorded recall queries and checks
 current evidence. Verified means the mechanical checks passed, not that the claims are true.
 Partial coverage and deferred work remain visible even after verification.
+
+
+## Format 3 revision evidence
+
+Orbit 0.6.0 is a development candidate. Editable Markdown remains the content interface;
+`.orbit/commits/*.json` preserves immutable accepted operations containing complete
+versions, stable identities, parents and integrity checks. `.orbit/observations/*.json`
+retains unexplained external content without guessing its ancestry. Keep both directories
+with the folder. Never prune or edit them as if they were a derived cache.
+
+Delivered operations become eligible only when required dependencies are valid and
+available. Different-note changes can converge independently; concurrent heads of one
+entity require an explicit resolution revision. Arrival order and timestamps do not
+choose the winner. Missing history, path collisions and disputed notes block ordinary
+retrieval. A Markdown arrival before its operation can be an unexplained observation;
+later evidence may identify it without an invented editor commit.
+
+Apply resolution changes carry exact expected_heads and observation IDs from current
+sync status/history. A resolution preserves reviewed content and records its parents.
+Late concurrent evidence can reopen a conflict. Integration records use the same durable
+revision mechanism; concurrent stages do not silently select the highest stage.
+
+Local process locks and checkout recovery live outside the folder in ORBIT_STATE
+(default ~/.local/state/orbit, independent of host config), separately from ORBIT_CACHE. A local committed receipt
+means durable acceptance here, never upload or peer acknowledgment. Logical operation
+eligibility does not make multiple Markdown replacements filesystem-atomic.
+
+Accepted Orbit writes and observed retained external bytes are protected. External edits
+lost before observation cannot be recovered by this protocol. There is no background
+sync, automatic text merge or native iCloud delivery guarantee. Existing formats 1/2
+remain legacy until explicitly migrated. Format 1 uses the 0.5.0 route to 2 first, then
+the 0.6.0 route seeds exact existing bytes and enables format 3. Fresh empty folders
+seed their initial schema notes. Native two-computer and cross-app validation is separate.

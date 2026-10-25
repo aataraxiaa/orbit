@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import formatting
 import orbit
 import test_mcp
+from test_orbit import setup_legacy
 from test_mcp import call
 
 
@@ -21,7 +22,7 @@ class FormattingTest(unittest.TestCase):
         self.root = self.base / 'notes'
         self.root.mkdir()
         (self.root / 'plain.md').write_bytes(b'# Existing notes\n')
-        env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json'), 'ORBIT_CACHE': str(self.base / 'cache')})
+        env = patch.dict(os.environ, {'ORBIT_STATE': str(self.base / 'state'), 'ORBIT_CONFIG': str(self.base / 'config.json'), 'ORBIT_CACHE': str(self.base / 'cache')})
         env.start()
         self.addCleanup(env.stop)
         orbit.setup(str(self.root), 'Test')
@@ -147,7 +148,7 @@ class FormattingTest(unittest.TestCase):
 
     def test_strict_schemas_still_block_and_format2_marker_unchanged(self):
         new = self.base / 'format2'
-        orbit.setup(str(new), 'Modern', create=True)
+        setup_legacy(new, 'Modern')
         marker = (new / '.orbit/vault.json').read_bytes()
         schema = new / 'Schemas/Concept.md'
         text = schema.read_text().replace('validation: "warn"', 'validation: "strict"').replace('required_sections: []', 'required_sections: ["Evidence"]')
@@ -208,6 +209,10 @@ class FormatMCPTest(unittest.TestCase):
         body = (work / 'existing.md').read_bytes()
         plan = {'changes': [{'path': 'existing.md', 'expected_sha256': orbit.digest(body),
                             'metadata': {'title': 'Work content', 'type': 'concept', 'summary': 'Work content'}}]}
+        synced = self.result(self.run_server([call(1, 'sync', {'orbit': 'Work'})])[0])
+        history = self.result(self.run_server([call(1, 'sync', {'orbit': 'Work', 'action': 'history', 'path': 'existing.md'})])[0])
+        plan['changes'][0]['observations'] = [o['id'] for o in history['observations']]
+        plan['changes'][0]['expected_heads'] = synced['heads'].get('existing.md', [])
         args = {'orbit': 'Work', 'plan': plan}
         preview = self.result(self.run_server([call(1, 'format', args)])[0])
         self.assertEqual(preview['status'], 'preview')

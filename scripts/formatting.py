@@ -71,12 +71,12 @@ def header(raw):
 
 
 def prepare(root, plan):
-    if not isinstance(plan, dict) or set(plan) != {'changes'} or not isinstance(plan['changes'], list) or not 1 <= len(plan['changes']) <= 50:
+    if not isinstance(plan, dict) or set(plan) - {'changes', 'request_id'} or 'changes' not in plan or not isinstance(plan['changes'], list) or not 1 <= len(plan['changes']) <= 50:
         raise orbit.OrbitError('Format plan requires 1 to 50 changes')
     namespace = uuid.UUID(json.loads(orbit.safe(root, orbit.INTERNAL + '/vault.json').read_text())['id'])
     changes, receipts, seen = [], [], set()
     for change in plan['changes']:
-        if not isinstance(change, dict) or set(change) != {'path', 'expected_sha256', 'metadata'}:
+        if not isinstance(change, dict) or set(change) - {'path', 'expected_sha256', 'metadata', 'expected_heads', 'observations'} or not {'path', 'expected_sha256', 'metadata'} <= set(change):
             raise orbit.OrbitError('Each format change requires only path, expected_sha256 and metadata')
         path = change['path']
         if not isinstance(path, str):
@@ -122,7 +122,8 @@ def prepare(root, plan):
         receipts.append({'path': path, 'added': additions, 'before_sha256': orbit.digest(raw),
                          'after_sha256': orbit.digest(after.encode()), 'body_sha256': orbit.digest(body.encode())})
         changes.append({'path': path, 'expected_sha256': change['expected_sha256'], 'content': after,
-                        'reason': 'Add absent Orbit metadata; preserve existing bytes'})
+                        'reason': 'Add absent Orbit metadata; preserve existing bytes',
+                        **{key: change[key] for key in ('expected_heads', 'observations') if key in change}})
     return {'summary': 'Format existing notes in place', 'changes': changes}, receipts
 
 

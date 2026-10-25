@@ -27,7 +27,7 @@ class MCPTest(unittest.TestCase):
         self.base = Path(self.temp.name).resolve()
         self.vault = self.base / 'vault with spaces'
         self.env = {k: v for k, v in os.environ.items() if not k.startswith('ORBIT_')}
-        self.env.update(ORBIT_CONFIG=str(self.base / 'binding/config.json'), ORBIT_CACHE=str(self.base / 'cache'))
+        self.env.update(ORBIT_STATE=str(self.base / 'state'), ORBIT_CONFIG=str(self.base / 'binding/config.json'), ORBIT_CACHE=str(self.base / 'cache'))
 
     def run_server(self, messages, command=None, cwd=None):
         result = subprocess.run(command or [sys.executable, str(ROOT / 'scripts/mcp_server.py')],
@@ -83,7 +83,7 @@ class MCPTest(unittest.TestCase):
         self.assertEqual(responses[0]['result']['protocolVersion'], '2025-06-18')
         self.assertEqual(responses[1]['result'], {})
         tools = responses[2]['result']['tools']
-        self.assertEqual(len(tools), 18)
+        self.assertEqual(len(tools), 19)
         self.assertTrue(next(t for t in tools if t['name'] == 'orbit_apply')['annotations']['destructiveHint'])
         for response in responses[3:]:
             self.assertIn('error', response, response)
@@ -93,7 +93,7 @@ class MCPTest(unittest.TestCase):
 
     def test_native_python3_launch_discovers_supported_runtime(self):
         responses = self.run_server([request(1, 'tools/list')], ['python3', str(ROOT / 'scripts/mcp_server.py')])
-        self.assertEqual(len(responses[0]['result']['tools']), 18)
+        self.assertEqual(len(responses[0]['result']['tools']), 19)
 
     def test_setup_requires_explicit_path_without_ambient_fallback_or_writes(self):
         ordinary = self.base / 'ordinary folder'
@@ -142,7 +142,7 @@ class MCPTest(unittest.TestCase):
             request(1, 'tools/list', {'_meta': {'progressToken': 'test'}, 'cursor': None}),
             request(2, 'tools/list', {'cursor': 'unknown-page'}),
         ])
-        self.assertEqual(len(responses[0]['result']['tools']), 18)
+        self.assertEqual(len(responses[0]['result']['tools']), 19)
         self.assertEqual(responses[1]['error']['code'], -32602)
 
     def test_operations_use_engine_validation_and_safe_paths(self):
@@ -169,20 +169,20 @@ class MCPTest(unittest.TestCase):
         self.setup_vault()
         marker = self.vault / '.orbit/vault.json'
         original_marker = json.loads(marker.read_text())
-        self.assertEqual(original_marker['data_format'], 2)
+        self.assertEqual(original_marker['data_format'], 3)
         self.result(self.run_server([call(1, 'apply', {'plan': plan()})])[0])
         original_marker.pop('data_format')
         original_marker.pop('orbit_version')
         marker.write_text(json.dumps(original_marker))
-        preview = self.result(self.run_server([call(1, 'migrate')])[0])
+        preview = self.result(self.run_server([call(1, 'migrate', {'target_version': '0.5.0'})])[0])
         self.assertEqual(preview['source_version'], 'unknown')
-        migrated = self.result(self.run_server([call(1, 'migrate', {'action': 'apply', 'plan_id': preview['plan_id']})])[0])
+        migrated = self.result(self.run_server([call(1, 'migrate', {'action': 'apply', 'plan_id': preview['plan_id'], 'target_version': '0.5.0'})])[0])
         self.assertTrue(migrated['verified'])
         found = self.result(self.run_server([call(1, 'search', {'query': 'staged rollout', 'note_type': 'project'})])[0])
         self.assertEqual(found['results'][0]['path'], 'Projects/Atlas/Overview.md')
         schemas = self.result(self.run_server([call(1, 'schema', {'note_type': 'session'})])[0])
         self.assertIn('session', schemas['definitions'])
-        self.assertEqual(self.result(self.run_server([call(1, 'migrate')])[0])['status'], 'unchanged')
+        self.assertEqual(self.result(self.run_server([call(1, 'migrate', {'target_version': '0.5.0'})])[0])['status'], 'unchanged')
         self.result(self.run_server([call(1, 'migrate', {'action': 'rollback', 'operation': migrated['operation']})])[0])
         self.assertTrue((self.vault / 'Knowledge/Atlas.md').exists())
         self.assertFalse((self.vault / 'Projects/Atlas/Overview.md').exists())
@@ -207,7 +207,7 @@ class MCPTest(unittest.TestCase):
                     archive.extractall(extracted)
                 if archive_name.endswith('.mcpb'):
                     manifest = json.loads((extracted / 'manifest.json').read_text())
-                    self.assertEqual(manifest['version'], '0.5.0')
+                    self.assertEqual(manifest['version'], '0.6.0')
                     transport = manifest['server']['mcp_config']
                     configurations = [(transport, '${__dirname}', None)]
                 else:
@@ -223,7 +223,7 @@ class MCPTest(unittest.TestCase):
                     self.assertEqual(transport['command'], 'python3')
                     args = [arg.replace(variable, str(extracted)) if variable else arg for arg in transport['args']]
                     responses = self.run_server([request(1, 'tools/list')], [sys.executable, *args], cwd)
-                    self.assertEqual(len(responses[0]['result']['tools']), 18)
+                    self.assertEqual(len(responses[0]['result']['tools']), 19)
 
 
 if __name__ == '__main__':

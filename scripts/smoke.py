@@ -12,7 +12,7 @@ SCRIPT = Path(__file__).resolve().with_name('orbit.py')
 def main():
     with tempfile.TemporaryDirectory(prefix='orbit-smoke-') as directory:
         root = Path(directory)
-        env = dict(os.environ, ORBIT_CONFIG=str(root / 'config.json'), ORBIT_CACHE=str(root / 'cache'))
+        env = dict(os.environ, ORBIT_STATE=str(root / 'state'), ORBIT_CONFIG=str(root / 'config.json'), ORBIT_CACHE=str(root / 'cache'))
         def run(*args):
             completed = subprocess.run([sys.executable, str(SCRIPT), *args], cwd=root,
                                        env=env, capture_output=True, text=True, timeout=15)

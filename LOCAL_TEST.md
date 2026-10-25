@@ -1,5 +1,9 @@
 # Install and test Orbit
 
+The working source is the 0.6.0 testing prerelease. Use the marketplace or the
+[v0.6.0 release packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
+for testing. Upgrade every participating installation before migrating a shared folder.
+
 Orbit requires an installed Python 3.10+ and access to
 the selected vault. SQLite FTS5 enables indexed search. There are no third-party
 Python dependencies. The plugin and MCPB do not install a Python runtime.
@@ -55,7 +59,9 @@ mocking its version. Cache corruption recovery and locked-cache preservation mus
 ## Verify product behavior
 
 Use a disposable vault. Set `ORBIT_CONFIG` and `ORBIT_CACHE` to temporary paths outside that vault.
-The smoke script isolates these values automatically.
+The smoke script isolates these values automatically. For format-3 tests also set
+`ORBIT_STATE` to a disposable machine-local path outside the folder; it is separate
+from the rebuildable search cache.
 
 1. Discuss a staged rollout chosen because rollback must remain possible.
 2. Ask "Save that to Orbit" and inspect the receipt and notes.
@@ -108,3 +114,46 @@ name must fail without writing. Exercise rename concurrently with registration.
 In each native host, check explicit request destinations override a conversation's
 choice, one-off saves do not switch it, and confirmations use returned target receipts.
 Quoted mentions of another Orbit must not change the destination.
+
+
+## Verify the 0.6.0 revision prerelease
+
+Build/package checks and a simulated transport are
+mechanical evidence; native two-Mac iCloud and cross-app behavior remain unverified.
+Use disposable folders and separate config, cache and state paths for each replica.
+Copy the complete initialized folder, including .orbit/commits and .orbit/observations,
+so both replicas share one vault identity and initial history. Do not register the two
+copies together in one registry; use separate isolated registries/processes.
+
+1. Save different notes independently while disconnected. Deliver immutable operations
+   and Markdown in both orders, including duplicates. Call orbit_sync reconcile and
+   verify both notes through read/search after all dependencies arrive.
+2. Edit the same note on both replicas. Deliver both histories. Status must expose
+   identical competing heads; ordinary read/search must not silently pick a winner.
+   Read history, preserve both claims, and apply reviewed Markdown using exact current
+   expected_heads, observations and physical content hash. Deliver that operation and
+   verify convergence. Late unseen branches must reopen the conflict.
+3. Give apply a request_id canonical UUID. Retry the identical plan after acceptance,
+   including stale before hashes: expect one logical operation. Reuse with changed
+   content must refuse. Repeat after a process kill between acceptance and checkout.
+4. Deliver Markdown before its operation. Reconcile must preserve unexplained bytes as
+   observations rather than inventing ancestry. Later history may explain them. For
+   actual editor changes, explicitly adopt the observation through apply; do not claim
+   protection for edits overwritten before Orbit observed them.
+5. Delay parents or source assets, corrupt an envelope and create a path collision.
+   Pending/invalid status must remain visible and unsafe projection must refuse.
+6. Delete only the local SQLite cache, start a fresh process/conversation and verify
+   retained revisions and conflicts remain. Do not delete durable history or ORBIT_STATE
+   while a process is using it. Local save never proves upload or peer acknowledgment.
+7. On a disposable format-2 copy, preview migration to 0.6.0, apply, compare every
+   original note/asset byte and repeat the plan. Interrupt seed/marker publication,
+   resume and rollback separately. Later content edits or history additions must cause
+   recovery refusal. A format-1 fixture first follows explicit target 0.5.0 to format 2.
+
+Run the full unit suite, smoke and package commands above after changes. Include the
+replication, transport and migration test files present in this checkout. Record exact
+artifact hashes for native testing. The physical two-Mac matrix must repeat these
+scenarios through real installed plugin processes, then confirm cross-app and fresh-chat
+readback; deterministic file copying cannot establish iCloud transport behavior.
+
+The synthetic retrieval evaluation creates an existing format-1 corpus before setup. Its report labels `data_format: 1`; it measures retrieval rather than replication performance. Cross-device behavior is covered by the replica and MCP suites.

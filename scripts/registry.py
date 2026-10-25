@@ -172,7 +172,7 @@ def setup(path, name, create=False):
         marker = orbit.safe(root, '.orbit/vault.json')
         vault_id = identity(root) if marker.exists() else None
         registration(current, root, name, vault_id)
-        if vault_id is None:
+        if vault_id is None or json.loads(marker.read_text()).get('initializing'):
             orbit.initialize(str(root), create=create)
             vault_id = identity(root)
         updated = registration(current, root, name, vault_id)

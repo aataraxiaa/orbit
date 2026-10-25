@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import orbit
+from test_orbit import setup_legacy
 import retrieval
 
 
@@ -17,9 +18,9 @@ class RetrievalTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.base = Path(self.temp.name)
         self.root = self.base / 'vault'
-        self.env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json'), 'ORBIT_CACHE': str(self.base / 'cache')})
+        self.env = patch.dict(os.environ, {'ORBIT_STATE': str(self.base / 'state'), 'ORBIT_CONFIG': str(self.base / 'config.json'), 'ORBIT_CACHE': str(self.base / 'cache')})
         self.env.start()
-        orbit.setup(str(self.root), 'Test', create=True)
+        setup_legacy(self.root)
 
     def tearDown(self):
         self.env.stop()

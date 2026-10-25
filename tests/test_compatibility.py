@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import orbit
+from test_orbit import setup_legacy
 import knowledge
 import retrieval
 from test_orbit import plan
@@ -20,14 +21,14 @@ class CompatibilityTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.base = Path(self.temp.name)
         self.root = self.base / 'vault'
-        env = patch.dict(os.environ, {'ORBIT_CONFIG': str(self.base / 'config.json'),
+        env = patch.dict(os.environ, {'ORBIT_STATE': str(self.base / 'state'), 'ORBIT_CONFIG': str(self.base / 'config.json'),
                                     'ORBIT_CACHE': str(self.base / 'cache')}, clear=True)
         env.start()
         self.addCleanup(env.stop)
-        orbit.setup(str(self.root), 'Test', create=True)
+        setup_legacy(self.root)
 
     def test_cli_preflight_runs_with_current_interpreter_without_vault(self):
-        env = {'ORBIT_CONFIG': str(self.base / 'unbound.json'),
+        env = {'ORBIT_STATE': str(self.base / 'unbound-state'), 'ORBIT_CONFIG': str(self.base / 'unbound.json'),
                'ORBIT_CACHE': str(self.base / 'unbound-cache')}
         for flag, expected in (('--help', 'setup'), ('--version', orbit.VERSION)):
             with self.subTest(flag=flag):
