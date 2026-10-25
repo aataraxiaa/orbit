@@ -17,7 +17,8 @@ def main():
     for name in ('skills', 'references', 'scripts', '.claude-plugin', '.codex-plugin'):
         shutil.copytree(ROOT / name, plugin / name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'eval.py'))
         shipped.update(p.relative_to(ROOT) for p in (ROOT / name).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc' and p.name != 'eval.py')
-    for name in ('README.md', 'LOCAL_TEST.md', 'HANDOFF.md', '.mcp.json', '.codex.mcp.json', 'manifest.json'):
+    for name in ('README.md', 'LOCAL_TEST.md', 'HANDOFF.md', '.mcp.json', '.codex.mcp.json', 'manifest.json', 'assets/orbit-icon.png'):
+        (plugin / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, plugin / name)
         shipped.add(Path(name))
     for stale in plugin.rglob('*'):

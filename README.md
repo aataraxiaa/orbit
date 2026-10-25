@@ -1,3 +1,5 @@
+<img src="assets/orbit-icon.png" alt="Orbit" width="128" height="128">
+
 # Orbit
 
 A plugin for saving, connecting, and recalling knowledge in named folders on disk.
