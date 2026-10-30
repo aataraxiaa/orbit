@@ -1,0 +1,121 @@
+import XCTest
+
+@testable import OrbitCore
+
+final class EngineOperationsTests: XCTestCase {
+  var base: URL!
+  var root: URL!
+  var engine: OrbitEngine!
+  override func setUpWithError() throws {
+    base = FileManager.default.temporaryDirectory.appendingPathComponent(
+      "orbit-swift-engine-" + UUID().uuidString)
+    root = base.appendingPathComponent("folder")
+    engine = OrbitEngine(
+      configURL: base.appendingPathComponent("config.json"),
+      cacheURL: base.appendingPathComponent("cache"), stateURL: base.appendingPathComponent("state")
+    )
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    try atomic(
+      root.appendingPathComponent(".orbit/vault.json"),
+      encode([
+        "schema": 1, "id": "d76cb92b-49de-448d-bec7-438428196d31", "data_format": 2,
+        "orbit_version": "0.5.0",
+      ]))
+  }
+  override func tearDownWithError() throws { try FileManager.default.removeItem(at: base) }
+  func note(_ id: String = "n", extra: String = "", body: String = "Body\n") -> String {
+    "---\nid: \"" + id
+      + "\"\ntitle: \"Garden\"\ntype: \"concept\"\nsummary: \"Herbs beside the kitchen door\"\n"
+      + extra + "---\n# Garden\n\n" + body
+  }
+  func plan(_ content: String, hash: Any = NSNull()) -> JSONObject {
+    [
+      "changes": [
+        [
+          "path": "Knowledge/Garden.md", "content": content, "reason": "Requested save",
+          "expected_sha256": hash,
+        ]
+      ]
+    ]
+  }
+  func testApplyPreservesExactBytesAndRejectsStaleVersion() throws {
+    let text = note(body: "A user-written final section.\n")
+    let receipt = try engine.apply(root, plan: plan(text))
+    XCTAssertEqual(receipt["status"] as? String, "committed")
+    XCTAssertEqual(
+      try Data(contentsOf: root.appendingPathComponent("Knowledge/Garden.md")), Data(text.utf8))
+    XCTAssertThrowsError(
+      try engine.apply(
+        root, plan: plan(note(body: "Changed\n"), hash: String(repeating: "0", count: 64))))
+    XCTAssertEqual(
+      try Data(contentsOf: root.appendingPathComponent("Knowledge/Garden.md")), Data(text.utf8))
+    let read = try engine.read(root, path: "Knowledge/Garden.md", start: 1, count: 3)
+    XCTAssertEqual(read["sha256"] as? String, digest(Data(text.utf8)))
+    XCTAssertEqual(eObjects(read["lines"]).count, 3)
+    XCTAssertTrue(eBool(read["more"]))
+  }
+  func testUnknownMetadataMustRemainVerbatim() throws {
+    let text = note(extra: "custom:\n  nested: [a, b]\n")
+    _ = try engine.apply(root, plan: plan(text))
+    let hash = digest(Data(text.utf8))
+    XCTAssertThrowsError(
+      try engine.apply(root, plan: plan(note(extra: "custom:\n  nested: [b, a]\n"), hash: hash)))
+    XCTAssertEqual(try eText(root.appendingPathComponent("Knowledge/Garden.md")), text)
+  }
+  func testSearchCatalogAndExternalFreshness() throws {
+    let text = note(
+      body:
+        "Plant lavender beside the kitchen door.\n\n## Qualifications\nDo not plant before frost passes.\n"
+    )
+    _ = try engine.apply(root, plan: plan(text))
+    let result = try engine.search(root, query: "lavender")
+    XCTAssertEqual(eObjects(result["results"]).map { eString($0["path"]) }, ["Knowledge/Garden.md"])
+    XCTAssertEqual(result["mode"] as? String, "sqlite-fts5-passages")
+    let catalog = try engine.retrievalCatalog(root)
+    XCTAssertEqual(catalog["total"] as? Int, 1)
+    try atomic(
+      root.appendingPathComponent("Knowledge/Garden.md"), Data(note(body: "Rosemary only.\n").utf8))
+    XCTAssertTrue(eObjects(try engine.search(root, query: "lavender")["results"]).isEmpty)
+    XCTAssertEqual(eObjects(try engine.search(root, query: "rosemary")["results"]).count, 1)
+  }
+  func testRecoveryRefusesHumanEditBeforeChangingAnyFile() throws {
+    let operation = "185d95cc-30cb-4f2a-8a66-ea05a60cc29f"
+    let text = note()
+    let changed = note(body: "User edit\n")
+    try atomic(root.appendingPathComponent("Knowledge/Garden.md"), Data(changed.utf8))
+    try atomic(
+      root.appendingPathComponent(".orbit/operations/" + operation + ".json"),
+      encode([
+        "id": operation, "status": "prepared",
+        "writes": [
+          ["path": "Knowledge/Garden.md", "before": text, "after": note(body: "Proposed\n")]
+        ],
+      ]))
+    XCTAssertThrowsError(try engine.recover(root, operation: operation))
+    XCTAssertEqual(try eText(root.appendingPathComponent("Knowledge/Garden.md")), changed)
+    let abandoned = try engine.recover(root, operation: operation, abandon: true)
+    XCTAssertEqual(abandoned["status"] as? String, "abandoned")
+    XCTAssertEqual(try eText(root.appendingPathComponent("Knowledge/Garden.md")), changed)
+  }
+  func testPassagesRespectFencedHeadingsAndQualification() throws {
+    let text =
+      "---\nid: n\n---\n# Garden\n\nPlant herbs.\n\n```md\n## This is code\n```\n\n## Qualifications\nKeep dry.\n"
+    let passages = notePassages(text)
+    XCTAssertEqual(passages.count, 2)
+    XCTAssertEqual(passages[0].section, "Garden")
+    XCTAssertEqual(passages[1].section, "Garden / Qualifications")
+    XCTAssertTrue(passages[0].body.contains("## This is code"))
+  }
+  func testCaptureDeduplicatesWithoutOverwritingAsset() throws {
+    let file = base.appendingPathComponent("original.txt")
+    try Data("Original source".utf8).write(to: file)
+    let receipt = try engine.capture(root, source: file.path)
+    XCTAssertEqual(receipt["status"] as? String, "captured")
+    let duplicate = try engine.capture(root, source: file.path)
+    XCTAssertEqual(duplicate["status"] as? String, "already-captured")
+    let asset = try safe(root, eString(receipt["path"]))
+    try atomic(asset, Data("Changed externally".utf8))
+    XCTAssertThrowsError(try engine.capture(root, source: file.path))
+    XCTAssertEqual(try eText(asset), "Changed externally")
+  }
+}
