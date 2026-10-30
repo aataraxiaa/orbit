@@ -109,8 +109,7 @@ extension OrbitEngine {
         if !integration && (parts.contains(where: { $0.hasPrefix(".") }) || url.pathExtension.lowercased() != "md" || Array(parts.prefix(2)) == ["Sources", "assets"]) {
             throw OrbitError("Snapshot must target Markdown or an integration record")
         }
-        let relative = url.standardizedFileURL.path.replacingOccurrences(of: root.standardizedFileURL.path + "/", with: "", options: .anchored)
-        guard relative == value else { throw OrbitError("Snapshot path must be canonical") }
+        guard parts.joined(separator: "/") == value, !parts.contains(".") else { throw OrbitError("Snapshot path must be canonical") }
         return url
     }
 

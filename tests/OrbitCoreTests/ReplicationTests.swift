@@ -313,4 +313,33 @@ final class ReplicationTests: XCTestCase {
         XCTAssertEqual(try durableFiles(base),before)
     }
 
+    func testFirstLockCreationAndAlternateCanonicalURLAreReentrant() throws {
+        let state = base.appendingPathComponent("new-state")
+        let other = OrbitEngine(configURL: base.appendingPathComponent("other-config.json"), cacheURL: base.appendingPathComponent("other-cache"), stateURL: state)
+        let resolved = a.path.withCString { realpath($0, nil) }!
+        let canonicalRoot = String(cString: resolved)
+        free(resolved)
+        let root = URL(fileURLWithPath: canonicalRoot)
+        try other.withLocalLock(a) {
+            try other.withLocalLock(root) {
+                XCTAssertEqual(try other.replicationInspect(root)["status"] as? String, "ready")
+            }
+        }
+        let expected = digest(try canonical([canonicalRoot, identity]))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: state.appendingPathComponent(expected).appendingPathComponent("write.lock").path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: a.appendingPathComponent(".orbit/write.lock").path))
+    }
+
+    func testNewNestedDestinationUnderCanonicalTemporaryRoot() throws {
+        let resolved = a.path.withCString { realpath($0, nil) }!
+        let root = URL(fileURLWithPath: String(cString: resolved)); free(resolved)
+        let relative = "Nested/Previously Missing/Note.md"
+        let result = try engine.replicationCommit(root, writes: [write(root, relative, note("nested", "new"))])
+        XCTAssertEqual(result["verified"] as? Bool, true)
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent(relative)), Data(note("nested", "new").utf8))
+        for invalid in ["Nested//Bad.md", "Nested/./Bad.md", "Nested/Bad.md/"] {
+            XCTAssertThrowsError(try engine.replicationCommit(root, writes: [write(root, invalid, note("bad", "bad"))]))
+        }
+    }
+
 }
