@@ -19,3 +19,19 @@ The projection fault uses actual filesystem permissions. An accepted envelope re
 A separate test holds Python's local OS lock while issuing a request to the native process against the same folder and state location. The native request must wait until the Python lock is released. This proves the overlapping local writers share the lock identity.
 
 These are filesystem transport and executable tests. They do not verify native desktop plugin installation, host conversations, iCloud delivery, security-scoped bookmarks, or physical-device behavior. The committed result file identifies the tested binary; rerun after rebuilding a changed candidate.
+
+## Concurrent source integration
+
+The additional `replica-integration.json` fixture requires the development adapters that freeze clocks and UUID generation:
+
+```sh
+python3 scripts/mixed_replica_compatibility.py \
+  --swift /absolute/path/to/prebuilt/orbit-fixture \
+  --python-reference scripts/compatibility_reference.py \
+  --fixtures tests/fixtures/compatibility/replica-integration.json \
+  --output work/mixed-integration-results.json
+```
+
+Both implementations retain all concurrent extraction records, resolve exact heads, retain a newly arriving offline branch, and advance through integrated and verified using a real committed note and a real search. Assertions check every expected source version and extraction description, the exact saved-note hash, unknown custom source-record fields, and retry behavior after restart. The fixture executable is a development adapter and is excluded from native plugin packaging.
+
+Cache filenames depend on each replica's absolute folder path. The runner independently checks the reported cache against SHA-256 of the canonical folder path, a NUL separator, and the Orbit identity, and requires that cache to exist outside synced data. It then substitutes a stable cache label for comparison. Receipt and note hashes, revision tokens, history, search results and all shared files still compare exactly.

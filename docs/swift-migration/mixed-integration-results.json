@@ -1,0 +1,857 @@
+{
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "fixture": "tests/fixtures/compatibility/replica-integration.json",
+  "native_binary_sha256": "a657fb5d7af63b32e654073923ac46a88b516cf969c945f5345e02ff7d6fd539",
+  "cases": [
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "initial-integration",
+      "result_sha256": [
+        "f29d175483d41a800b3c166750e9b5f4dffa52d94810c2550acf720075ba0166",
+        "f29d175483d41a800b3c166750e9b5f4dffa52d94810c2550acf720075ba0166"
+      ],
+      "storage_manifest_sha256": [
+        "7c4322c0ee848336ff0e3911f3e3fab48a62b0e9e166cf0c3c909a983aa9704d",
+        "7c4322c0ee848336ff0e3911f3e3fab48a62b0e9e166cf0c3c909a983aa9704d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "left-extraction",
+      "result_sha256": [
+        "1bf6f26babb1cd988bf7dd76ce620e30a6a88f824a83c385019d8681a9d228ee",
+        "1bf6f26babb1cd988bf7dd76ce620e30a6a88f824a83c385019d8681a9d228ee"
+      ],
+      "storage_manifest_sha256": [
+        "6c9acf93fde5ee441f501993847fb7f7963ce387458e57b6b32e0a7b3803d275",
+        "6c9acf93fde5ee441f501993847fb7f7963ce387458e57b6b32e0a7b3803d275"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "right-extraction",
+      "result_sha256": [
+        "22363b2aebbf1db9a8e9d32944cf98ef08b211bdaca7e8b3e8dd5e89018fa66b",
+        "22363b2aebbf1db9a8e9d32944cf98ef08b211bdaca7e8b3e8dd5e89018fa66b"
+      ],
+      "storage_manifest_sha256": [
+        "56b9286e90a59c70402bf0b27689a084137890eb05e39b9b9773ba38a51c067e",
+        "56b9286e90a59c70402bf0b27689a084137890eb05e39b9b9773ba38a51c067e"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "left-to-right",
+      "result_sha256": [
+        "82e6454de8dec1c832429cc695f7796f8e7575a5abd77da0dadfdcb0e200412d",
+        "82e6454de8dec1c832429cc695f7796f8e7575a5abd77da0dadfdcb0e200412d"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "integration-conflict",
+      "result_sha256": [
+        "865bca635e0adb4931a08597e865c25a0b82ead651404600cc6e2d475f35dfdf",
+        "865bca635e0adb4931a08597e865c25a0b82ead651404600cc6e2d475f35dfdf"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "no-canonical-conflicted-record",
+      "result_sha256": [
+        "9f4ac3042b41f922be2c6a047e3688934face04aea16eff74aaf78f26c7d2326",
+        "9f4ac3042b41f922be2c6a047e3688934face04aea16eff74aaf78f26c7d2326"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "both-extraction-alternatives",
+      "result_sha256": [
+        "6d7386f62ae31dc54ee049f3963842553f73a08b2c5d1ea18de2f2180592d238",
+        "6d7386f62ae31dc54ee049f3963842553f73a08b2c5d1ea18de2f2180592d238"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "reviewed-resolution",
+      "result_sha256": [
+        "2f1da0f393e7b05cb33794ac902d089328ff30c963476c343ba6ed3a439c6b98",
+        "2f1da0f393e7b05cb33794ac902d089328ff30c963476c343ba6ed3a439c6b98"
+      ],
+      "storage_manifest_sha256": [
+        "5fca9ae405e11358f80482828c80021699e0392d2e370306042e448dbfff2c58",
+        "5fca9ae405e11358f80482828c80021699e0392d2e370306042e448dbfff2c58"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "resolution-to-left",
+      "result_sha256": [
+        "702710e07d553ab049a6e47eef293f16961f62281eeb777f7c9360917fd8d04e",
+        "702710e07d553ab049a6e47eef293f16961f62281eeb777f7c9360917fd8d04e"
+      ],
+      "storage_manifest_sha256": [
+        "0bb954087b5e476a88c803d01020373195dbbb94fd0b1f7435f6e6fd4d0b0810",
+        "0bb954087b5e476a88c803d01020373195dbbb94fd0b1f7435f6e6fd4d0b0810"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "left-ready",
+      "result_sha256": [
+        "f4d6aa27ff3bf6d913ba2f9584af8d2a2b37b25d005dee386f990c1252ee15d4",
+        "f4d6aa27ff3bf6d913ba2f9584af8d2a2b37b25d005dee386f990c1252ee15d4"
+      ],
+      "storage_manifest_sha256": [
+        "ae51cc407b6c77dae55fc0af47ce9e562742aa5fa684c9b77c591ade7d707575",
+        "ae51cc407b6c77dae55fc0af47ce9e562742aa5fa684c9b77c591ade7d707575"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "late-extraction",
+      "result_sha256": [
+        "60e88ec3cc25fb3a96f20b7b18db00986d7654cdd67fe53eeec39254dd6ca9bd",
+        "60e88ec3cc25fb3a96f20b7b18db00986d7654cdd67fe53eeec39254dd6ca9bd"
+      ],
+      "storage_manifest_sha256": [
+        "d81de8f1bd02a1dfbbd808f206e3dd25ed4d2c28e2dcd83036e704c14787b3c2",
+        "d81de8f1bd02a1dfbbd808f206e3dd25ed4d2c28e2dcd83036e704c14787b3c2"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "late-branch-arrives",
+      "result_sha256": [
+        "3b25e3d3ecd6675ec07be60b07ea57a0f1ddf28b8d2023ccacee07bc14e3987a",
+        "3b25e3d3ecd6675ec07be60b07ea57a0f1ddf28b8d2023ccacee07bc14e3987a"
+      ],
+      "storage_manifest_sha256": [
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819",
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "new-integration-conflict",
+      "result_sha256": [
+        "fcf3030609b6272cd4bd2a6f391102feda7f66652691458ee6a39334fc75f043",
+        "fcf3030609b6272cd4bd2a6f391102feda7f66652691458ee6a39334fc75f043"
+      ],
+      "storage_manifest_sha256": [
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819",
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "resolution-with-late-evidence",
+      "result_sha256": [
+        "ec07417a6526698559693a1425d1cb8b64f13335c8f0d5d2f8beecb6ba67fb91",
+        "ec07417a6526698559693a1425d1cb8b64f13335c8f0d5d2f8beecb6ba67fb91"
+      ],
+      "storage_manifest_sha256": [
+        "ff14933896ca023bbee1d208039202b79b2f268f647a986a6436caa68c1dda27",
+        "ff14933896ca023bbee1d208039202b79b2f268f647a986a6436caa68c1dda27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "write-derived-note",
+      "result_sha256": [
+        "cd03a74a90597f09decf950b0e3b4a33c9e2ffe151cd7b6de0d630a6c5a5452d",
+        "cd03a74a90597f09decf950b0e3b4a33c9e2ffe151cd7b6de0d630a6c5a5452d"
+      ],
+      "storage_manifest_sha256": [
+        "8f862aa3c925f1ba1de4bc548c06a9e204a732eaf2e7ac01bedea863cacd7bda",
+        "8f862aa3c925f1ba1de4bc548c06a9e204a732eaf2e7ac01bedea863cacd7bda"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "integrated",
+      "result_sha256": [
+        "c794ece870718310f43e470d9b4355ef625320a845aff0a88b27245b0d12e65e",
+        "c794ece870718310f43e470d9b4355ef625320a845aff0a88b27245b0d12e65e"
+      ],
+      "storage_manifest_sha256": [
+        "68b9f6a37b10a1ee08c0721563b8a6bf93a2435157d703163818654a1da46cbe",
+        "68b9f6a37b10a1ee08c0721563b8a6bf93a2435157d703163818654a1da46cbe"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "integrated-evidence-to-left",
+      "result_sha256": [
+        "f33f9be3f1b577b9c815930fca74a93d9b6c21f7cf92c9b3fda46bc8e6f2ec65",
+        "f33f9be3f1b577b9c815930fca74a93d9b6c21f7cf92c9b3fda46bc8e6f2ec65"
+      ],
+      "storage_manifest_sha256": [
+        "4c470c16244d07808c838e88186e177f3e0bece6ac6fa048074e550c34484b33",
+        "4c470c16244d07808c838e88186e177f3e0bece6ac6fa048074e550c34484b33"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "integrated-ready",
+      "result_sha256": [
+        "074127028518f5a6e88895ed00adfe63db23d0c23864307baefee1d99891315b",
+        "074127028518f5a6e88895ed00adfe63db23d0c23864307baefee1d99891315b"
+      ],
+      "storage_manifest_sha256": [
+        "28deaf3decdade39c773694854d5d287a1f6476133fb65b3d43a9352b3b433b1",
+        "28deaf3decdade39c773694854d5d287a1f6476133fb65b3d43a9352b3b433b1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "verified",
+      "result_sha256": [
+        "9b4bb1cf40ba56465cc16ba802d56cf0c7eabda38dc080c19829cb740a28ab90",
+        "9b4bb1cf40ba56465cc16ba802d56cf0c7eabda38dc080c19829cb740a28ab90"
+      ],
+      "storage_manifest_sha256": [
+        "10dbe36ff17b4cc891bf822dbbf0094e22f6c09333c4265b4f0e0996fe60ba01",
+        "10dbe36ff17b4cc891bf822dbbf0094e22f6c09333c4265b4f0e0996fe60ba01"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "verified-to-peer",
+      "result_sha256": [
+        "1e4f3d83f2e774072785c5f360bd939fdbc0c5d45d582a2da5c7deb66f198dbc",
+        "1e4f3d83f2e774072785c5f360bd939fdbc0c5d45d582a2da5c7deb66f198dbc"
+      ],
+      "storage_manifest_sha256": [
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461",
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "restart-integration-peer",
+      "result_sha256": [
+        "2a52f16cc4f4cfc7e423ffb0442c8059f6991008ad3f5bf90caa057d736b6d5b",
+        "2a52f16cc4f4cfc7e423ffb0442c8059f6991008ad3f5bf90caa057d736b6d5b"
+      ],
+      "storage_manifest_sha256": [
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461",
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "exact-integration-retry-after-restart",
+      "result_sha256": [
+        "901d7b31a730a66f7102580d1ce5814382ffd21b8df47ed587d283ee9fa39065",
+        "901d7b31a730a66f7102580d1ce5814382ffd21b8df47ed587d283ee9fa39065"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "verified-record",
+      "result_sha256": [
+        "57b22a5c7fd63320b300174d90e4370357560c69027766a912862af4d856e2ef",
+        "57b22a5c7fd63320b300174d90e4370357560c69027766a912862af4d856e2ef"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "complete-source-history",
+      "result_sha256": [
+        "ba8ff8d3b6b845248722a74a358b01e32563a4cbcfc0cb77a1d7bf3acd0bf9d6",
+        "ba8ff8d3b6b845248722a74a358b01e32563a4cbcfc0cb77a1d7bf3acd0bf9d6"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "real-note-readback",
+      "result_sha256": [
+        "a0b18d464bd6bd071df24ec20f097472d4ac1dc443d38590a84f2bac2a58d11f",
+        "a0b18d464bd6bd071df24ec20f097472d4ac1dc443d38590a84f2bac2a58d11f"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "a",
+      "step": "real-note-recall",
+      "result_sha256": [
+        "faa4d33813bf1e59b14b0c9ff81ef0365a19170c2ba7f9b585fb88f95f2e18a0",
+        "faa4d33813bf1e59b14b0c9ff81ef0365a19170c2ba7f9b585fb88f95f2e18a0"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "initial-integration",
+      "result_sha256": [
+        "f29d175483d41a800b3c166750e9b5f4dffa52d94810c2550acf720075ba0166",
+        "f29d175483d41a800b3c166750e9b5f4dffa52d94810c2550acf720075ba0166"
+      ],
+      "storage_manifest_sha256": [
+        "7c4322c0ee848336ff0e3911f3e3fab48a62b0e9e166cf0c3c909a983aa9704d",
+        "7c4322c0ee848336ff0e3911f3e3fab48a62b0e9e166cf0c3c909a983aa9704d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "left-extraction",
+      "result_sha256": [
+        "1bf6f26babb1cd988bf7dd76ce620e30a6a88f824a83c385019d8681a9d228ee",
+        "1bf6f26babb1cd988bf7dd76ce620e30a6a88f824a83c385019d8681a9d228ee"
+      ],
+      "storage_manifest_sha256": [
+        "6c9acf93fde5ee441f501993847fb7f7963ce387458e57b6b32e0a7b3803d275",
+        "6c9acf93fde5ee441f501993847fb7f7963ce387458e57b6b32e0a7b3803d275"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "right-extraction",
+      "result_sha256": [
+        "22363b2aebbf1db9a8e9d32944cf98ef08b211bdaca7e8b3e8dd5e89018fa66b",
+        "22363b2aebbf1db9a8e9d32944cf98ef08b211bdaca7e8b3e8dd5e89018fa66b"
+      ],
+      "storage_manifest_sha256": [
+        "56b9286e90a59c70402bf0b27689a084137890eb05e39b9b9773ba38a51c067e",
+        "56b9286e90a59c70402bf0b27689a084137890eb05e39b9b9773ba38a51c067e"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "left-to-right",
+      "result_sha256": [
+        "82e6454de8dec1c832429cc695f7796f8e7575a5abd77da0dadfdcb0e200412d",
+        "82e6454de8dec1c832429cc695f7796f8e7575a5abd77da0dadfdcb0e200412d"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "integration-conflict",
+      "result_sha256": [
+        "865bca635e0adb4931a08597e865c25a0b82ead651404600cc6e2d475f35dfdf",
+        "865bca635e0adb4931a08597e865c25a0b82ead651404600cc6e2d475f35dfdf"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "no-canonical-conflicted-record",
+      "result_sha256": [
+        "9f4ac3042b41f922be2c6a047e3688934face04aea16eff74aaf78f26c7d2326",
+        "9f4ac3042b41f922be2c6a047e3688934face04aea16eff74aaf78f26c7d2326"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "both-extraction-alternatives",
+      "result_sha256": [
+        "6d7386f62ae31dc54ee049f3963842553f73a08b2c5d1ea18de2f2180592d238",
+        "6d7386f62ae31dc54ee049f3963842553f73a08b2c5d1ea18de2f2180592d238"
+      ],
+      "storage_manifest_sha256": [
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d",
+        "1f489ad722b02d5263d65fc74f8e9ed6f8979a12b21382c1252fecd40a1e1f4d"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "reviewed-resolution",
+      "result_sha256": [
+        "2f1da0f393e7b05cb33794ac902d089328ff30c963476c343ba6ed3a439c6b98",
+        "2f1da0f393e7b05cb33794ac902d089328ff30c963476c343ba6ed3a439c6b98"
+      ],
+      "storage_manifest_sha256": [
+        "5fca9ae405e11358f80482828c80021699e0392d2e370306042e448dbfff2c58",
+        "5fca9ae405e11358f80482828c80021699e0392d2e370306042e448dbfff2c58"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "resolution-to-left",
+      "result_sha256": [
+        "702710e07d553ab049a6e47eef293f16961f62281eeb777f7c9360917fd8d04e",
+        "702710e07d553ab049a6e47eef293f16961f62281eeb777f7c9360917fd8d04e"
+      ],
+      "storage_manifest_sha256": [
+        "0bb954087b5e476a88c803d01020373195dbbb94fd0b1f7435f6e6fd4d0b0810",
+        "0bb954087b5e476a88c803d01020373195dbbb94fd0b1f7435f6e6fd4d0b0810"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "left-ready",
+      "result_sha256": [
+        "f4d6aa27ff3bf6d913ba2f9584af8d2a2b37b25d005dee386f990c1252ee15d4",
+        "f4d6aa27ff3bf6d913ba2f9584af8d2a2b37b25d005dee386f990c1252ee15d4"
+      ],
+      "storage_manifest_sha256": [
+        "ae51cc407b6c77dae55fc0af47ce9e562742aa5fa684c9b77c591ade7d707575",
+        "ae51cc407b6c77dae55fc0af47ce9e562742aa5fa684c9b77c591ade7d707575"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "late-extraction",
+      "result_sha256": [
+        "60e88ec3cc25fb3a96f20b7b18db00986d7654cdd67fe53eeec39254dd6ca9bd",
+        "60e88ec3cc25fb3a96f20b7b18db00986d7654cdd67fe53eeec39254dd6ca9bd"
+      ],
+      "storage_manifest_sha256": [
+        "d81de8f1bd02a1dfbbd808f206e3dd25ed4d2c28e2dcd83036e704c14787b3c2",
+        "d81de8f1bd02a1dfbbd808f206e3dd25ed4d2c28e2dcd83036e704c14787b3c2"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "late-branch-arrives",
+      "result_sha256": [
+        "3b25e3d3ecd6675ec07be60b07ea57a0f1ddf28b8d2023ccacee07bc14e3987a",
+        "3b25e3d3ecd6675ec07be60b07ea57a0f1ddf28b8d2023ccacee07bc14e3987a"
+      ],
+      "storage_manifest_sha256": [
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819",
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "new-integration-conflict",
+      "result_sha256": [
+        "fcf3030609b6272cd4bd2a6f391102feda7f66652691458ee6a39334fc75f043",
+        "fcf3030609b6272cd4bd2a6f391102feda7f66652691458ee6a39334fc75f043"
+      ],
+      "storage_manifest_sha256": [
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819",
+        "e39e8c7ab80b81147234a51a736a100171f6c532a40cc1594614308b03f28819"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "resolution-with-late-evidence",
+      "result_sha256": [
+        "ec07417a6526698559693a1425d1cb8b64f13335c8f0d5d2f8beecb6ba67fb91",
+        "ec07417a6526698559693a1425d1cb8b64f13335c8f0d5d2f8beecb6ba67fb91"
+      ],
+      "storage_manifest_sha256": [
+        "ff14933896ca023bbee1d208039202b79b2f268f647a986a6436caa68c1dda27",
+        "ff14933896ca023bbee1d208039202b79b2f268f647a986a6436caa68c1dda27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "write-derived-note",
+      "result_sha256": [
+        "cd03a74a90597f09decf950b0e3b4a33c9e2ffe151cd7b6de0d630a6c5a5452d",
+        "cd03a74a90597f09decf950b0e3b4a33c9e2ffe151cd7b6de0d630a6c5a5452d"
+      ],
+      "storage_manifest_sha256": [
+        "8f862aa3c925f1ba1de4bc548c06a9e204a732eaf2e7ac01bedea863cacd7bda",
+        "8f862aa3c925f1ba1de4bc548c06a9e204a732eaf2e7ac01bedea863cacd7bda"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "integrated",
+      "result_sha256": [
+        "c794ece870718310f43e470d9b4355ef625320a845aff0a88b27245b0d12e65e",
+        "c794ece870718310f43e470d9b4355ef625320a845aff0a88b27245b0d12e65e"
+      ],
+      "storage_manifest_sha256": [
+        "68b9f6a37b10a1ee08c0721563b8a6bf93a2435157d703163818654a1da46cbe",
+        "68b9f6a37b10a1ee08c0721563b8a6bf93a2435157d703163818654a1da46cbe"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "integrated-evidence-to-left",
+      "result_sha256": [
+        "f33f9be3f1b577b9c815930fca74a93d9b6c21f7cf92c9b3fda46bc8e6f2ec65",
+        "f33f9be3f1b577b9c815930fca74a93d9b6c21f7cf92c9b3fda46bc8e6f2ec65"
+      ],
+      "storage_manifest_sha256": [
+        "4c470c16244d07808c838e88186e177f3e0bece6ac6fa048074e550c34484b33",
+        "4c470c16244d07808c838e88186e177f3e0bece6ac6fa048074e550c34484b33"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "integrated-ready",
+      "result_sha256": [
+        "074127028518f5a6e88895ed00adfe63db23d0c23864307baefee1d99891315b",
+        "074127028518f5a6e88895ed00adfe63db23d0c23864307baefee1d99891315b"
+      ],
+      "storage_manifest_sha256": [
+        "28deaf3decdade39c773694854d5d287a1f6476133fb65b3d43a9352b3b433b1",
+        "28deaf3decdade39c773694854d5d287a1f6476133fb65b3d43a9352b3b433b1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "verified",
+      "result_sha256": [
+        "9b4bb1cf40ba56465cc16ba802d56cf0c7eabda38dc080c19829cb740a28ab90",
+        "9b4bb1cf40ba56465cc16ba802d56cf0c7eabda38dc080c19829cb740a28ab90"
+      ],
+      "storage_manifest_sha256": [
+        "10dbe36ff17b4cc891bf822dbbf0094e22f6c09333c4265b4f0e0996fe60ba01",
+        "10dbe36ff17b4cc891bf822dbbf0094e22f6c09333c4265b4f0e0996fe60ba01"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "verified-to-peer",
+      "result_sha256": [
+        "1e4f3d83f2e774072785c5f360bd939fdbc0c5d45d582a2da5c7deb66f198dbc",
+        "1e4f3d83f2e774072785c5f360bd939fdbc0c5d45d582a2da5c7deb66f198dbc"
+      ],
+      "storage_manifest_sha256": [
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461",
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "restart-integration-peer",
+      "result_sha256": [
+        "2a52f16cc4f4cfc7e423ffb0442c8059f6991008ad3f5bf90caa057d736b6d5b",
+        "2a52f16cc4f4cfc7e423ffb0442c8059f6991008ad3f5bf90caa057d736b6d5b"
+      ],
+      "storage_manifest_sha256": [
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461",
+        "df93bd89d29c5e9ddbfb702e689801389fd7a286db399b35a1a11e35eb8fc461"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "exact-integration-retry-after-restart",
+      "result_sha256": [
+        "901d7b31a730a66f7102580d1ce5814382ffd21b8df47ed587d283ee9fa39065",
+        "901d7b31a730a66f7102580d1ce5814382ffd21b8df47ed587d283ee9fa39065"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "verified-record",
+      "result_sha256": [
+        "57b22a5c7fd63320b300174d90e4370357560c69027766a912862af4d856e2ef",
+        "57b22a5c7fd63320b300174d90e4370357560c69027766a912862af4d856e2ef"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "complete-source-history",
+      "result_sha256": [
+        "ba8ff8d3b6b845248722a74a358b01e32563a4cbcfc0cb77a1d7bf3acd0bf9d6",
+        "ba8ff8d3b6b845248722a74a358b01e32563a4cbcfc0cb77a1d7bf3acd0bf9d6"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "real-note-readback",
+      "result_sha256": [
+        "a0b18d464bd6bd071df24ec20f097472d4ac1dc443d38590a84f2bac2a58d11f",
+        "a0b18d464bd6bd071df24ec20f097472d4ac1dc443d38590a84f2bac2a58d11f"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "source-integration-concurrent-evidence",
+      "native_replica": "b",
+      "step": "real-note-recall",
+      "result_sha256": [
+        "faa4d33813bf1e59b14b0c9ff81ef0365a19170c2ba7f9b585fb88f95f2e18a0",
+        "faa4d33813bf1e59b14b0c9ff81ef0365a19170c2ba7f9b585fb88f95f2e18a0"
+      ],
+      "storage_manifest_sha256": [
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6",
+        "c84c9f16f793cdd3a316554e0a56c8f8c8aa3fe62f11b7004c633b555756a3a6"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "mixed-local-lock-exclusion",
+      "native_replica": "a",
+      "step": "native-process-waits-for-python-lock",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    }
+  ],
+  "native_host_acceptance": "NOT VERIFIED",
+  "icloud_acceptance": "NOT VERIFIED",
+  "transport": "deterministic file delivery",
+  "comparison_policy": "Exact values after world path normalization and independently validated folder-specific cache identities",
+  "python_driver": "compatibility_reference.py",
+  "native_driver": "orbit-fixture",
+  "faults": "denied projection writes, stale physical checkout, killed and restarted MCP processes",
+  "passed": 53,
+  "total": 53,
+  "complete_fixture": true
+}

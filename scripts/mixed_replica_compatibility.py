@@ -138,6 +138,21 @@ class World:
                 return copy.deepcopy(node)
         return value
 
+    def normalize_response(self, response, replica):
+        response = copy.deepcopy(response)
+        payload = response.get('value', {})
+        if isinstance(payload, dict):
+            for result in (payload, payload.get('freshness', {})):
+                if isinstance(result, dict) and isinstance(result.get('cache'), str):
+                    folder = self.folder(replica).resolve()
+                    identity = json.loads((folder / '.orbit/vault.json').read_bytes())['id']
+                    key = hashlib.sha256((str(folder) + '\0' + identity).encode()).hexdigest()
+                    expected = self.servers[replica].prefix / 'cache' / (key + '.sqlite3')
+                    if Path(result['cache']) != expected or not expected.is_file():
+                        raise AssertionError('Reported cache does not match the isolated folder identity')
+                    result['cache'] = str(expected.parent / '$IDENTITY_CACHE.sqlite3')
+        return normalize(response, self.base)
+
     def step(self, step):
         kind = step['kind']
         replica = step.get('replica')
@@ -151,7 +166,7 @@ class World:
             result = self.servers[replica].call(action, arguments)
             if step.get('save'):
                 self.results[step['save']] = result['value']
-            return result
+            return self.normalize_response(result, replica)
         if kind == 'deliver':
             source, target = self.folder(step['from']), self.folder(step['to'])
             operation = self.expand(step.get('operation'), step['from'])
@@ -241,14 +256,19 @@ def main():
     parser.add_argument('--fixtures', type=Path, default=ROOT / 'tests/fixtures/compatibility/replica-transport.json')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--timeout', type=float, default=10)
+    parser.add_argument('--python-reference', type=Path, help='Optional deterministic Python MCP adapter; pair with the development orbit-fixture executable')
     args = parser.parse_args()
+    args.fixtures = args.fixtures.resolve()
     fixture = json.loads(args.fixtures.read_text())
-    python = [sys.executable, str(ROOT / 'scripts/mcp_server.py')]
+    python = [sys.executable, str((args.python_reference or ROOT / 'scripts/mcp_server.py').resolve())]
     swift = [str(args.swift.resolve())]
     report = {'reference_revision': fixture['reference_revision'], 'fixture': str(args.fixtures.relative_to(ROOT)),
               'native_binary_sha256': hashlib.sha256(args.swift.read_bytes()).hexdigest(),
               'cases': [], 'native_host_acceptance': 'NOT VERIFIED', 'icloud_acceptance': 'NOT VERIFIED',
               'transport': 'deterministic file delivery',
+              'comparison_policy': 'Exact values after world path normalization and independently validated folder-specific cache identities',
+              'python_driver': args.python_reference.name if args.python_reference else 'mcp_server.py',
+              'native_driver': args.swift.name,
               'faults': 'denied projection writes, stale physical checkout, killed and restarted MCP processes'}
     with tempfile.TemporaryDirectory(prefix='orbit-mixed-replica-') as temporary:
         base = Path(temporary).resolve(); seed = base / 'seed'
@@ -258,7 +278,7 @@ def main():
         previous = dict(os.environ)
         try:
             os.environ.update(ORBIT_STATE=str(base / 'seed-state'))
-            replication.seed(seed, {path: content for path, content in fixture['files'].items() if path.endswith('.md')})
+            replication.seed(seed, {path: content for path, content in fixture['files'].items() if path.endswith('.md') or path.startswith('.orbit/integrations/')})
         finally:
             os.environ.clear(); os.environ.update(previous)
         for scenario in fixture['scenarios']:
@@ -277,6 +297,13 @@ def main():
                                 expected = {'/kind': 'success'} if step['kind'] in ('call', 'retry') else {}
                                 expected.update(step.get('expect', {}))
                                 assert_result(output, expected, step.get('expect_count'))
+                                if 'expect_history_versions' in step:
+                                    revisions = output['value']['revisions']
+                                    records = [json.loads(revision['content']) for revision in revisions]
+                                    if sorted(record['version'] for record in records) != step['expect_history_versions']:
+                                        raise AssertionError('Preserved source history versions differ from fixture')
+                                    if sorted(record['coverage']['description'] for record in records) != sorted(step['expect_history_descriptions']):
+                                        raise AssertionError('Preserved source history lost extraction alternatives')
                                 outputs.append(output); errors.append(None)
                             except Exception as error:
                                 outputs.append(None); errors.append(normalize(str(error), world.base))
