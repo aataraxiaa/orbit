@@ -19,7 +19,7 @@ func eText(_ url: URL) throws -> String {
   guard let text = String(data: data, encoding: .utf8) else {
     throw OrbitError("Invalid UTF-8: " + url.path)
   }
-  return text
+  return String(decoding: data, as: UTF8.self)
 }
 func eLines(_ text: String) -> [String] {
   var lines = text.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: .newlines)
@@ -289,14 +289,14 @@ extension OrbitEngine {
   {
     let table = identities(notes)
     var result: [JSONObject] = []
-    var counts: [String: Int] = [:]
+    var counts: [OrbitByteString: Int] = [:]
     for note in notes {
-      if let id = note["id"] as? String, !id.isEmpty { counts[id, default: 0] += 1 }
+      if let id = note["id"] as? String, !id.isEmpty { counts[OrbitByteString(id), default: 0] += 1 }
     }
     for note in notes {
       let path = eString(note["path"])
       let id = eString(note["id"])
-      if !id.isEmpty, counts[id, default: 0] > 1 {
+      if !id.isEmpty, counts[OrbitByteString(id), default: 0] > 1 {
         result.append(["path": path, "kind": "duplicate-id", "target": id])
       }
       for link in strings(note["links"]) {
@@ -406,7 +406,7 @@ extension OrbitEngine {
       guard let text = change["content"] as? String, let reason = change["reason"] as? String,
         !reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       else { throw OrbitError("Each change needs content and an explanation in reason") }
-      let before: Any = raw.flatMap { String(data: $0, encoding: .utf8) } as Any? ?? NSNull()
+      let before: Any = raw.map { String(decoding: $0, as: UTF8.self) } as Any? ?? NSNull()
       if path == "ORBIT.md" {
         writes.append(["path": path, "before": before, "after": text, "reason": reason])
         continue
@@ -451,7 +451,7 @@ extension OrbitEngine {
         let oldBlocks = metadataBlocks(previous)
         let newBlocks = metadataBlocks(text)
         for field in Set(oldBlocks.keys).subtracting(known)
-        where oldBlocks[field] != newBlocks[field] {
+        where !eEqual(oldBlocks[field], newBlocks[field]) {
           throw OrbitError(path + ": preserve unknown metadata block " + field + " verbatim")
         }
       }

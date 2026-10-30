@@ -43,7 +43,8 @@ indirect enum OrderedJSON {
     struct Parser {
         let bytes:[UInt8]; var index = 0
         mutating func space() { while index < bytes.count && [9,10,13,32].contains(bytes[index]) { index += 1 } }
-        mutating func value() throws -> OrderedJSON {
+        mutating func value(depth: Int = 0) throws -> OrderedJSON {
+            guard depth < 1000 else { throw OrbitError("JSON nesting exceeds supported limit") }
             space(); guard index < bytes.count else { throw OrbitError("Invalid JSON") }
             if bytes[index] == 123 {
                 index += 1; space(); var pairs:[(String,OrderedJSON)] = []
@@ -51,7 +52,7 @@ indirect enum OrderedJSON {
                 while true {
                     guard let key = try atom() as? String else { throw OrbitError("Invalid JSON key") }
                     space(); guard index < bytes.count && bytes[index] == 58 else { throw OrbitError("Invalid JSON") }; index += 1
-                    let v = try value()
+                    let v = try value(depth:depth+1)
                     if let i = pairs.firstIndex(where:{$0.0 == key}) { pairs[i].1 = v } else { pairs.append((key,v)) }
                     space(); guard index < bytes.count else { throw OrbitError("Invalid JSON") }
                     let c = bytes[index]; index += 1
@@ -62,7 +63,7 @@ indirect enum OrderedJSON {
                 index += 1; space(); var values:[OrderedJSON] = []
                 if index < bytes.count && bytes[index] == 93 { index += 1; return .array(values) }
                 while true {
-                    values.append(try value()); space(); guard index < bytes.count else { throw OrbitError("Invalid JSON") }
+                    values.append(try value(depth:depth+1)); space(); guard index < bytes.count else { throw OrbitError("Invalid JSON") }
                     let c = bytes[index]; index += 1
                     if c == 93 { return .array(values) }; guard c == 44 else { throw OrbitError("Invalid JSON") }
                 }

@@ -68,7 +68,7 @@ extension OrbitEngine {
         try validateRegistry(data); return data
     }
     func validateRegistry(_ data: JSONObject) throws {
-        guard let schema = data["schema"] as? Int, schema == 2, !(data["schema"] is Bool) else { throw OrbitError("Unsupported Orbit config schema") }
+        guard let schema = schemaInteger(data["schema"]), schema == 2 else { throw OrbitError("Unsupported Orbit config schema") }
         guard let entries = data["orbits"] as? JSONObject, data["vault"] == nil else { throw OrbitError("Malformed named Orbit registry") }
         var keys = Set<String>(), ids = Set<String>(), roots: [String] = []
         for (name, value) in entries {

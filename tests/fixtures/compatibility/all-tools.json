@@ -1,0 +1,467 @@
+{
+  "schema": 1,
+  "description": "Ordered tool calls against two byte-identical disposable format-3 replicas. $HASH:path resolves to current bytes. Fixed request UUIDs preserve immutable identities.",
+  "calls": [
+    {
+      "name": "empty-list",
+      "action": "list",
+      "arguments": {},
+      "expect_error": false
+    },
+    {
+      "name": "schema",
+      "action": "schema",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "initial-status",
+      "action": "sync",
+      "arguments": {
+        "orbit": "Test",
+        "action": "status"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "create",
+      "action": "apply",
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "summary": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "changes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "content": "---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Orchard decision\ncustom:\n  nested: user text\n---\n# Alpha\n\nOrchard pears and garden plans.\n\n## User appendix\nPreserve this prose.\n",
+              "reason": "fixture",
+              "expected_sha256": null
+            }
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "read",
+      "action": "read",
+      "arguments": {
+        "orbit": "Test",
+        "path": "Knowledge/Alpha.md",
+        "count": 4
+      },
+      "expect_error": false
+    },
+    {
+      "name": "read-window",
+      "action": "read",
+      "arguments": {
+        "orbit": "Test",
+        "path": "Knowledge/Alpha.md",
+        "start": 5,
+        "count": 500
+      },
+      "expect_error": false
+    },
+    {
+      "name": "search",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "orchard"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "scoped-search",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "garden",
+        "scope": "Knowledge/"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "catalog",
+      "action": "catalog",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "context",
+      "action": "context",
+      "arguments": {
+        "orbit": "Test",
+        "target": "alpha"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "relations",
+      "action": "relations",
+      "arguments": {
+        "orbit": "Test",
+        "target": "alpha"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "history",
+      "action": "sync",
+      "arguments": {
+        "orbit": "Test",
+        "action": "history",
+        "path": "Knowledge/Alpha.md"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "same-request-retry",
+      "action": "apply",
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "summary": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "changes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "content": "---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Orchard decision\ncustom:\n  nested: user text\n---\n# Alpha\n\nOrchard pears and garden plans.\n\n## User appendix\nPreserve this prose.\n",
+              "reason": "fixture",
+              "expected_sha256": null
+            }
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "stale-hash",
+      "action": "apply",
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "request_id": "22222222-2222-4222-8222-222222222222",
+          "changes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "content": "invalid",
+              "reason": "fixture",
+              "expected_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        }
+      },
+      "expect_error": true
+    },
+    {
+      "name": "unknown-metadata-refusal",
+      "action": "apply",
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "changes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "content": "---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Changed\ncustom:\n  nested: changed\n---\n# Alpha\n",
+              "reason": "fixture",
+              "expected_sha256": "$HASH:Knowledge/Alpha.md"
+            }
+          ]
+        }
+      },
+      "expect_error": true
+    },
+    {
+      "name": "format-preview",
+      "action": "format",
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "changes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "expected_sha256": "$HASH:Knowledge/Alpha.md",
+              "metadata": {}
+            }
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "migration-compatibility",
+      "action": "migrate",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "unknown-name",
+      "action": "read",
+      "arguments": {
+        "orbit": "Missing",
+        "path": "Knowledge/Alpha.md"
+      },
+      "expect_error": true
+    },
+    {
+      "name": "traversal",
+      "action": "read",
+      "arguments": {
+        "orbit": "Test",
+        "path": "../outside.md"
+      },
+      "expect_error": true
+    },
+    {
+      "name": "invalid-limit",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "orchard",
+        "limit": true
+      },
+      "expect_error": true
+    },
+    {
+      "name": "unknown-field",
+      "action": "read",
+      "arguments": {
+        "orbit": "Test",
+        "path": "Knowledge/Alpha.md",
+        "extra": true
+      },
+      "expect_error": true
+    },
+    {
+      "name": "bom-create",
+      "action": "apply",
+      "expect_error": false,
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "request_id": "66666666-6666-4666-8666-666666666666",
+          "changes": [
+            {
+              "path": "Knowledge/Unicode.md",
+              "content": "﻿---\nid: unicode\ntitle: Unicode\ntype: concept\nsummary: Unicode bytes\ncustom: café\n---\n# Unicode\n\noriginal\n",
+              "reason": "byte preservation",
+              "expected_sha256": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "bom-update",
+      "action": "apply",
+      "expect_error": false,
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "request_id": "77777777-7777-4777-8777-777777777777",
+          "changes": [
+            {
+              "path": "Knowledge/Unicode.md",
+              "content": "﻿---\nid: unicode\ntitle: Unicode\ntype: concept\nsummary: Unicode bytes\ncustom: café\n---\n# Unicode\n\nupdated\n",
+              "reason": "byte preservation",
+              "expected_sha256": "$HASH:Knowledge/Unicode.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "unicode-unknown-block-refusal",
+      "action": "apply",
+      "expect_error": true,
+      "arguments": {
+        "orbit": "Test",
+        "plan": {
+          "request_id": "88888888-8888-4888-8888-888888888888",
+          "changes": [
+            {
+              "path": "Knowledge/Unicode.md",
+              "content": "﻿---\nid: unicode\ntitle: Unicode\ntype: concept\nsummary: Unicode bytes\ncustom: café\n---\n# Unicode\n\nchanged\n",
+              "reason": "byte preservation",
+              "expected_sha256": "$HASH:Knowledge/Unicode.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "setup-existing",
+      "action": "setup",
+      "arguments": {
+        "path": "$FOLDER",
+        "name": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "doctor",
+      "action": "doctor",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "index",
+      "action": "index",
+      "arguments": {
+        "orbit": "Test",
+        "rebuild": true
+      },
+      "expect_error": false
+    },
+    {
+      "name": "capture",
+      "action": "capture",
+      "arguments": {
+        "orbit": "Test",
+        "source": "$SOURCE"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "capture-repeat",
+      "action": "capture",
+      "arguments": {
+        "orbit": "Test",
+        "source": "$SOURCE"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "integration-list",
+      "action": "integration",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "integration-extracted",
+      "action": "integration",
+      "arguments": {
+        "orbit": "Test",
+        "record": {
+          "source_sha256": "a9080d7b056d7ef76e15cc3fa10ba73d2a1839a8e0237cf36d85f6a80fafabb7",
+          "expected_version": 1,
+          "request_id": "33333333-3333-4333-8333-333333333333",
+          "stage": "extracted",
+          "coverage": {
+            "status": "full",
+            "description": "Entire source read"
+          },
+          "extraction": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "sha256": "$HASH:Knowledge/Alpha.md"
+            }
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "integration-integrated",
+      "action": "integration",
+      "arguments": {
+        "orbit": "Test",
+        "record": {
+          "source_sha256": "a9080d7b056d7ef76e15cc3fa10ba73d2a1839a8e0237cf36d85f6a80fafabb7",
+          "expected_version": 2,
+          "request_id": "44444444-4444-4444-8444-444444444444",
+          "stage": "integrated",
+          "notes": [
+            {
+              "path": "Knowledge/Alpha.md",
+              "sha256": "$HASH:Knowledge/Alpha.md"
+            }
+          ],
+          "operations": [
+            "11111111-1111-4111-8111-111111111111"
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "integration-verified",
+      "action": "integration",
+      "arguments": {
+        "orbit": "Test",
+        "record": {
+          "source_sha256": "a9080d7b056d7ef76e15cc3fa10ba73d2a1839a8e0237cf36d85f6a80fafabb7",
+          "expected_version": 3,
+          "request_id": "55555555-5555-4555-8555-555555555555",
+          "stage": "verified",
+          "verification": [
+            {
+              "query": "orchard",
+              "paths": [
+                "Knowledge/Alpha.md"
+              ]
+            }
+          ]
+        }
+      },
+      "expect_error": false
+    },
+    {
+      "name": "maintain",
+      "action": "maintain",
+      "arguments": {
+        "orbit": "Test"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "recover-accepted",
+      "action": "recover",
+      "arguments": {
+        "orbit": "Test",
+        "operation": "11111111-1111-4111-8111-111111111111"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "rename",
+      "action": "rename",
+      "arguments": {
+        "orbit": "Test",
+        "name": "Renamed"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "read-renamed",
+      "action": "read",
+      "arguments": {
+        "orbit": "Renamed",
+        "path": "Knowledge/Alpha.md"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "old-name-refuses",
+      "action": "read",
+      "arguments": {
+        "orbit": "Test",
+        "path": "Knowledge/Alpha.md"
+      },
+      "expect_error": true
+    }
+  ]
+}

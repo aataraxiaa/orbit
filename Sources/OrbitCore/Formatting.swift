@@ -93,7 +93,7 @@ extension OrbitEngine {
             var additions: [String: String] = [:], inserted = ""
             for key in formattingRequired {
                 if let existing = header.fields[key] {
-                    if let supplied = supplied[key] as? String, supplied != existing { throw OrbitError(path + ": preserve existing " + key) }
+                    if let supplied = supplied[key] as? String, !eEqual(supplied, existing) { throw OrbitError(path + ": preserve existing " + key) }
                 } else if key == "id" { additions[key] = formattingUUID5(namespace, path) }
                 else if let text = supplied[key] as? String { additions[key] = text }
                 else { throw OrbitError(path + ": supply missing " + key + " based on the note") }

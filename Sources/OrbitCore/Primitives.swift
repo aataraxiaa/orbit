@@ -169,17 +169,17 @@ public func scan(_ inputRoot: URL) throws -> [JSONObject] {
     }
     try walk(root); return notes
 }
-public func identities(_ notes: [JSONObject]) -> [String:Set<String>] {
-    var table: [String:Set<String>] = [:]
+public func identities(_ notes: [JSONObject]) -> NoteIdentityTable {
+    var table: NoteIdentityTable = [:]
     for n in notes {
         guard let path = n["path"] as? String else { continue }
         let u = URL(fileURLWithPath: path)
         let keys: [Any] = [path, u.deletingPathExtension().path.hasPrefix("/") ? String(u.deletingPathExtension().path.suffix(path.count - (u.pathExtension.isEmpty ? 0 : u.pathExtension.count + 1))) : u.deletingPathExtension().path, u.deletingPathExtension().lastPathComponent, n["title"] ?? "", n["id"] ?? ""] + (n["aliases"] as? [Any] ?? [])
-        for key in keys where truthy(key) { table[casefold(pyString(key)), default: []].insert(path) }
+        for key in keys where truthy(key) { table[OrbitByteString(casefold(pyString(key))), default: []].insert(path) }
     }
     return table
 }
-public func resolve(_ target: String, table: [String:Set<String>]) -> [String] { (table[casefold(target)] ?? []).sorted() }
+public func resolve(_ target: String, table: NoteIdentityTable) -> [String] { (table[OrbitByteString(casefold(target))] ?? []).sorted() }
 public func tokens(_ text: String) -> [String] {
     let stop = Set("a an and are as at be by for from how i in is it my of on or that the this to was we what when why with you your".split(separator: " ").map(String.init))
     return matchGroups("[\\p{L}\\p{N}]+", casefold(text)).map { $0[0] }.filter { !stop.contains($0) }

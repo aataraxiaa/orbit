@@ -27,3 +27,20 @@ final class ContractTests: XCTestCase {
         try withOrderedPlan(raw,planPath:["plan"]) { XCTAssertEqual(try requestDigest(["summary":"x","changes":[]]),expected) }
     }
 }
+
+extension ContractTests {
+    func testRegistryRejectsFloatingSchema() throws {
+        let base = realURL(FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
+        try FileManager.default.createDirectory(at:base,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:base) }
+        let engine = OrbitEngine(configURL:base.appendingPathComponent("config.json"),cacheURL:base.appendingPathComponent("cache"),stateURL:base.appendingPathComponent("state"))
+        try Data("{\"schema\":2.0,\"orbits\":{}}".utf8).write(to:engine.configURL)
+        XCTAssertThrowsError(try engine.execute("list"))
+    }
+    func testBOMInsideJSONStringAndCodepointOrdering() throws {
+        let raw = Data("{\"content\":\"\u{feff}# Note\\n\",\"a10\":1,\"a2\":2,\"Z\":3,\"é\":4}".utf8)
+        let parsed = try OrderedJSON.parse(raw).value as! JSONObject
+        XCTAssertEqual((parsed["content"] as! String).unicodeScalars.first?.value,0xFEFF)
+        XCTAssertTrue(String(decoding:try canonical(parsed),as:UTF8.self).hasPrefix("{\"Z\":3,\"a10\":1,\"a2\":2,"))
+    }
+}

@@ -61,7 +61,7 @@ func readString(_ url: URL, encoding: String.Encoding = .utf8) throws -> String 
   guard let value = String(data: data, encoding: encoding) else {
     throw OrbitError("Invalid text encoding: " + url.path)
   }
-  return value
+  return encoding == .utf8 ? String(decoding: data, as: UTF8.self) : value
 }
 
 func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>? = nil) throws
