@@ -291,6 +291,7 @@ def main():
                         row = {'scenario': scenario['name'], 'native_replica': native_replica, 'step': step['name']}
                         outputs = []; errors = []
                         for world in worlds:
+                            output = None
                             try:
                                 output = normalize(world.step(step), world.base)
                                 output = semantic_result(output, step.get('comparison'))
@@ -306,7 +307,7 @@ def main():
                                         raise AssertionError('Preserved source history lost extraction alternatives')
                                 outputs.append(output); errors.append(None)
                             except Exception as error:
-                                outputs.append(None); errors.append(normalize(str(error), world.base))
+                                outputs.append(output); errors.append(normalize(str(error), world.base))
                         storage = [world.storage() for world in worlds]
                         for manifest in storage:
                             for files in manifest.values():
@@ -334,6 +335,7 @@ def main():
         outputs, errors = [], []
         try:
             for world in worlds:
+                output = None
                 previous = dict(os.environ)
                 try:
                     os.environ.update(ORBIT_STATE=str(world.servers['a'].prefix / 'state'))
@@ -348,7 +350,7 @@ def main():
                         raise AssertionError('MCP process bypassed the held Python local lock')
                     outputs.append(output); errors.append(None)
                 except Exception as error:
-                    outputs.append(None); errors.append(normalize(str(error), world.base))
+                    outputs.append(output); errors.append(normalize(str(error), world.base))
                 finally:
                     os.environ.clear(); os.environ.update(previous)
             equal = errors == [None, None] and outputs[0] == outputs[1]
