@@ -3,6 +3,16 @@ import XCTest
 @testable import OrbitCore
 
 final class FormattingMigrationTests: XCTestCase {
+    private func fixture(_ name: String) throws -> JSONObject {
+        try readJSON(URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/" + name + ".json"))
+    }
+
+    private func replay(_ name: String) throws -> (URL, OrbitEngine, JSONObject) {
+        let fixture = try fixture(name)
+        let (root, engine) = try workspace()
+        for (path, text) in fixture["inputs"] as! [String: String] { try put(root, path, text) }
+        return (root, engine, fixture)
+    }
     private func workspace() throws -> (URL, OrbitEngine) {
         let base = FileManager.default.temporaryDirectory.appendingPathComponent("orbit-migration-tests-" + UUID().uuidString)
         let root = base.appendingPathComponent("folder")
@@ -197,6 +207,136 @@ final class FormattingMigrationTests: XCTestCase {
             else { XCTAssertFalse(FileManager.default.fileExists(atPath: url.path)) }
         }
         _ = try engine.migrate(root, action: "rollback", targetVersion: "0.5.0", operation: result["operation"] as? String)
+        XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
+    }
+
+    func testMigrationStalePlanRefusesAndPreservesAllBytes() throws {
+        for name in ["migration-format1", "migration-format2"] {
+            let (root, engine, _) = try replay(name)
+            let target = name == "migration-format1" ? "0.5.0" : "0.6.0"
+            let plan = try engine.migrate(root, targetVersion: target)
+            try put(root, "new.txt", "new user bytes")
+            let before = try engine.migrationSnapshot(root)
+            XCTAssertThrowsError(try engine.migrate(root, action: "apply", targetVersion: target, planID: plan["plan_id"] as? String)) { error in
+                XCTAssertTrue(String(describing: error).contains("stale"))
+            }
+            XCTAssertEqual(try engine.migrationSnapshot(root), before)
+        }
+    }
+
+    func testFormatThreeMigrationResumesAfterSeedAndRefusesChangedHistory() throws {
+        for resolution in ["resume", "rollback", "changed", "history"] {
+            let (root, engine, _) = try replay("migration-format2")
+            let baseline = try engine.migrationSnapshot(root)
+            let plan = try engine.migrate(root)
+            let accepted = try engine.migrate(root, action: "apply", planID: plan["plan_id"] as? String)
+            let operation = accepted["operation"] as! String
+            let journal = try safe(root, ".orbit/migrations/" + operation + ".json")
+            var record = try readJSON(journal)
+            record["status"] = "prepared"
+            try atomic(journal, encode(record))
+            let beforeMarker = (record["writes"] as! [JSONObject])[0]["before"] as! String
+            try put(root, ".orbit/vault.json", beforeMarker)
+            XCTAssertEqual(try engine.migrationStatus(root)["pending"] as? [String], [operation])
+            XCTAssertThrowsError(try engine.migrationEnsureWritable(root))
+            if resolution == "changed" || resolution == "history" {
+                if resolution == "changed" { try put(root, "Knowledge/Exact.md", "New external bytes") }
+                else { try put(root, ".orbit/commits/unrelated.json", "{}") }
+                let before = try engine.migrationSnapshot(root)
+                XCTAssertThrowsError(try engine.migrate(root, action: "rollback", operation: operation)) { error in XCTAssertTrue(String(describing: error).contains("conflict")) }
+                XCTAssertEqual(try engine.migrationSnapshot(root), before)
+            } else {
+                let result = try engine.migrate(root, action: resolution, operation: operation)
+                XCTAssertEqual(result["status"] as? String, resolution == "rollback" ? "rolled-back" : "committed")
+                if resolution == "rollback" { XCTAssertEqual(try engine.migrationSnapshot(root), baseline) }
+                else {
+                    let resumed = try engine.migrationSnapshot(root)
+                    _ = try engine.migrate(root, action: "resume", operation: operation)
+                    XCTAssertEqual(try engine.migrationSnapshot(root), resumed)
+                }
+            }
+        }
+    }
+
+    func testInterruptedRollbackResumesBackwardAndPreservesBackup() throws {
+        let (root, engine, _) = try replay("migration-format2")
+        let baseline = try engine.migrationSnapshot(root)
+        let plan = try engine.migrate(root)
+        let accepted = try engine.migrate(root, action: "apply", planID: plan["plan_id"] as? String)
+        let operation = accepted["operation"] as! String
+        let journal = try safe(root, ".orbit/migrations/" + operation + ".json")
+        var record = try readJSON(journal)
+        record["status"] = "prepared"; record["direction"] = "rollback"
+        try atomic(journal, encode(record))
+        try put(root, ".orbit/vault.json", (record["writes"] as! [JSONObject])[0]["before"] as! String)
+        let result = try engine.migrate(root, action: "resume", operation: operation)
+        XCTAssertEqual(result["status"] as? String, "rolled-back")
+        XCTAssertEqual(try engine.migrationSnapshot(root), baseline)
+        let final = try readJSON(journal)
+        XCTAssertEqual(final["status"] as? String, "rolled-back")
+        XCTAssertNotNil(final["files"])
+        XCTAssertNotNil(final["inputs"])
+    }
+
+    func testLegacyMigrationRecoveryRefusesHumanEditsAndRestoresExactBackup() throws {
+        for resolution in ["resume", "rollback", "changed"] {
+            let (root, engine, fixture) = try replay("migration-format1")
+            let baseline = try engine.migrationSnapshot(root)
+            let plan = try engine.migrate(root, targetVersion: "0.5.0")
+            let result = try engine.migrate(root, action: "apply", targetVersion: "0.5.0", planID: plan["plan_id"] as? String)
+            let operation = result["operation"] as! String
+            let journal = try safe(root, ".orbit/migrations/" + operation + ".json")
+            var record = try readJSON(journal)
+            record["status"] = "prepared"
+            try atomic(journal, encode(record))
+            let writes = record["writes"] as! [JSONObject]
+            for write in writes.suffix(3) {
+                let path = write["path"] as! String
+                if let text = write["before"] as? String { try put(root, path, text) }
+                else if schemaExists(try safe(root, path)) { try FileManager.default.removeItem(at: safe(root, path)) }
+            }
+            if resolution == "changed" {
+                try put(root, "Projects/Garden/Overview.md", "Human edit after interruption")
+                let before = try engine.migrationSnapshot(root)
+                XCTAssertThrowsError(try engine.migrate(root, action: "resume", targetVersion: "0.5.0", operation: operation))
+                XCTAssertEqual(try engine.migrationSnapshot(root), before)
+            } else {
+                _ = try engine.migrate(root, action: resolution, targetVersion: "0.5.0", operation: operation)
+                if resolution == "rollback" { XCTAssertEqual(try engine.migrationSnapshot(root), baseline) }
+                else {
+                    for write in fixture["writes"] as! [JSONObject] {
+                        let url = try safe(root, write["path"] as! String)
+                        if let text = write["after"] as? String { XCTAssertEqual(try Data(contentsOf: url), Data(text.utf8)) }
+                        else { XCTAssertFalse(schemaExists(url)) }
+                    }
+                }
+                XCTAssertNotNil(try readJSON(journal)["backup_manifest"])
+            }
+        }
+    }
+
+    func testFormattingCannotBypassStrictSchemaValidation() throws {
+        let (root, engine) = try workspace()
+        try marker(root, format: 2)
+        for (path, text) in try engine.schemaBootstrap(root) { try put(root, path, text) }
+        let url = try safe(root, "Schemas/Concept.md")
+        let original = try String(contentsOf: url, encoding: .utf8)
+        try put(root, "Schemas/Concept.md", original.replacingOccurrences(of: "validation: \"warn\"", with: "validation: \"strict\"").replacingOccurrences(of: "required_sections: []", with: "required_sections: [\"Evidence\"]"))
+        let raw = Data("Incomplete concept".utf8)
+        try atomic(safe(root, "draft.md"), raw)
+        let plan: JSONObject = ["changes": [["path": "draft.md", "expected_sha256": digest(raw), "metadata": ["title": "Draft", "type": "concept", "summary": "Draft concept"]]]]
+        XCTAssertThrowsError(try engine.formatNotes(root, plan: plan, dryRun: false)) { error in XCTAssertTrue(String(describing: error).contains("Schema validation failed")) }
+        XCTAssertEqual(try Data(contentsOf: safe(root, "draft.md")), raw)
+    }
+
+    func testConflictedSchemaUsesSameRefusalAsPython() throws {
+        let (root, engine, fixture) = try replay("schema-conflict")
+        XCTAssertThrowsError(try engine.schemaCheck(root)) { error in
+            XCTAssertEqual(String(describing: error), fixture["expected_error"] as? String)
+        }
+        let snapshot = try engine.migrationSnapshot(root)
+        let draft = "---\nid: draft\ntitle: Draft\ntype: concept\nsummary: Draft knowledge\n---\n# Draft\n"
+        XCTAssertThrowsError(try engine.apply(root, plan: ["changes": [["path": "Knowledge/Draft.md", "expected_sha256": NSNull(), "content": draft, "reason": "Save with unknown schema"]]], dryRun: false))
         XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
     }
 }
