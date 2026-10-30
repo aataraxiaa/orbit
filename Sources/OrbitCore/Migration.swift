@@ -7,8 +7,9 @@ private let migrationMarker = ".orbit/vault.json"
 func migrationRead(_ root: URL, _ path: String) throws -> String? {
     let url = try safe(root, path)
     guard schemaExists(url) else { return nil }
-    guard let text = String(data: try Data(contentsOf: url), encoding: .utf8) else { throw OrbitError("Invalid UTF-8 in " + path) }
-    return text
+    let data = try Data(contentsOf: url)
+    guard String(data: data, encoding: .utf8) != nil else { throw OrbitError("Invalid UTF-8 in " + path) }
+    return String(decoding: data, as: UTF8.self)
 }
 
 func migrationEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
@@ -27,7 +28,7 @@ func migrationRelative(_ url: URL, _ root: URL) -> String { String(url.path.drop
 
 extension OrbitEngine {
     private func migrationJournals(_ root: URL) throws -> [(URL, JSONObject)] {
-        try migrationFiles(root, ".orbit/migrations").map { (url: URL) in (url, try readJSON(safe(root, migrationRelative(url, root)))) }
+        try migrationFiles(root, ".orbit/migrations").map { (url: URL) in (url, try readJSON(safe(root, ".orbit/migrations/" + url.lastPathComponent))) }
     }
 
     func migrationStatus(_ root: URL) throws -> JSONObject {
@@ -54,11 +55,11 @@ extension OrbitEngine {
 
     private func migrationSnapshotPairs(_ root: URL) throws -> [(String, String)] {
         var result: [(String, String)] = []
-        func walk(_ directory: URL) throws {
+        func walk(_ directory: URL, prefix: String) throws {
             let entries = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted(by: { $0.path < $1.path })
             var directories: [URL] = []
             for entry in entries {
-                let relative = migrationRelative(entry, root)
+                let relative = prefix + entry.lastPathComponent
                 let attrs = try entry.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
                 if attrs.isDirectory == true || attrs.isSymbolicLink == true && ((try? FileManager.default.attributesOfItem(atPath: entry.resolvingSymlinksInPath().path)[.type]) as? FileAttributeType) == .typeDirectory {
                     if entry.lastPathComponent.hasPrefix("."), relative != ".orbit" { continue }
@@ -69,9 +70,9 @@ extension OrbitEngine {
                     result.append((relative, digest(try Data(contentsOf: safe(root, relative)))))
                 }
             }
-            for directory in directories { try walk(directory) }
+            for directory in directories { try walk(directory, prefix: prefix + directory.lastPathComponent + "/") }
         }
-        try walk(root)
+        try walk(root, prefix: "")
         return result
     }
 
@@ -219,7 +220,7 @@ extension OrbitEngine {
         for write in writes where !migrationEqual(try migrationRead(root, write["path"] as! String), write[rollback ? "before" : "after"]) { throw OrbitError("Migration verification conflict: " + (write["path"] as! String)) }
         record["status"] = rollback ? "rolled-back" : "committed"
         try atomic(journal, encode(record))
-        return ["status": record["status"]!, "operation": record["id"]!, "backup": migrationRelative(journal, root), "verified": true]
+        return ["status": record["status"]!, "operation": record["id"]!, "backup": ".orbit/migrations/" + journal.lastPathComponent, "verified": true]
     }
 
     private func migrationPreflight(_ root: URL, _ write: JSONObject) throws {
@@ -259,7 +260,7 @@ extension OrbitEngine {
     private func migrationReplicationFiles(_ root: URL) throws -> [String: String] {
         var files: [String: String] = [:]
         for note in try scan(root) { if let path = note["path"] as? String { files[path] = try migrationRead(root, path) } }
-        for path in try migrationFiles(root, ".orbit/integrations") { let relative = migrationRelative(path, root); files[relative] = try migrationRead(root, relative) }
+        for path in try migrationFiles(root, ".orbit/integrations") { let relative = ".orbit/integrations/" + path.lastPathComponent; files[relative] = try migrationRead(root, relative) }
         return files
     }
 
@@ -282,7 +283,7 @@ extension OrbitEngine {
         let writes: [JSONObject] = [["path": migrationMarker, "before": before, "after": try migrationOrderedText(marker)]]
         let orderedInputs = OrderedJSON.object(try migrationSnapshotPairs(root).map { ($0.0, .scalar($0.1)) })
         var filePaths = try scan(root).compactMap { $0["path"] as? String }
-        filePaths += try migrationFiles(root, ".orbit/integrations").map { migrationRelative($0, root) }
+        filePaths += try migrationFiles(root, ".orbit/integrations").map { ".orbit/integrations/" + $0.lastPathComponent }
         let orderedFiles = OrderedJSON.object(filePaths.map { ($0, .scalar(files[$0]!)) })
         let planID = digest(Data(try migrationOrderedText(.object([("inputs", orderedInputs), ("files", orderedFiles), ("writes", migrationOrderedWrites(writes)), ("target", .scalar(migrationTarget))])).utf8))
         let seed = try replicationSeedPreview(root, files: files)
@@ -325,7 +326,7 @@ extension OrbitEngine {
         for (path, checksum) in baseline where path != migrationMarker && final[path] != checksum { throw OrbitError("Migration verification conflict: " + path) }
         record["status"] = rollback ? "rolled-back" : "committed"
         try atomic(journal, encode(record))
-        return ["status": record["status"]!, "operation": record["id"]!, "backup": migrationRelative(journal, root), "verified": true, "source_format": 2, "target_format": 3]
+        return ["status": record["status"]!, "operation": record["id"]!, "backup": ".orbit/migrations/" + journal.lastPathComponent, "verified": true, "source_format": 2, "target_format": 3]
     }
 
     func migrate(_ root: URL, action: String = "plan", targetVersion: String? = nil, planID: String? = nil, operation: String? = nil) throws -> JSONObject {

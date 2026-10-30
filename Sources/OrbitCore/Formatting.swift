@@ -30,7 +30,8 @@ struct FormattingHeader {
 }
 
 func formattingHeader(_ raw: Data) throws -> FormattingHeader {
-    guard var text = String(data: raw, encoding: .utf8) else { throw OrbitError("Note is not valid UTF-8") }
+    guard String(data: raw, encoding: .utf8) != nil else { throw OrbitError("Note is not valid UTF-8") }
+    var text = String(decoding: raw, as: UTF8.self)
     let bom = text.hasPrefix("\u{FEFF}") ? "\u{FEFF}" : ""
     if !bom.isEmpty { text.removeFirst() }
     let lines = schemaLines(text, keepingEnds: true)
@@ -78,7 +79,7 @@ extension OrbitEngine {
             guard Set(change.keys).isSubset(of: ["path", "expected_sha256", "metadata", "expected_heads", "observations"]), Set(["path", "expected_sha256", "metadata"]).isSubset(of: Set(change.keys)) else { throw OrbitError("Each format change requires only path, expected_sha256 and metadata") }
             guard let path = change["path"] as? String else { throw OrbitError("Format path must be a string") }
             let target = try safe(root, path)
-            guard target.path.replacingOccurrences(of: root.path + "/", with: "", options: [.anchored]) == path, !path.split(separator: "/").contains(where: { $0.hasPrefix(".") }), target.pathExtension == "md", path != "ORBIT.md", !path.hasPrefix("Sources/assets/") else { throw OrbitError("Format requires public .md note paths, not configuration or assets") }
+            guard path.split(separator: "/").joined(separator: "/") == path, !path.split(separator: "/").contains(where: { $0.hasPrefix(".") }), target.pathExtension == "md", path != "ORBIT.md", !path.hasPrefix("Sources/assets/") else { throw OrbitError("Format requires public .md note paths, not configuration or assets") }
             guard seen.insert(path).inserted else { throw OrbitError("Duplicate target in format plan") }
             var isDirectory: ObjCBool = false
             guard FileManager.default.fileExists(atPath: target.path, isDirectory: &isDirectory), !isDirectory.boolValue else { throw OrbitError(path + ": formatting requires an existing note") }
@@ -99,7 +100,7 @@ extension OrbitEngine {
                 if let value = additions[key] { inserted += key + ": " + String(data: try JSONSerialization.data(withJSONObject: value, options: [.fragmentsAllowed, .withoutEscapingSlashes]), encoding: .utf8)! + header.newline }
             }
             let after: String
-            if additions.isEmpty { after = String(data: raw, encoding: .utf8)! }
+            if additions.isEmpty { after = String(decoding: raw, as: UTF8.self) }
             else if !header.frontmatter.isEmpty {
                 let first = schemaLines(header.frontmatter, keepingEnds: true)[0]
                 after = header.bom + first + inserted + String(header.frontmatter.dropFirst(first.count)) + header.body
