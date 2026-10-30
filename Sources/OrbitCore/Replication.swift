@@ -11,7 +11,17 @@ private func rObjects(_ value: Any?) -> [JSONObject] { value as? [JSONObject] ??
 private func rStrings(_ value: Any?) -> [String] { value as? [String] ?? [] }
 private func rString(_ value: Any?) -> String { value as? String ?? "" }
 private func rText(_ value: Any?) -> String? { value as? String }
-private func rEqual(_ a: Any?, _ b: Any?) -> Bool { (a as? NSObject ?? NSNull()).isEqual(b as? NSObject ?? NSNull()) }
+private func rEqual(_ a: Any?, _ b: Any?) -> Bool {
+    if let a = a as? String, let b = b as? String { return a.utf8.elementsEqual(b.utf8) }
+    return (a as? NSObject ?? NSNull()).isEqual(b as? NSObject ?? NSNull())
+}
+private func rTextEqual(_ a: String?, _ b: String?) -> Bool {
+    switch (a, b) {
+    case (nil, nil): return true
+    case let (a?, b?): return a.utf8.elementsEqual(b.utf8)
+    default: return false
+    }
+}
 private func rHash(_ value: Any) throws -> String { digest(try canonical(value)) }
 private func rMatch(_ pattern: String, _ text: String) -> Bool { text.range(of: pattern, options: .regularExpression) != nil }
 private struct ReplicaState {
@@ -42,8 +52,8 @@ extension OrbitEngine {
     }
 
     private func replicaStateURL(_ root: URL) throws -> URL {
-        let base = stateURL.resolvingSymlinksInPath().standardizedFileURL
-        let root = root.resolvingSymlinksInPath().standardizedFileURL
+        let base = stateURL.standardizedFileURL.resolvingSymlinksInPath()
+        let root = root.standardizedFileURL.resolvingSymlinksInPath()
         if base.path == root.path || base.path.hasPrefix(root.path + "/") {
             throw OrbitError("ORBIT_STATE must be outside the synced Orbit folder")
         }
@@ -224,7 +234,22 @@ extension OrbitEngine {
     }
 
     private func replicaLocalPaths(_ root: URL) throws -> Set<String> {
-        var paths = Set(try scan(root).map { rString($0["path"]) })
+        let root = root.standardizedFileURL.resolvingSymlinksInPath()
+        let fm = FileManager.default
+        var paths = Set<String>()
+        func walk(_ directory: URL, _ prefix: String) throws {
+            for path in try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]) {
+                let values = try path.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+                if values.isSymbolicLink == true { continue }
+                if values.isDirectory == true {
+                    if !path.lastPathComponent.hasPrefix(".") { try walk(path, prefix + path.lastPathComponent + "/") }
+                } else {
+                    let relative = prefix + path.lastPathComponent
+                    if path.pathExtension.lowercased() == "md" && !relative.hasPrefix("Sources/assets/") { paths.insert(relative) }
+                }
+            }
+        }
+        try walk(root, "")
         for path in try replicaFiles(root, ".orbit/integrations") { paths.insert(".orbit/integrations/" + path.lastPathComponent) }
         return paths
     }
@@ -240,7 +265,7 @@ extension OrbitEngine {
         var observations: [String: JSONObject] = [:]
         for path in paths.sorted() {
             guard let text = try replicaText(root, path) else { continue }
-            if state.versions.values.contains(where: { rString($0["path"]) == path && rText($0["content"]) == text }) { continue }
+            if state.versions.values.contains(where: { rString($0["path"]) == path && rTextEqual(rText($0["content"]), text) }) { continue }
             let observation: JSONObject = ["protocol": 1, "vault_id": try replicaIdentity(root), "entity": replicaResolvedEntity(state, path, text), "path": path, "content": text]
             observations[try rHash(observation)] = observation
         }
@@ -270,7 +295,7 @@ extension OrbitEngine {
                     for parent in rStrings(version["parents"]) {
                         if let predecessor = state.versions[parent] {
                             if rString(predecessor["entity"]) != rString(version["entity"]) { reasons.append("parent belongs to another entity " + parent) }
-                            else if let content = rText(version["content"]), let old = rText(predecessor["content"]), !rString(version["entity"]).hasPrefix("integration:"), let oldID = metadata(old)["id"], !(oldID is NSNull), !rString(oldID).isEmpty, !rEqual(oldID, metadata(content)["id"]) { reasons.append("parent stable identity changed " + parent) }
+                            else if let content = rText(version["content"]), let old = rText(predecessor["content"]), !rString(version["entity"]).hasPrefix("integration:"), let oldID = metadata(old)["id"], !(oldID is NSNull), truthy(oldID), !rEqual(oldID, metadata(content)["id"]) { reasons.append("parent stable identity changed " + parent) }
                             else if !state.eligible.contains(state.owners[parent]!) { reasons.append("pending parent " + parent) }
                         } else { reasons.append("missing parent " + parent) }
                     }
@@ -401,11 +426,11 @@ extension OrbitEngine {
                     let after = rText(desired[path])
                     if after == nil && liveClaims.contains(path) { continue }
                     let before = try replicaText(root, path)
-                    if before == after { continue }
+                    if rTextEqual(before, after) { continue }
                     let known = state.versions.values.filter { rString($0["path"]) == path }.map { rText($0["content"]) } + state.observations.values.filter { rString($0["path"]) == path }.map { rText($0["content"]) }
-                    if before != nil && !known.contains(before) { try replicaCapture(root, state); return result(replicaReport(try replicaFold(root))) }
+                    if before != nil && !known.contains(where: { rTextEqual($0, before) }) { try replicaCapture(root, state); return result(replicaReport(try replicaFold(root))) }
                     try atomic(intent, canonical(["path": path, "before": before as Any? ?? NSNull(), "after": after as Any? ?? NSNull(), "head": tokens[0]]))
-                    if try replicaText(root, path) != before { try replicaCapture(root, state); return result(replicaReport(try replicaFold(root))) }
+                    if try !rTextEqual(replicaText(root, path), before) { try replicaCapture(root, state); return result(replicaReport(try replicaFold(root))) }
                     let target = try replicaPath(root, path)
                     if let after { try atomic(target, Data(after.utf8)) }
                     else if FileManager.default.fileExists(atPath: target.path) { try FileManager.default.removeItem(at: target) }
@@ -453,7 +478,7 @@ extension OrbitEngine {
     private func replicaReceipt(_ root: URL, _ record: JSONObject) -> JSONObject {
         do {
             let sync = try replicationReconcile(root)
-            let verified = try rObjects(record["writes"]).allSatisfy { try replicaText(root, rString($0["path"])) == rText($0["after"]) }
+            let verified = try rObjects(record["writes"]).allSatisfy { try rTextEqual(replicaText(root, rString($0["path"])), rText($0["after"])) }
             return ["status": "committed", "operation": rString(record["id"]), "durability": "local", "verified": verified, "sync": sync]
         } catch {
             return ["status": "committed", "operation": rString(record["id"]), "durability": "local", "verified": false, "sync": ["status": "interrupted", "error": String(describing: error), "materialized": []]]
@@ -500,7 +525,7 @@ extension OrbitEngine {
                 }
                 for key in ["before", "after"] where write[key] != nil && !(write[key] is NSNull) && !(write[key] is String) { throw OrbitError("Write content must be text or null") }
                 let before = rText(write["before"]), after = rText(write["after"])
-                guard try replicaText(root, path) == before else { throw OrbitError("Write conflict: " + path + " changed before commit") }
+                guard try rTextEqual(replicaText(root, path), before) else { throw OrbitError("Write conflict: " + path + " changed before commit") }
                 let entity = replicaResolvedEntity(state, path, after ?? before)
                 let competing = state.heads.filter { _, heads in heads.contains { rString(state.versions[$0]!["path"]) == path && rText(state.versions[$0]!["content"]) != nil } }
                 let collision = competing.count > 1
@@ -517,7 +542,7 @@ extension OrbitEngine {
                     write["expected_heads"] = competing[entity]!
                     write["observations"] = allObservations.filter { rString(state.unresolved[$0]!["entity"]) == entity }
                 }
-                if !collision, let before, let after, let id = metadata(before)["id"], !rString(id).isEmpty, !rEqual(id, metadata(after)["id"]) { throw OrbitError("Preserve stable identity") }
+                if !collision, let before, let after, let id = metadata(before)["id"], truthy(id), !rEqual(id, metadata(after)["id"]) { throw OrbitError("Preserve stable identity") }
                 groups[entity, default: []].append(write)
                 clean.append(["path": path, "before": before as Any? ?? NSNull(), "after": after as Any? ?? NSNull(), "reason": rString(write["reason"])])
             }
@@ -557,7 +582,7 @@ extension OrbitEngine {
             let record = try replicaEnvelope(root, operation, clean, versions, requestDigest)
             _ = try replicaValidate(root, record, operation + ".json")
             for write in clean {
-                guard try replicaText(root, rString(write["path"])) == rText(write["before"]) else { throw OrbitError("Write conflict before durable acceptance: " + rString(write["path"])) }
+                guard try rTextEqual(replicaText(root, rString(write["path"])), rText(write["before"])) else { throw OrbitError("Write conflict before durable acceptance: " + rString(write["path"])) }
             }
             if dryRun { return ["status": "preview", "sync": report] }
             try replicaPublish(root, "commits", operation, record)
