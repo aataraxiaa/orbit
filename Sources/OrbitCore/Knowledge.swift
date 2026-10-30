@@ -1,3 +1,4 @@
+import CoreFoundation
 import Foundation
 
 private let integrationStages = ["captured", "extracted", "integrated", "verified"]
@@ -70,7 +71,10 @@ extension OrbitEngine {
   }
   func knowledgeValidateRecord(_ root: URL, record: JSONObject, path: URL) throws -> JSONObject {
     guard eInt(record["schema"]) == 1, integrationStages.contains(eString(record["stage"])),
-      eInt(record["version"]) >= 1, !(record["version"] is Bool)
+      eInt(record["version"]) >= 1,
+      let versionNumber = record["version"] as? NSNumber,
+      CFGetTypeID(versionNumber) != CFBooleanGetTypeID(),
+      !["d", "f"].contains(String(cString: versionNumber.objCType))
     else { throw OrbitError("Invalid integration schema, stage, or version") }
     guard try knowledgeRecordPath(root, sha: eString(record["source_sha256"])) == path else {
       throw OrbitError("Integration source identity does not match filename")

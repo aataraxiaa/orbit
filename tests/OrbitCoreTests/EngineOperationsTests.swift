@@ -118,4 +118,22 @@ final class EngineOperationsTests: XCTestCase {
     XCTAssertThrowsError(try engine.capture(root, source: file.path))
     XCTAssertEqual(try eText(asset), "Changed externally")
   }
+  func testIntegrationVersionRejectsBooleanAndAcceptsDecodedInteger() throws {
+    let sourceHash = String(repeating: "a", count: 64)
+    let path = try engine.knowledgeRecordPath(root, sha: sourceHash)
+    let record: JSONObject = [
+      "schema": 1, "source_sha256": sourceHash,
+      "source_path": "Sources/assets/" + sourceHash + ".txt", "version": 1,
+      "stage": "captured", "coverage": ["status": "unknown", "description": ""],
+      "deferred": [], "errors": [], "extraction": [], "notes": [], "operations": [],
+      "verification": [],
+    ]
+    try atomic(path, encode(record))
+    let decoded = try readJSON(path)
+    XCTAssertNoThrow(try engine.knowledgeValidateRecord(root, record: decoded, path: path))
+    var invalid = record
+    invalid["version"] = true
+    XCTAssertThrowsError(try engine.knowledgeValidateRecord(root, record: invalid, path: path))
+  }
+
 }
