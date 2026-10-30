@@ -65,7 +65,8 @@ extension OrbitEngine {
             let value = try readJSON(safe(root, ".orbit/vault.json"))["id"] as? String
             guard let value, UUID(uuidString: value) != nil else { throw OrbitError("Replication requires a valid Orbit identity") }
             return value
-        } catch { throw OrbitError("Replication requires a valid Orbit identity") }
+        } catch is CancellationError { throw CancellationError() }
+        catch { throw OrbitError("Replication requires a valid Orbit identity") }
     }
 
     private func replicaStateURL(_ root: URL) throws -> URL {
@@ -126,7 +127,8 @@ extension OrbitEngine {
             let data = try readData(url)
             guard String(data: data, encoding: .utf8) != nil else { throw OrbitError("Invalid UTF-8") }
             return String(decoding:data,as:UTF8.self)
-        } catch { throw OrbitError("Cannot read snapshot target " + path) }
+        } catch is CancellationError { throw CancellationError() }
+        catch { throw OrbitError("Cannot read snapshot target " + path) }
     }
 
     private func replicaUUID(_ value: String) throws -> String {
@@ -226,7 +228,8 @@ extension OrbitEngine {
                 guard raw.count <= replicationLimit else { throw OrbitError("Snapshot exceeds size limit") }
                 let record = try replicaValidate(root, readJSON(path), path.lastPathComponent)
                 state.records[rString(record["id"])] = record
-            } catch { state.invalid.append(["path": relative, "error": String(describing: error)]) }
+            } catch is CancellationError { throw CancellationError() }
+            catch { state.invalid.append(["path": relative, "error": String(describing: error)]) }
         }
         if state.records.isEmpty && replicationEnabled(root) { state.invalid.append(["path": ".orbit/commits", "error": "Format 3 history is missing"]) }
         for path in try replicaFiles(root, ".orbit/observations") {
@@ -241,7 +244,8 @@ extension OrbitEngine {
                 let id = try rHash(record)
                 guard path.lastPathComponent == id + ".json" else { throw OrbitError("Observation integrity mismatch") }
                 state.observations[id] = record
-            } catch { state.invalid.append(["path": relative, "error": String(describing: error)]) }
+            } catch is CancellationError { throw CancellationError() }
+            catch { state.invalid.append(["path": relative, "error": String(describing: error)]) }
         }
         return state
     }
