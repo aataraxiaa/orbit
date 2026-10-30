@@ -92,3 +92,43 @@ extension ContractTests {
     XCTAssertEqual(eLines("one\u{1c}two\r\nthree\r"), ["one", "two", "three"])
   }
 }
+
+extension ContractTests {
+  func testExplicitLaunchLocationsOverrideAmbientRegistry() throws {
+    let environment = try OrbitLaunchConfiguration.environment(
+      arguments: [
+        "--config", "/disposable/config.json", "--cache", "/disposable/cache", "--state",
+        "/disposable/state",
+      ],
+      base: ["ORBIT_CONFIG": "/ambient/config.json"])
+    let engine = OrbitEngine(environment: environment)
+    XCTAssertEqual(engine.configURL.path, "/disposable/config.json")
+    XCTAssertEqual(engine.cacheURL.path, "/disposable/cache")
+    XCTAssertEqual(engine.stateURL.path, "/disposable/state")
+    XCTAssertEqual(
+      OrbitEngine(environment: ["ORBIT_CONFIG": "/isolated/config.json"]).cacheURL.path,
+      "/isolated/cache")
+    XCTAssertThrowsError(
+      try OrbitLaunchConfiguration.environment(arguments: ["--config", "relative"]))
+    XCTAssertThrowsError(
+      try OrbitLaunchConfiguration.environment(arguments: ["--unknown", "/path"]))
+    XCTAssertThrowsError(
+      try OrbitLaunchConfiguration.environment(arguments: ["--config", "/a", "--config", "/b"]))
+  }
+}
+
+extension ContractTests {
+  func testSharedPublicDecoderPreservesBOMNumbersAndOpaqueEvidence() throws {
+    let arguments =
+      try decodeJSON(Data("{\"content\":\"\u{feff}# Note\",\"limit\":1.0}".utf8)) as! JSONObject
+    XCTAssertEqual((arguments["content"] as! String).unicodeScalars.first?.value, 0xfeff)
+    XCTAssertThrowsError(
+      try OrbitContract.validate(
+        action: "search", arguments: ["query": "term", "limit": arguments["limit"]!]))
+    let raw = Data("{\"café\":1,\"cafe\u{301}\":2,\"float\":1.0}".utf8)
+    let evidence = try decodeEvidenceObject(raw)
+    XCTAssertEqual(
+      String(decoding: try canonical(evidence), as: UTF8.self),
+      "{\"cafe\u{301}\":2,\"café\":1,\"float\":1.0}")
+  }
+}

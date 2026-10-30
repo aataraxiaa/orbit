@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--binary', required=True, type=Path)
     parser.add_argument('--resources', required=True, type=Path)
     parser.add_argument('--output', default=ROOT / 'dist/swift-candidate', type=Path)
+    parser.add_argument('--acceptance-root', type=Path, help='Isolate host verification from personal registries and folders')
     args = parser.parse_args()
     binary = args.binary.resolve()
     bundle = args.resources.resolve()
@@ -42,22 +43,33 @@ def main():
     (native / 'orbit-mcp').chmod(0o755)
     shutil.copytree(bundle, native / bundle.name)
     version = '0.7.0-dev'
+    plugin_name = 'orbit-swift-acceptance' if args.acceptance_root else 'orbit'
+    acceptance_env = {}
+    if args.acceptance_root:
+        acceptance = args.acceptance_root.resolve()
+        acceptance.mkdir(parents=True, exist_ok=True)
+        acceptance_env = {'ORBIT_CONFIG': str(acceptance / 'config.json'), 'ORBIT_CACHE': str(acceptance / 'cache'), 'ORBIT_STATE': str(acceptance / 'state')}
     for host, launch in [('.mcp.json', '${CLAUDE_PLUGIN_ROOT}/bin/orbit-mcp'), ('.codex.mcp.json', './bin/orbit-mcp')]:
         server = {'command': launch, 'args': []}
+        if acceptance_env:
+            server['args'] = ['--config', acceptance_env['ORBIT_CONFIG'], '--cache', acceptance_env['ORBIT_CACHE'], '--state', acceptance_env['ORBIT_STATE']]
         if host == '.codex.mcp.json':
             server['cwd'] = '.'
         (plugin / host).write_text(json.dumps({'mcpServers': {'orbit': server}}, indent=2) + '\n')
     manifest = json.loads((ROOT / 'manifest.json').read_text())
-    manifest.update(version=version, server={'type': 'binary', 'entry_point': 'bin/orbit-mcp',
+    manifest.update(name=plugin_name, version=version, server={'type': 'binary', 'entry_point': 'bin/orbit-mcp',
                     'mcp_config': {'command': '${__dirname}/bin/orbit-mcp', 'args': []}},
                     compatibility={'platforms': ['darwin']})
+    if acceptance_env:
+        manifest['server']['mcp_config']['args'] = ['--config', acceptance_env['ORBIT_CONFIG'], '--cache', acceptance_env['ORBIT_CACHE'], '--state', acceptance_env['ORBIT_STATE']]
     (plugin / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     for host in ('.codex-plugin', '.claude-plugin'):
         path = plugin / host / 'plugin.json'
-        data = json.loads(path.read_text()); data['version'] = version
+        data = json.loads(path.read_text()); data['version'] = version; data['name'] = plugin_name
         path.write_text(json.dumps(data, indent=2) + '\n')
     for host, source in [('.claude-plugin', {'name': 'orbit-swift-local', 'owner': {'name': 'Orbit'}, 'plugins': [{'name': 'orbit', 'source': './plugins/orbit'}]}),
                          ('.agents/plugins', {'name': 'orbit-swift-local', 'plugins': [{'name': 'orbit', 'source': {'source': 'local', 'path': './plugins/orbit'}, 'policy': {'installation': 'AVAILABLE', 'authentication': 'ON_INSTALL'}, 'category': 'Productivity'}]})]:
+        source['plugins'][0]['name'] = plugin_name
         path = out / 'marketplace' / host / 'marketplace.json'
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(source, indent=2) + '\n')
@@ -66,7 +78,7 @@ def main():
         with zipfile.ZipFile(out / filename, 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in paths:
                 archive.write(path, path.relative_to(plugin))
-    receipt = {'status': 'candidate', 'package_version': version,
+    receipt = {'status': 'candidate', 'package_version': version, 'plugin_name': plugin_name, 'acceptance_only': bool(acceptance_env),
                'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
                'runtime': 'native Swift', 'python_runtime_files': [],
                'desktop_host_acceptance': 'NOT VERIFIED',

@@ -27,10 +27,15 @@ public final class OrbitEngine {
       let path = environment[key] ?? home.appendingPathComponent(fallback).path
       return URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
     }
+    let config = location("ORBIT_CONFIG", ".config/orbit/config.json")
+    let cache: URL
+    if let path = environment["ORBIT_CACHE"], !path.isEmpty {
+      cache = URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
+    } else {
+      cache = config.deletingLastPathComponent().appendingPathComponent("cache")
+    }
     self.init(
-      configURL: location("ORBIT_CONFIG", ".config/orbit/config.json"),
-      cacheURL: location("ORBIT_CACHE", ".cache/orbit"),
-      stateURL: location("ORBIT_STATE", ".local/state/orbit"))
+      configURL: config, cacheURL: cache, stateURL: location("ORBIT_STATE", ".local/state/orbit"))
   }
   public func execute(_ action: String, arguments: JSONObject = [:]) throws -> JSONObject {
     try withOrbitRuntime(runtime) {
