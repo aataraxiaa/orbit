@@ -345,4 +345,23 @@ final class FormattingMigrationTests: XCTestCase {
         XCTAssertThrowsError(try engine.apply(root, plan: ["changes": [["path": "Knowledge/Draft.md", "expected_sha256": NSNull(), "content": draft, "reason": "Save with unknown schema"]]], dryRun: false))
         XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
     }
+
+    func testInterruptedRecoveryMatchesFrozenPythonRequestsAndSnapshots() throws {
+        let cases = try fixture("migration-recovery")["cases"] as! [JSONObject]
+        for item in cases {
+            let (root, engine) = try workspace()
+            for (path, text) in item["inputs"] as! [String: String] { try put(root, path, text) }
+            let request = item["request"] as! JSONObject, expected = item["expected"] as! JSONObject
+            if let error = expected["error"] as? String {
+                XCTAssertThrowsError(try engine.migrate(root, action: request["action"] as! String, targetVersion: request["target_version"] as? String, operation: request["operation"] as? String), item["name"] as? String ?? "") { actual in
+                    XCTAssertEqual(String(describing: actual), error)
+                }
+            } else {
+                let result = try engine.migrate(root, action: request["action"] as! String, targetVersion: request["target_version"] as? String, operation: request["operation"] as? String)
+                XCTAssertEqual(result["status"] as? String, expected["status"] as? String)
+                XCTAssertEqual(result["verified"] as? Bool, expected["verified"] as? Bool)
+            }
+            XCTAssertEqual(try engine.migrationSnapshot(root), expected["snapshot"] as? [String: String], item["name"] as? String ?? "")
+        }
+    }
 }
