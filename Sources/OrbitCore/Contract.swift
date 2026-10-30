@@ -39,6 +39,7 @@ public enum OrbitContract {
         else if value is JSONObject { actual = "object" }
         else if value is [Any] { actual = "array" }
         else if value is String { actual = "string" }
+        else if value is JSONBigInteger { actual = "integer" }
         else if let n = value as? NSNumber {
             if CFGetTypeID(n) == CFBooleanGetTypeID() { actual = "boolean" }
             else if String(cString: n.objCType) == "d" || String(cString:n.objCType) == "f" { actual = "number" }
@@ -61,6 +62,12 @@ public enum OrbitContract {
             guard text.trimmingCharacters(in:.whitespacesAndNewlines).unicodeScalars.count >= schema["minLength"] as? Int ?? 0 else { throw OrbitError("\(path): nonempty string required") }
             if let pattern = schema["pattern"] as? String, text.range(of:"\\A(?:" + pattern + ")\\z",options:.regularExpression) == nil { throw OrbitError("\(path): invalid format") }
         case "integer":
+            if let big = value as? JSONBigInteger {
+                if big.description.hasPrefix("-") ? schema["minimum"] != nil : schema["maximum"] != nil {
+                    throw OrbitError("\(path): outside supported range")
+                }
+                return
+            }
             let n = (value as! NSNumber).int64Value
             if n < (schema["minimum"] as? NSNumber)?.int64Value ?? n || n > (schema["maximum"] as? NSNumber)?.int64Value ?? n { throw OrbitError("\(path): outside supported range") }
         default: break
@@ -78,7 +85,7 @@ public struct OrbitMCPServer {
         guard let message = value as? JSONObject, message["jsonrpc"] as? String == "2.0", let method = message["method"] as? String else { return rpcError(NSNull(),-32600,"Invalid Request") }
         let id = message["id"] ?? NSNull()
         if message["id"] != nil {
-            if !(id is String) {
+            if !(id is String) && !(id is JSONBigInteger) {
                 guard let n = id as? NSNumber, CFGetTypeID(n) != CFBooleanGetTypeID(), !["d","f"].contains(String(cString:n.objCType)) else { return rpcError(NSNull(),-32600,"Invalid request id") }
             }
         } else { return nil }

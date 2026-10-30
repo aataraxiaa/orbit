@@ -24,8 +24,7 @@ public func encode(_ value: Any) throws -> Data {
     Data((try OrderedJSON.sorted(value).rendered(pretty: true) + "\n").utf8)
 }
 public func readJSON(_ url: URL) throws -> JSONObject {
-    guard let result = try OrderedJSON.parse(readData(url)).value as? JSONObject else { throw OrbitError("Expected JSON object") }
-    return result
+    try losslessJSONObject(OrderedJSON.parse(readData(url)))
 }
 public func atomic(_ url: URL, _ data: Data) throws {
     try coordinatedFile(url, mode: .write) { try atomicCoordinated($0, data) }

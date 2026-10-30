@@ -37,6 +37,7 @@ indirect enum OrderedJSON {
         }
     }
     static func sorted(_ value: Any) -> OrderedJSON {
+        if let object = value as? JSONObject, let preserved = orderedJSONObject(object) { return preserved }
         if let object = value as? JSONObject { return .object(object.keys.sorted { $0.unicodeScalars.lexicographicallyPrecedes($1.unicodeScalars) }.map { ($0, sorted(object[$0]!)) }) }
         if let array = value as? [Any] { return .array(array.map(sorted)) }
         return .scalar(value)

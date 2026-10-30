@@ -461,7 +461,7 @@ private func knowledgeEncodeRecord(_ value: JSONObject, path: URL, controls: JSO
   } else {
     keys = initialKeys.filter { value[$0] != nil }
   }
-  keys += value.keys.filter { !keys.contains($0) }.sorted()
+  keys += value.keys.filter { !isInternalJSONField($0,in:value) && !keys.contains($0) }.sorted()
   let ordered = OrderedJSON.object(
     keys.map { key in
       if let previous = old?[key] {

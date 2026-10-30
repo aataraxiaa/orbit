@@ -34,6 +34,29 @@ final class PreservationTests: XCTestCase {
         XCTAssertEqual(try readData(safe(root,".orbit/vault.json")),Data((fixture["marker_after"] as! String).utf8))
         for (path,hash) in fixture["seed_history"] as! [String:String] { XCTAssertEqual(digest(try readData(safe(root,path))),hash) }
     }
+    func testOpaqueIntegrationResultsAndStoredBytesMatchPython() throws {
+        let url = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/opaque-integration.json")
+        let fixture = try readJSON(url)
+        let (base,locations) = try workspace(); let root = base.appendingPathComponent("folder")
+        for (path,text) in fixture["inputs"] as! [String:String] { try atomic(safe(root,path),Data(text.utf8)) }
+        let engine = OrbitEngine(configURL:locations.configURL,cacheURL:locations.cacheURL,stateURL:locations.stateURL,runtime:OrbitRuntime(clock:{ "2026-10-30T12:00:00.000000+00:00" }))
+        _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test"])
+        for call in fixture["calls"] as! [JSONObject] {
+            let result = try engine.execute(call["action"] as! String,arguments:call["arguments"] as! JSONObject)
+            let actual = String(decoding:try canonical(result),as:UTF8.self).replacingOccurrences(of:root.path,with:"$FOLDER")
+            XCTAssertEqual(actual,call["result"] as? String)
+            for (path,hash) in call["stored"] as! [String:String] { XCTAssertEqual(digest(try readData(safe(root,path))),hash,path) }
+        }
+    }
+    func testHugeIntegerValidationAndRPCIdentifier() throws {
+        let engine = try workspace().1, server = OrbitMCPServer(engine:try workspace().1)
+        let number = "1234567890123456789012345678901234567890"
+        let response = try server.handle(data:Data(("{\"jsonrpc\":\"2.0\",\"id\":" + number + ",\"method\":\"ping\"}").utf8))!
+        XCTAssertEqual(String(decoding:try canonical(response),as:UTF8.self),"{\"id\":" + number + ",\"jsonrpc\":\"2.0\",\"result\":{}}")
+        XCTAssertThrowsError(try engine.execute("read",argumentsJSON:Data(("{\"path\":\"A.md\",\"count\":" + number + "}").utf8))) {
+            XCTAssertEqual(String(describing:$0),"arguments.count: outside supported range")
+        }
+    }
     func testMigrationPreservesUnknownByteDistinctKeysAndNumericTypes() throws {
         let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
         _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test","create":true])
