@@ -42,7 +42,7 @@ final class PreservationTests: XCTestCase {
         let engine = OrbitEngine(configURL:locations.configURL,cacheURL:locations.cacheURL,stateURL:locations.stateURL,runtime:OrbitRuntime(clock:{ "2026-10-30T12:00:00.000000+00:00" }))
         _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test"])
         for call in fixture["calls"] as! [JSONObject] {
-            let result = try engine.execute(call["action"] as! String,arguments:call["arguments"] as! JSONObject)
+            let result = try engine.execute(call["action"] as! String,argumentsJSON:Data((call["arguments_json"] as! String).utf8))
             let actual = String(decoding:try canonical(result),as:UTF8.self).replacingOccurrences(of:root.path,with:"$FOLDER")
             XCTAssertEqual(actual,call["result"] as? String)
             for (path,hash) in call["stored"] as! [String:String] { XCTAssertEqual(digest(try readData(safe(root,path))),hash,path) }
@@ -73,6 +73,23 @@ final class PreservationTests: XCTestCase {
         XCTAssertThrowsError(try engine.resolveTarget(name:second,path:nil))
         XCTAssertEqual(try engine.resolveTarget(name:first,path:nil).root.path,rootA.path)
         XCTAssertEqual(try engine.resolveTarget(name:"Renamed",path:nil).root.path,rootB.path)
+    }
+    func testRegistryNamesMatchFrozenPythonRoutingAndStorage() throws {
+        let fixtureURL = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/registry-byte-names.json")
+        let fixture = try readJSON(fixtureURL), (base,locations) = try workspace()
+        var sequence: UInt64 = 0
+        let runtime = OrbitRuntime(clock:{ "2026-10-30T12:00:00.000000+00:00" },uuid:{ sequence += 1; return String(format:"00000000-0000-4000-8000-%012llx",sequence) })
+        let engine = OrbitEngine(configURL:locations.configURL,cacheURL:locations.cacheURL,stateURL:locations.stateURL,runtime:runtime)
+        for call in fixture["calls"] as! [JSONObject] {
+            let arguments = (call["arguments_json"] as! String).replacingOccurrences(of:"$BASE",with:base.path)
+            let response: JSONObject
+            do { response = ["success":true,"result":try engine.execute(call["action"] as! String,argumentsJSON:Data(arguments.utf8))] }
+            catch { response = ["success":false,"error":String(describing:error)] }
+            let actual = String(decoding:try canonical(response),as:UTF8.self).replacingOccurrences(of:base.path,with:"$BASE")
+            XCTAssertEqual(actual,call["response"] as? String,call["action"] as! String)
+            if let config = call["config"] as? String { XCTAssertEqual(String(decoding:try readData(engine.configURL),as:UTF8.self).replacingOccurrences(of:base.path,with:"$BASE"),config) }
+            for (path,hash) in call["stored"] as! [String:String] { XCTAssertEqual(digest(try readData(base.appendingPathComponent(path))),hash,path) }
+        }
     }
     func testMigrationPreservesUnknownByteDistinctKeysAndNumericTypes() throws {
         let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
