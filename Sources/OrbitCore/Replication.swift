@@ -28,6 +28,7 @@ private func rObjects(_ value: Any?) -> [JSONObject] { value as? [JSONObject] ??
 private func rStrings(_ value: Any?) -> [String] { value as? [String] ?? [] }
 private func rString(_ value: Any?) -> String { value as? String ?? "" }
 private func rText(_ value: Any?) -> String? { value as? String }
+private func rEntityKey(_ value: Any?) -> OrbitByteString { OrbitByteString(rString(value)) }
 private func rEqual(_ a: Any?, _ b: Any?) -> Bool {
     if let a = a as? String, let b = b as? String { return a.utf8.elementsEqual(b.utf8) }
     return (a as? NSObject ?? NSNull()).isEqual(b as? NSObject ?? NSNull())
@@ -46,7 +47,7 @@ private struct ReplicaState {
     var versions: [String: JSONObject] = [:]
     var owners: [String: String] = [:]
     var eligible: Set<String> = []
-    var heads: [String: [String]] = [:]
+    var heads: [OrbitByteString: [String]] = [:]
     var observations: [String: JSONObject] = [:]
     var unresolved: [String: JSONObject] = [:]
     var pending: [String: [String]] = [:]
@@ -179,7 +180,7 @@ extension OrbitEngine {
         guard try replicaUUID(rString(record["id"])) + ".json" == filename else { throw OrbitError("Snapshot filename does not match identity") }
         guard record["request_digest"] is String, let genesis = record["genesis"] as? NSNumber, CFGetTypeID(genesis) == CFBooleanGetTypeID() else { throw OrbitError("Invalid snapshot request metadata") }
         guard let versions = record["versions"] as? [JSONObject], !versions.isEmpty, let writes = record["writes"] as? [JSONObject], !writes.isEmpty else { throw OrbitError("Snapshot requires versions and writes") }
-        var entities = Set<String>(), destinations = Set<String>(), writePaths = Set<String>()
+        var entities = Set<OrbitByteString>(), destinations = Set<String>(), writePaths = Set<String>()
         for write in writes {
             _ = try replicaPath(root, write["path"])
             let path = rString(write["path"])
@@ -189,9 +190,9 @@ extension OrbitEngine {
         for version in versions {
             _ = try replicaPath(root, version["path"])
             let entity = rString(version["entity"]), path = rString(version["path"]), content = rText(version["content"])
-            guard !entity.isEmpty, entities.insert(entity).inserted else { throw OrbitError("Invalid or duplicate entity") }
+            guard !entity.isEmpty, entities.insert(OrbitByteString(entity)).inserted else { throw OrbitError("Invalid or duplicate entity") }
             guard version["content"] == nil || version["content"] is NSNull || version["content"] is String else { throw OrbitError("Invalid entity content") }
-            if let content, replicaEntity(path, content) != entity && !entity.hasPrefix("path:") { throw OrbitError("Entity identity differs from content") }
+            if let content, !rEqual(replicaEntity(path, content), entity) && !entity.hasPrefix("path:") { throw OrbitError("Entity identity differs from content") }
             if content != nil && !destinations.insert(path).inserted { throw OrbitError("Duplicate snapshot destination") }
             for key in ["parents", "observations", "paths"] {
                 guard let values = version[key] as? [String], values == Array(Set(values)).sorted() else { throw OrbitError("Invalid " + key + " set") }
@@ -202,7 +203,7 @@ extension OrbitEngine {
             let matching = writes.filter { paths.contains(rString($0["path"])) }
             let retired = truthy(version["retired"])
             if retired {
-                guard let value = version["retired"] as? NSNumber, CFGetTypeID(value) == CFBooleanGetTypeID(), content == nil, !rStrings(version["parents"]).isEmpty, versions.contains(where: { rString($0["entity"]) != entity && rString($0["path"]) == path && rText($0["content"]) != nil }) else { throw OrbitError("Invalid collision retirement") }
+                guard let value = version["retired"] as? NSNumber, CFGetTypeID(value) == CFBooleanGetTypeID(), content == nil, !rStrings(version["parents"]).isEmpty, versions.contains(where: { !rEqual($0["entity"], entity) && rString($0["path"]) == path && rText($0["content"]) != nil }) else { throw OrbitError("Invalid collision retirement") }
             }
             guard !matching.isEmpty, retired || matching.contains(where: { rString($0["path"]) == path && rEqual($0["after"], version["content"]) }) else { throw OrbitError("Version does not match its write evidence") }
             guard Set(paths) == Set(matching.map { rString($0["path"]) }) else { throw OrbitError("Missing write evidence") }
@@ -240,7 +241,7 @@ extension OrbitEngine {
                 let record = try readJSON(path)
                 guard rString(record["vault_id"]) == (try replicaIdentity(root)), record["protocol"] as? Int == 1 else { throw OrbitError("Invalid observation identity/protocol") }
                 _ = try replicaPath(root, record["path"])
-                guard let text = record["content"] as? String, let entity = record["entity"] as? String, replicaEntity(rString(record["path"]), text) == entity || entity.hasPrefix("path:") else { throw OrbitError("Invalid observation content/identity") }
+                guard let text = record["content"] as? String, let entity = record["entity"] as? String, rEqual(replicaEntity(rString(record["path"]), text), entity) || entity.hasPrefix("path:") else { throw OrbitError("Invalid observation content/identity") }
                 let id = try rHash(record)
                 guard path.lastPathComponent == id + ".json" else { throw OrbitError("Observation integrity mismatch") }
                 state.observations[id] = record
@@ -271,10 +272,10 @@ extension OrbitEngine {
         return paths
     }
 
-    private func replicaResolvedEntity(_ state: ReplicaState, _ path: String, _ text: String?) -> String {
-        var legacy = Set(state.versions.values.filter { rString($0["entity"]).hasPrefix("path:") && rStrings($0["paths"]).contains(path) }.map { rString($0["entity"]) })
-        for observation in Array(state.observations.values) + Array(state.unresolved.values) where rString(observation["entity"]).hasPrefix("path:") && rString(observation["path"]) == path { legacy.insert(rString(observation["entity"])) }
-        return legacy.count == 1 ? legacy.first! : replicaEntity(path, text)
+    private func replicaResolvedEntity(_ state: ReplicaState, _ path: String, _ text: String?) -> OrbitByteString {
+        var legacy = Set(state.versions.values.filter { rString($0["entity"]).hasPrefix("path:") && rStrings($0["paths"]).contains(path) }.map { rEntityKey($0["entity"]) })
+        for observation in Array(state.observations.values) + Array(state.unresolved.values) where rString(observation["entity"]).hasPrefix("path:") && rString(observation["path"]) == path { legacy.insert(rEntityKey(observation["entity"])) }
+        return legacy.count == 1 ? legacy.first! : OrbitByteString(replicaEntity(path, text))
     }
 
     private func replicaUnfamiliar(_ root: URL, _ state: ReplicaState) throws -> [String: JSONObject] {
@@ -283,7 +284,7 @@ extension OrbitEngine {
         for path in paths.sorted() {
             guard let text = try replicaText(root, path) else { continue }
             if state.versions.values.contains(where: { rString($0["path"]) == path && rTextEqual(rText($0["content"]), text) }) { continue }
-            let observation: JSONObject = ["protocol": 1, "vault_id": try replicaIdentity(root), "entity": replicaResolvedEntity(state, path, text), "path": path, "content": text]
+            let observation: JSONObject = ["protocol": 1, "vault_id": try replicaIdentity(root), "entity": replicaResolvedEntity(state, path, text).value, "path": path, "content": text]
             observations[try rHash(observation)] = observation
         }
         return observations
@@ -311,14 +312,14 @@ extension OrbitEngine {
                 for version in rObjects(record["versions"]) {
                     for parent in rStrings(version["parents"]) {
                         if let predecessor = state.versions[parent] {
-                            if rString(predecessor["entity"]) != rString(version["entity"]) { reasons.append("parent belongs to another entity " + parent) }
+                            if !rEqual(predecessor["entity"], version["entity"]) { reasons.append("parent belongs to another entity " + parent) }
                             else if let content = rText(version["content"]), let old = rText(predecessor["content"]), !rString(version["entity"]).hasPrefix("integration:"), let oldID = metadata(old)["id"], !(oldID is NSNull), truthy(oldID), !rEqual(oldID, metadata(content)["id"]) { reasons.append("parent stable identity changed " + parent) }
                             else if !state.eligible.contains(state.owners[parent]!) { reasons.append("pending parent " + parent) }
                         } else { reasons.append("missing parent " + parent) }
                     }
                     for id in rStrings(version["observations"]) {
                         if let observation = state.observations[id] {
-                            if rString(observation["entity"]) != rString(version["entity"]) { reasons.append("observation belongs to another entity " + id) }
+                            if !rEqual(observation["entity"], version["entity"]) { reasons.append("observation belongs to another entity " + id) }
                         } else { reasons.append("missing observation " + id) }
                     }
                 }
@@ -337,7 +338,7 @@ extension OrbitEngine {
         }
         let active = state.versions.filter { state.eligible.contains(state.owners[$0.key]!) }
         let parents = Set(active.values.flatMap { rStrings($0["parents"]) })
-        for (token, version) in active where !parents.contains(token) { state.heads[rString(version["entity"]), default: []].append(token) }
+        for (token, version) in active where !parents.contains(token) { state.heads[rEntityKey(version["entity"]), default: []].append(token) }
         state.heads = state.heads.mapValues { $0.sorted() }
         let consumed = Set(active.values.flatMap { rStrings($0["observations"]) })
         for (id, observation) in state.observations where !consumed.contains(id) {
@@ -349,38 +350,38 @@ extension OrbitEngine {
     }
 
     private func replicaReport(_ state: ReplicaState) -> JSONObject {
-        var conflicts: [JSONObject] = [], blocked = Set<String>(), byPath: [String: [String]] = [:], claims: [String: Set<String>] = [:]
-        let entities = Set(state.heads.keys).union(state.unresolved.values.map { rString($0["entity"]) })
+        var conflicts: [JSONObject] = [], blocked = Set<String>(), byPath: [String: [String]] = [:], claims: [String: Set<OrbitByteString>] = [:]
+        let entities = Set(state.heads.keys).union(state.unresolved.values.map { rEntityKey($0["entity"]) })
         for entity in entities.sorted() {
             let heads = state.heads[entity] ?? []
-            let observations = state.unresolved.keys.filter { rString(state.unresolved[$0]!["entity"]) == entity }.sorted()
+            let observations = state.unresolved.keys.filter { rEntityKey(state.unresolved[$0]!["entity"]) == entity }.sorted()
             var paths = Set(heads.flatMap { rStrings(state.versions[$0]!["paths"]) })
             paths.formUnion(observations.map { rString(state.unresolved[$0]!["path"]) })
             for path in paths { byPath[path, default: []].append(contentsOf: heads) }
             for token in heads where rText(state.versions[token]!["content"]) != nil { claims[rString(state.versions[token]!["path"]), default: []].insert(entity) }
             if heads.count > 1 || !observations.isEmpty {
-                conflicts.append(["entity": entity, "paths": paths.sorted(), "heads": heads, "observations": observations]); blocked.formUnion(paths)
+                conflicts.append(["entity": entity.value, "paths": paths.sorted(), "heads": heads, "observations": observations]); blocked.formUnion(paths)
             }
         }
         for path in claims.keys.sorted() where claims[path]!.count > 1 {
             blocked.insert(path)
-            for entity in claims[path]!.sorted() where !conflicts.contains(where: { rString($0["entity"]) == entity }) {
+            for entity in claims[path]!.sorted() where !conflicts.contains(where: { rEntityKey($0["entity"]) == entity }) {
                 let heads = state.heads[entity]!
                 let paths = Set(heads.flatMap { rStrings(state.versions[$0]!["paths"]) }).sorted()
-                conflicts.append(["entity": entity, "paths": paths, "heads": heads, "observations": [], "reason": "path collision"]); blocked.formUnion(paths)
+                conflicts.append(["entity": entity.value, "paths": paths, "heads": heads, "observations": [], "reason": "path collision"]); blocked.formUnion(paths)
             }
         }
-        var identities: [String: [String: Set<String>]] = [:]
-        for (entity, tokens) in state.heads where !entity.hasPrefix("integration:") {
+        var identities: [OrbitByteString: [OrbitByteString: Set<String>]] = [:]
+        for (entity, tokens) in state.heads where !entity.value.hasPrefix("integration:") {
             for token in tokens {
                 let version = state.versions[token]!
-                if let content = rText(version["content"]), let id = metadata(content)["id"] as? String, !id.isEmpty { identities[id, default: [:]][entity, default: []].formUnion(rStrings(version["paths"])) }
+                if let content = rText(version["content"]), let id = metadata(content)["id"] as? String, !id.isEmpty { identities[OrbitByteString(id), default: [:]][entity, default: []].formUnion(rStrings(version["paths"])) }
             }
         }
         for (identity, owners) in identities where owners.count > 1 {
             for entity in owners.keys.sorted() {
                 let paths = owners[entity]!.sorted(); blocked.formUnion(paths)
-                if !conflicts.contains(where: { rString($0["entity"]) == entity }) { conflicts.append(["entity": entity, "paths": paths, "heads": state.heads[entity]!, "observations": [], "reason": "duplicate stable identity " + identity]) }
+                if !conflicts.contains(where: { rEntityKey($0["entity"]) == entity }) { conflicts.append(["entity": entity.value, "paths": paths, "heads": state.heads[entity]!, "observations": [], "reason": "duplicate stable identity " + identity.value]) }
             }
         }
         for id in state.pending.keys { blocked.formUnion(rObjects(state.records[id]!["versions"]).flatMap { rStrings($0["paths"]) }) }
@@ -395,7 +396,7 @@ extension OrbitEngine {
         }
         for (path, entities) in claims where entities.count == 1 && !blocked.contains(path) { byPath[path] = state.heads[entities.first!]! }
         if !state.invalid.isEmpty { blocked.formUnion(state.localPaths); blocked.formUnion(state.versions.values.flatMap { rStrings($0["paths"]) }) }
-        return ["status": !state.invalid.isEmpty ? "invalid" : !conflicts.isEmpty ? "conflicted" : !state.pending.isEmpty ? "pending" : "ready", "conflicts": conflicts.sorted { rString($0["entity"]) < rString($1["entity"]) }, "pending": state.pending.keys.sorted().map { ["operation": $0, "reasons": state.pending[$0]!] as JSONObject }, "invalid": state.invalid, "blocked_paths": blocked.sorted(), "heads": byPath.mapValues { Array(Set($0)).sorted() }]
+        return ["status": !state.invalid.isEmpty ? "invalid" : !conflicts.isEmpty ? "conflicted" : !state.pending.isEmpty ? "pending" : "ready", "conflicts": conflicts.sorted { rEntityKey($0["entity"]) < rEntityKey($1["entity"]) }, "pending": state.pending.keys.sorted().map { ["operation": $0, "reasons": state.pending[$0]!] as JSONObject }, "invalid": state.invalid, "blocked_paths": blocked.sorted(), "heads": byPath.mapValues { Array(Set($0)).sorted() }]
     }
 
     public func replicationInspect(_ root: URL) throws -> JSONObject { replicaReport(try replicaFold(root)) }
@@ -403,18 +404,18 @@ extension OrbitEngine {
     public func replicationHistory(_ root: URL, path: String) throws -> JSONObject {
         _ = try replicaPath(root, path)
         let state = try replicaFold(root)
-        var entities = Set(state.versions.values.filter { rStrings($0["paths"]).contains(path) }.map { rString($0["entity"]) })
-        entities.formUnion(state.observations.values.filter { rString($0["path"]) == path }.map { rString($0["entity"]) })
+        var entities = Set(state.versions.values.filter { rStrings($0["paths"]).contains(path) }.map { rEntityKey($0["entity"]) })
+        entities.formUnion(state.observations.values.filter { rString($0["path"]) == path }.map { rEntityKey($0["entity"]) })
         let revisions: [JSONObject] = state.versions.keys.sorted().compactMap { token in
             var version = state.versions[token]!
-            guard entities.contains(rString(version["entity"])) else { return nil }
+            guard entities.contains(rEntityKey(version["entity"])) else { return nil }
             version["revision"] = token; version["operation"] = state.owners[token]!; version["eligible"] = state.eligible.contains(state.owners[token]!)
             return version
         }
         let current = try replicaText(root, path)
         let observations: [JSONObject] = state.observations.keys.sorted().compactMap { id in
             var observation = state.observations[id]!
-            guard entities.contains(rString(observation["entity"])) else { return nil }
+            guard entities.contains(rEntityKey(observation["entity"])) else { return nil }
             observation["id"] = id; return observation
         }
         return ["path": path, "current": ["path": path, "content": current as Any? ?? NSNull(), "sha256": current.map { digest(Data($0.utf8)) } as Any? ?? NSNull()], "revisions": revisions, "observations": observations, "sync": replicaReport(state)]
@@ -467,12 +468,12 @@ extension OrbitEngine {
         var hashed = Array(Insecure.SHA1.hash(data: Data(bytes)).prefix(16))
         hashed[6] = (hashed[6] & 0x0f) | 0x50; hashed[8] = (hashed[8] & 0x3f) | 0x80
         let operation = UUID(uuid: (hashed[0],hashed[1],hashed[2],hashed[3],hashed[4],hashed[5],hashed[6],hashed[7],hashed[8],hashed[9],hashed[10],hashed[11],hashed[12],hashed[13],hashed[14],hashed[15])).uuidString.lowercased()
-        var versions: [JSONObject] = [], writes: [JSONObject] = [], entities = Set<String>()
+        var versions: [JSONObject] = [], writes: [JSONObject] = [], entities = Set<OrbitByteString>()
         for path in files.keys.sorted() {
             _ = try replicaPath(root, path)
-            let text = files[path]!, entity = replicaEntity(path, files[path]!)
+            let text = files[path]!, entity = OrbitByteString(replicaEntity(path, files[path]!))
             guard entities.insert(entity).inserted else { throw OrbitError("Genesis contains duplicate stable identities") }
-            versions.append(["entity": entity, "path": path, "content": text, "parents": [], "observations": [], "paths": [path]])
+            versions.append(["entity": entity.value, "path": path, "content": text, "parents": [], "observations": [], "paths": [path]])
             writes.append(["path": path, "before": text, "after": text, "reason": "Format 3 genesis"])
         }
         guard !writes.isEmpty else { throw OrbitError("Genesis requires at least one file, such as ORBIT.md") }
@@ -531,7 +532,7 @@ extension OrbitEngine {
             if !dryRun { try replicaCapture(root, state); state = try replicaFold(root) }
             let report = replicaReport(state)
             guard rObjects(report["invalid"]).isEmpty, rObjects(report["pending"]).isEmpty else { throw OrbitError("Resolve invalid or incomplete sync evidence before saving") }
-            var groups: [String: [JSONObject]] = [:], clean: [JSONObject] = [], seen = Set<String>(), retirements: [JSONObject] = []
+            var groups: [OrbitByteString: [JSONObject]] = [:], clean: [JSONObject] = [], seen = Set<String>(), retirements: [JSONObject] = []
             for original in writes {
                 var write = original
                 _ = try replicaPath(root, write["path"])
@@ -548,16 +549,16 @@ extension OrbitEngine {
                 let collision = competing.count > 1
                 if collision {
                     let allHeads = competing.values.flatMap { $0 }.sorted()
-                    let allObservations = state.unresolved.keys.filter { competing[rString(state.unresolved[$0]!["entity"])] != nil }.sorted()
+                    let allObservations = state.unresolved.keys.filter { competing[rEntityKey(state.unresolved[$0]!["entity"])] != nil }.sorted()
                     guard competing[entity] != nil, after != nil else { throw OrbitError("Choose the content of one existing identity to resolve the path collision") }
                     guard rStrings(write["expected_heads"]).sorted() == allHeads else { throw OrbitError("Path collision: supply the exact union of expected_heads for every competing identity") }
                     guard rStrings(write["observations"]).sorted() == allObservations else { throw OrbitError("Path collision: supply all observations for competing identities") }
                     for (losing, heads) in competing where losing != entity {
                         let paths = Set(heads.flatMap { rStrings(state.versions[$0]!["paths"]) }).sorted()
-                        retirements.append(["entity": losing, "path": path, "content": NSNull(), "parents": heads, "observations": allObservations.filter { rString(state.unresolved[$0]!["entity"]) == losing }, "paths": paths, "retired": true])
+                        retirements.append(["entity": losing.value, "path": path, "content": NSNull(), "parents": heads, "observations": allObservations.filter { rEntityKey(state.unresolved[$0]!["entity"]) == losing }, "paths": paths, "retired": true])
                     }
                     write["expected_heads"] = competing[entity]!
-                    write["observations"] = allObservations.filter { rString(state.unresolved[$0]!["entity"]) == entity }
+                    write["observations"] = allObservations.filter { rEntityKey(state.unresolved[$0]!["entity"]) == entity }
                 }
                 if !collision, let before, let after, let id = metadata(before)["id"], truthy(id), !rEqual(id, metadata(after)["id"]) { throw OrbitError("Preserve stable identity") }
                 groups[entity, default: []].append(write)
@@ -566,7 +567,7 @@ extension OrbitEngine {
             var versions: [JSONObject] = []
             for entity in groups.keys.sorted() {
                 let members = groups[entity]!, heads = state.heads[entity] ?? []
-                let observations = state.unresolved.keys.filter { rString(state.unresolved[$0]!["entity"]) == entity }.sorted()
+                let observations = state.unresolved.keys.filter { rEntityKey(state.unresolved[$0]!["entity"]) == entity }.sorted()
                 let suppliedHeads = members.compactMap { $0["expected_heads"] as? [String] }, suppliedObservations = members.compactMap { $0["observations"] as? [String] }
                 if suppliedHeads.contains(where: { $0.sorted() != heads }) || ((heads.count > 1 || (!observations.isEmpty && !heads.isEmpty)) && suppliedHeads.isEmpty) { throw OrbitError("Conflict: supply exact expected_heads to resolve all branches") }
                 if suppliedObservations.contains(where: { $0.sorted() != observations }) || (!observations.isEmpty && suppliedObservations.isEmpty) { throw OrbitError("External edit: supply exact observations to adopt or resolve") }
@@ -584,10 +585,10 @@ extension OrbitEngine {
                     if oldContent != nil && replicaResolvedEntity(state, oldPath, oldContent) != entity { throw OrbitError("Historical path is occupied by another entity") }
                     clean.append(["path": oldPath, "before": oldContent as Any? ?? NSNull(), "after": NSNull(), "reason": "Retain prior-location tombstone"]); seen.insert(oldPath)
                 }
-                versions.append(["entity": entity, "path": rString(selected["path"]), "content": selected["after"] ?? NSNull(), "parents": heads, "observations": observations, "paths": paths])
+                versions.append(["entity": entity.value, "path": rString(selected["path"]), "content": selected["after"] ?? NSNull(), "parents": heads, "observations": observations, "paths": paths])
             }
             for retired in retirements {
-                let entity = rString(retired["entity"])
+                let entity = rEntityKey(retired["entity"])
                 guard groups[entity] == nil else { throw OrbitError("A retired collision identity cannot also be updated in this operation") }
                 for oldPath in rStrings(retired["paths"]) where !seen.contains(oldPath) {
                     let oldContent = try replicaText(root, oldPath)
