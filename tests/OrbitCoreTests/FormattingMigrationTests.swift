@@ -28,7 +28,7 @@ final class FormattingMigrationTests: XCTestCase {
             let plan: JSONObject = ["changes": [["path": "plain.md", "expected_sha256": digest(Data(body.utf8)), "metadata": ["title": "Existing notes", "type": "concept", "summary": "Notes already written."]]]]
             let (output, receipts) = try engine.formattingPrepare(root, plan: plan)
             let after = ((output["changes"] as! [JSONObject])[0]["content"] as! String)
-            XCTAssertEqual(try String(contentsOf: safe(root, "plain.md"), encoding: .utf8), body)
+            XCTAssertEqual(try Data(contentsOf: safe(root, "plain.md")), Data(body.utf8))
             XCTAssertTrue(after.hasSuffix(body.trimmingPrefixBOM()))
             XCTAssertEqual(after.hasPrefix("\u{FEFF}"), body.hasPrefix("\u{FEFF}"))
             XCTAssertEqual(receipts[0]["body_sha256"] as? String, digest(Data(body.trimmingPrefixBOM().utf8)))

@@ -329,7 +329,8 @@ extension OrbitEngine {
         return ["status": record["status"]!, "operation": record["id"]!, "backup": ".orbit/migrations/" + journal.lastPathComponent, "verified": true, "source_format": 2, "target_format": 3]
     }
 
-    func migrate(_ root: URL, action: String = "plan", targetVersion: String? = nil, planID: String? = nil, operation: String? = nil) throws -> JSONObject {
+    func migrate(_ inputRoot: URL, action: String = "plan", targetVersion: String? = nil, planID: String? = nil, operation: String? = nil) throws -> JSONObject {
+        let root = realURL(inputRoot)
         guard targetVersion == nil || [migrationTarget, legacyMigrationTarget].contains(targetVersion!) else { throw OrbitError("Unsupported migration target; supported targets are 0.5.0 and " + migrationTarget) }
         if action == "status" { return try migrationStatus(root) }
         if ["resume", "rollback"].contains(action), let operation, !schemaMatches(#"^[a-f0-9-]{36}$"#, operation).isEmpty {
