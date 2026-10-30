@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "description": "Ordered tool calls against two byte-identical disposable format-3 replicas. $HASH:path resolves to current bytes. Fixed request UUIDs preserve immutable identities.",
+  "calls": [
+    {"name":"empty-list","action":"list","arguments":{}},
+    {"name":"schema","action":"schema","arguments":{"orbit":"Test"}},
+    {"name":"initial-status","action":"sync","arguments":{"orbit":"Test","action":"status"}},
+    {"name":"create","action":"apply","arguments":{"orbit":"Test","plan":{"summary":"fixture","request_id":"11111111-1111-4111-8111-111111111111","changes":[{"path":"Knowledge/Alpha.md","content":"---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Orchard decision\ncustom:\n  nested: user text\n---\n# Alpha\n\nOrchard pears and garden plans.\n\n## User appendix\nPreserve this prose.\n","reason":"fixture","expected_sha256":null}]}}},
+    {"name":"read","action":"read","arguments":{"orbit":"Test","path":"Knowledge/Alpha.md","count":4}},
+    {"name":"read-window","action":"read","arguments":{"orbit":"Test","path":"Knowledge/Alpha.md","start":5,"count":500}},
+    {"name":"search","action":"search","arguments":{"orbit":"Test","query":"orchard"}},
+    {"name":"scoped-search","action":"search","arguments":{"orbit":"Test","query":"garden","scope":"Knowledge/"}},
+    {"name":"catalog","action":"catalog","arguments":{"orbit":"Test"}},
+    {"name":"context","action":"context","arguments":{"orbit":"Test","target":"alpha"}},
+    {"name":"relations","action":"relations","arguments":{"orbit":"Test","target":"alpha"}},
+    {"name":"history","action":"sync","arguments":{"orbit":"Test","action":"history","path":"Knowledge/Alpha.md"}},
+    {"name":"same-request-retry","action":"apply","arguments":{"orbit":"Test","plan":{"summary":"fixture","request_id":"11111111-1111-4111-8111-111111111111","changes":[{"path":"Knowledge/Alpha.md","content":"---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Orchard decision\ncustom:\n  nested: user text\n---\n# Alpha\n\nOrchard pears and garden plans.\n\n## User appendix\nPreserve this prose.\n","reason":"fixture","expected_sha256":null}]}}},
+    {"name":"stale-hash","action":"apply","arguments":{"orbit":"Test","plan":{"request_id":"22222222-2222-4222-8222-222222222222","changes":[{"path":"Knowledge/Alpha.md","content":"invalid","reason":"fixture","expected_sha256":"0000000000000000000000000000000000000000000000000000000000000000"}]}}},
+    {"name":"unknown-metadata-refusal","action":"apply","arguments":{"orbit":"Test","plan":{"changes":[{"path":"Knowledge/Alpha.md","content":"---\nid: alpha\ntitle: Alpha\ntype: concept\nsummary: Changed\ncustom:\n  nested: changed\n---\n# Alpha\n","reason":"fixture","expected_sha256":"$HASH:Knowledge/Alpha.md"}]}}},
+    {"name":"format-preview","action":"format","arguments":{"orbit":"Test","plan":{"changes":[{"path":"Knowledge/Alpha.md","expected_sha256":"$HASH:Knowledge/Alpha.md","metadata":{}}]}}},
+    {"name":"migration-compatibility","action":"migrate","arguments":{"orbit":"Test"}},
+    {"name":"unknown-name","action":"read","arguments":{"orbit":"Missing","path":"Knowledge/Alpha.md"}},
+    {"name":"traversal","action":"read","arguments":{"orbit":"Test","path":"../outside.md"}},
+    {"name":"invalid-limit","action":"search","arguments":{"orbit":"Test","query":"orchard","limit":true}},
+    {"name":"unknown-field","action":"read","arguments":{"orbit":"Test","path":"Knowledge/Alpha.md","extra":true}}
+  ]
+}

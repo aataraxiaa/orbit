@@ -18,11 +18,10 @@ public func now() -> String {
     return f.string(from: Date()).replacingOccurrences(of: "Z", with: "+00:00")
 }
 public func canonical(_ value: Any) throws -> Data {
-    try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys, .withoutEscapingSlashes, .fragmentsAllowed])
+    Data(try OrderedJSON.sorted(value).rendered(pretty: false).utf8)
 }
 public func encode(_ value: Any) throws -> Data {
-    var data = try JSONSerialization.data(withJSONObject: value, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes, .fragmentsAllowed])
-    data.append(10); return data
+    Data((try OrderedJSON.sorted(value).rendered(pretty: true) + "\n").utf8)
 }
 public func readJSON(_ url: URL) throws -> JSONObject {
     guard let result = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? JSONObject else { throw OrbitError("Expected JSON object") }
@@ -54,9 +53,9 @@ public func syncParent(_ url: URL) throws {
 public func safe(_ root: URL, _ relative: String) throws -> URL {
     let components = relative.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
     guard !relative.isEmpty, !relative.hasPrefix("/"), !components.contains(".."), !relative.contains("\\") else { throw OrbitError("Expected an Orbit-relative path without traversal") }
-    let candidate = root.appendingPathComponent(relative).standardizedFileURL
-    let canonicalRoot = root.resolvingSymlinksInPath().standardizedFileURL.path
-    let resolved = candidate.resolvingSymlinksInPath().path
+    let candidate = URL(fileURLWithPath: lexicalPath(root.appendingPathComponent(relative).path))
+    let canonicalRoot = realURL(root).path
+    let resolved = realURL(candidate).path
     guard resolved == canonicalRoot || resolved.hasPrefix(canonicalRoot + "/") else { throw OrbitError("Path escapes Orbit folder (including symlinks)") }
     var cursor = root
     for part in components {
@@ -138,12 +137,15 @@ public func links(_ text: String) -> [String] {
     return result
 }
 func casefold(_ text: String) -> String { text.folding(options: [.caseInsensitive], locale: Locale(identifier: "en_US_POSIX")) }
-public func scan(_ root: URL) throws -> [JSONObject] {
+public func scan(_ inputRoot: URL) throws -> [JSONObject] {
+    let root = realURL(inputRoot)
     let fm = FileManager.default
     var notes: [JSONObject] = []
     func walk(_ directory: URL) throws {
-        let entries = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted { $0.lastPathComponent < $1.lastPathComponent }
-        for p in entries {
+        let entries = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted { $0.lastPathComponent.unicodeScalars.lexicographicallyPrecedes($1.lastPathComponent.unicodeScalars) }
+        let files = try entries.filter { try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory != true }
+        let directories = try entries.filter { try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true }
+        for p in files + directories {
             let values = try p.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
             if values.isSymbolicLink == true { continue }
             if values.isDirectory == true {
@@ -175,4 +177,17 @@ public func resolve(_ target: String, table: [String:Set<String>]) -> [String] {
 public func tokens(_ text: String) -> [String] {
     let stop = Set("a an and are as at be by for from how i in is it my of on or that the this to was we what when why with you your".split(separator: " ").map(String.init))
     return matchGroups("[\\p{L}\\p{N}]+", casefold(text)).map { $0[0] }.filter { !stop.contains($0) }
+}
+
+func realURL(_ url: URL) -> URL {
+    var path = lexicalPath(url.path), suffix:[String] = []
+    while true {
+        if let pointer = realpath(path,nil) {
+            let resolved = String(cString:pointer); free(pointer)
+            return URL(fileURLWithPath:([resolved] + suffix.reversed()).joined(separator:"/"))
+        }
+        if path == "/" || path.isEmpty { return url }
+        suffix.append((path as NSString).lastPathComponent)
+        path = (path as NSString).deletingLastPathComponent
+    }
 }

@@ -10,9 +10,9 @@ public final class OrbitEngine {
     public let stateURL: URL
 
     public init(configURL: URL, cacheURL: URL, stateURL: URL) {
-        self.configURL = configURL.standardizedFileURL
-        self.cacheURL = cacheURL.standardizedFileURL
-        self.stateURL = stateURL.standardizedFileURL
+        self.configURL = configURL
+        self.cacheURL = cacheURL
+        self.stateURL = stateURL
     }
     public convenience init(environment: [String:String] = ProcessInfo.processInfo.environment) {
         let home = FileManager.default.homeDirectoryForCurrentUser
@@ -68,14 +68,14 @@ extension OrbitEngine {
             let key = try nameKey(name)
             guard let e = value as? JSONObject, let path = e["path"] as? String, let id = e["vault_id"] as? String else { throw OrbitError("Malformed Orbit registry entry") }
             guard UUID(uuidString: id) != nil else { throw OrbitError("Malformed registered Orbit identity") }
-            guard path.hasPrefix("/"), URL(fileURLWithPath: path).standardizedFileURL.path == path else { throw OrbitError("Registered paths must be absolute and canonical") }
+            guard path.hasPrefix("/"), lexicalPath(path) == path else { throw OrbitError("Registered paths must be absolute and canonical") }
             guard !keys.contains(key), !ids.contains(id), !roots.contains(where: { overlaps(path, $0) }) else { throw OrbitError("Duplicate name, identity, or overlapping Orbit roots") }
             keys.insert(key); ids.insert(id); roots.append(path)
         }
     }
     func checked(_ name: String, entry: JSONObject, source: String) throws -> OrbitTarget {
         let root = URL(fileURLWithPath: entry["path"] as! String)
-        guard root.resolvingSymlinksInPath().path == root.path else { throw OrbitError("Registered Orbit path now resolves elsewhere: " + name) }
+        guard realURL(root).path == root.path else { throw OrbitError("Registered Orbit path now resolves elsewhere: " + name) }
         let observed = try identity(root)
         guard observed == entry["vault_id"] as? String else { throw OrbitError("Registered Orbit identity changed; refusing operation: " + name) }
         return OrbitTarget(name: name, root: root, vaultID: observed, source: source)
@@ -90,7 +90,7 @@ extension OrbitEngine {
         }
         if path == nil && entries.count != 1 { throw OrbitError("Select an explicit Orbit name; the registry has zero or multiple entries") }
         if let path {
-            let root = URL(fileURLWithPath: (path as NSString).expandingTildeInPath).resolvingSymlinksInPath()
+            let root = realURL(URL(fileURLWithPath: (path as NSString).expandingTildeInPath))
             for (display, value) in entries {
                 let entry = value as! JSONObject
                 if root.path == entry["path"] as? String { return try checked(display, entry: entry, source: "vault") }
@@ -137,7 +137,7 @@ extension OrbitEngine {
         _ = try nameKey(name)
         let expanded = (path as NSString).expandingTildeInPath
         guard expanded.hasPrefix("/") else { throw OrbitError("Registration requires an absolute path") }
-        let root = URL(fileURLWithPath:expanded).resolvingSymlinksInPath().standardizedFileURL
+        let root = realURL(URL(fileURLWithPath:expanded))
         guard root.path != "/", root.path != FileManager.default.homeDirectoryForCurrentUser.path else { throw OrbitError("Choose a dedicated Orbit directory") }
         var isDir: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath:root.path,isDirectory:&isDir)
@@ -216,3 +216,9 @@ extension OrbitEngine {
     """
 }
 func overlaps(_ a: String,_ b: String) -> Bool { a == b || a.hasPrefix(b + "/") || b.hasPrefix(a + "/") }
+
+func lexicalPath(_ path: String) -> String {
+    var parts:[Substring] = []
+    for p in path.split(separator:"/") { if p == "." { continue }; if p == ".." { if !parts.isEmpty { parts.removeLast() } } else { parts.append(p) } }
+    return (path.hasPrefix("/") ? "/":"") + parts.joined(separator:"/")
+}

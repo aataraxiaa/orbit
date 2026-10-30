@@ -15,12 +15,12 @@ while true {
     while let newline = buffer.firstIndex(of:10) {
         let line = buffer.prefix(through:newline); buffer.removeSubrange(...newline)
         if line.count > limit { oversized = true; break }
-        do { if let result = server.handle(try JSONSerialization.jsonObject(with:line,options:.fragmentsAllowed)) { emit(result) } }
+        do { if let result = try server.handle(data:Data(line)) { emit(result) } }
         catch { emit(["jsonrpc":"2.0","id":NSNull(),"error":["code":-32700,"message":"Parse error"]]) }
     }
     if oversized || buffer.count > limit { emit(["jsonrpc":"2.0","id":NSNull(),"error":["code":-32600,"message":"Request exceeds 8 MiB limit"]]); oversized = true; break }
 }
 if !oversized && !buffer.isEmpty {
-    do { if let result = server.handle(try JSONSerialization.jsonObject(with:buffer,options:.fragmentsAllowed)) { emit(result) } }
+    do { if let result = try server.handle(data:buffer) { emit(result) } }
     catch { emit(["jsonrpc":"2.0","id":NSNull(),"error":["code":-32700,"message":"Parse error"]]) }
 }
