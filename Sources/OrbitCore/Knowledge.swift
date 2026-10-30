@@ -461,16 +461,19 @@ private func knowledgeEncodeRecord(_ value: JSONObject, path: URL, controls: JSO
   } else {
     keys = initialKeys.filter { value[$0] != nil }
   }
-  keys += value.keys.filter { !isInternalJSONField($0,in:value) && !keys.contains($0) }.sorted()
+  keys += value.keys.filter { !isInternalJSONField($0, in: value) && !keys.contains($0) }.sorted()
   let ordered = OrderedJSON.object(
     keys.map { key in
       if let previous = old?[key] {
         if key == "migration", let migration = value[key] as? JSONObject,
-           migration["verification_stale"] as? Bool == false {
-          return (key,previous.setting("verification_stale",.scalar(false)))
+          migration["verification_stale"] as? Bool == false
+        {
+          return (key, previous.setting("verification_stale", .scalar(false)))
         }
-        if !initialKeys.contains(key) || (controls[key] == nil && !["version","updated","operations"].contains(key)) {
-          return (key,previous)
+        if !initialKeys.contains(key)
+          || (controls[key] == nil && !["version", "updated", "operations"].contains(key))
+        {
+          return (key, previous)
         }
       }
       if controls[key] != nil, let incoming = request?[key] {

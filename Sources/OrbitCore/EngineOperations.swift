@@ -21,11 +21,8 @@ func eText(_ url: URL) throws -> String {
   }
   return String(decoding: data, as: UTF8.self)
 }
-func eLines(_ text: String) -> [String] {
-  var lines = text.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: .newlines)
-  if lines.last == "" { lines.removeLast() }
-  return lines
-}
+func eLines(_ text: String) -> [String] { schemaLines(text) }
+
 func eEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
   if lhs == nil || lhs is NSNull { return rhs == nil || rhs is NSNull }
   guard let lhs, let rhs else { return false }
@@ -291,7 +288,9 @@ extension OrbitEngine {
     var result: [JSONObject] = []
     var counts: [OrbitByteString: Int] = [:]
     for note in notes {
-      if let id = note["id"] as? String, !id.isEmpty { counts[OrbitByteString(id), default: 0] += 1 }
+      if let id = note["id"] as? String, !id.isEmpty {
+        counts[OrbitByteString(id), default: 0] += 1
+      }
     }
     for note in notes {
       let path = eString(note["path"])
@@ -451,7 +450,9 @@ extension OrbitEngine {
         let oldBlocks = metadataBlockPairs(previous)
         let newBlocks = metadataBlockPairs(text)
         for (field, block) in oldBlocks where !known.contains(field) {
-          guard let replacement = newBlocks.first(where:{ byteEqual($0.0,field) }), byteEqual(block,replacement.1) else {
+          guard let replacement = newBlocks.first(where: { byteEqual($0.0, field) }),
+            byteEqual(block, replacement.1)
+          else {
             throw OrbitError(path + ": preserve unknown metadata block " + field + " verbatim")
           }
         }

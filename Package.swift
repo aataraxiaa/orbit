@@ -8,7 +8,7 @@ let package = Package(
                .executable(name: "orbit-mcp", targets: ["OrbitMCP"]),
                .executable(name: "orbit-fixture", targets: ["OrbitFixtureRunner"])],
     targets: [
-        .systemLibrary(name: "CSQLite", pkgConfig: "sqlite3"),
+        .systemLibrary(name: "CSQLite"),
         .target(name: "OrbitCore", dependencies: ["CSQLite"], resources: [.copy("Resources/Schemas"), .copy("Resources/contract.json"), .copy("Resources/workflows.json")]),
         .executableTarget(name: "OrbitMCP", dependencies: ["OrbitCore"]),
         .executableTarget(name: "OrbitFixtureRunner", dependencies: ["OrbitCore"]),

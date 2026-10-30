@@ -9,7 +9,7 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-BINARY = ROOT / '.build/out/Products/Debug/orbit-mcp'
+BINARY = Path(os.environ.get('ORBIT_SWIFT_BINARY', str(ROOT / '.build/out/Products/Debug/orbit-mcp')))
 BUNDLE = BINARY.parent / 'OrbitCore_OrbitCore.bundle'
 
 
