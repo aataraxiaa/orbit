@@ -91,6 +91,14 @@ final class PreservationTests: XCTestCase {
             for (path,hash) in call["stored"] as! [String:String] { XCTAssertEqual(digest(try readData(base.appendingPathComponent(path))),hash,path) }
         }
     }
+    func testLosslessResultAppliesByteDistinctStringUpdates() throws {
+        var object = try losslessJSONObject(OrderedJSON.parse(Data("{\"coverage\":{\"description\":\"café\"},\"unknown\":{\"café\":1,\"cafe\\u0301\":2}}".utf8)))
+        object["coverage"] = ["description":"cafe\u{301}"]
+        let actual = try OrderedJSON.parse(canonical(object))
+        XCTAssertEqual(Data((actual["coverage"]?["description"]?.value as! String).utf8),Data("cafe\u{301}".utf8))
+        XCTAssertEqual(actual["unknown"]?["café"]?.value as? Int,1)
+        XCTAssertEqual(actual["unknown"]?["cafe\u{301}"]?.value as? Int,2)
+    }
     func testMigrationPreservesUnknownByteDistinctKeysAndNumericTypes() throws {
         let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
         _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test","create":true])

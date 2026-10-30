@@ -56,7 +56,9 @@ private func preservingJSON(_ old: OrderedJSON, current: Any) -> OrderedJSON {
 
 private func equivalentJSON(_ current: Any, _ baseline: Any?) -> Bool {
     guard let baseline else { return false }
-    return (try? OrderedJSON.sorted(current).rendered(pretty:false)) == (try? OrderedJSON.sorted(baseline).rendered(pretty:false))
+    guard let lhs = try? OrderedJSON.sorted(current).rendered(pretty:false),
+          let rhs = try? OrderedJSON.sorted(baseline).rendered(pretty:false) else { return false }
+    return byteEqual(lhs,rhs)
 }
 
 extension OrderedJSON {
