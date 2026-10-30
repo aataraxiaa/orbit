@@ -27,7 +27,7 @@ func schemaInteger(_ value: Any?) -> Int? {
 }
 
 func schemaTrim(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
-func schemaFold(_ text: String) -> String { text.folding(options: [.caseInsensitive], locale: Locale(identifier: "en_US_POSIX")) }
+func schemaFold(_ text: String) -> String { casefold(text) }
 func schemaExists(_ url: URL) throws -> Bool { try fileExists(atPath: url.path) }
 
 extension OrbitEngine {
@@ -52,15 +52,15 @@ extension OrbitEngine {
     }
 
     func schemaBootstrap(_ root: URL) throws -> [String: String] {
-        let existing = Set(try schemaCustom(root).values.compactMap { metadata($0)["schema_for"] as? String })
+        let existing = Set(try schemaCustom(root).values.compactMap { (metadata($0)["schema_for"] as? String).map(OrbitByteString.init) })
         var result: [String: String] = [:]
         for (path, text) in try schemaTemplates() {
-            if try !schemaExists(try safe(root, path)), let type = metadata(text)["schema_for"] as? String, !existing.contains(type) { result[path] = text }
+            if try !schemaExists(try safe(root, path)), let type = metadata(text)["schema_for"] as? String, !existing.contains(OrbitByteString(type)) { result[path] = text }
         }
         return result
     }
 
-    private func schemaDefinitions(_ root: URL, notes: [JSONObject], resolvingPaths: Set<String>) throws -> ([String: JSONObject], [JSONObject]) {
+    private func schemaDefinitions(_ root: URL, notes: [JSONObject], resolvingPaths: Set<String>) throws -> ([OrbitByteString: JSONObject], [JSONObject]) {
         if replicationEnabled(root) {
             let blocked = Set((try replicationInspect(root)["blocked_paths"] as? [String] ?? []).filter { ($0 as NSString).deletingLastPathComponent == "Schemas" }).subtracting(resolvingPaths)
             if !blocked.isEmpty { throw OrbitError("Resolve conflicting or incomplete schemas before using definitions: " + blocked.sorted().joined(separator: ", ")) }
@@ -71,17 +71,17 @@ extension OrbitEngine {
             guard let path = note["path"] as? String, (path as NSString).deletingLastPathComponent == "Schemas", (path as NSString).pathExtension.lowercased() == "md", let text = note["text"] as? String else { continue }
             custom[path] = text
         }
-        var definitions: [String: JSONObject] = [:]
+        var definitions: [OrbitByteString: JSONObject] = [:]
         var findings: [JSONObject] = []
-        var customTypes: [String: [String]] = [:]
-        for (path, text) in custom { if let kind = metadata(text)["schema_for"] as? String { customTypes[kind, default: []].append(path) } }
+        var customTypes: [OrbitByteString: [String]] = [:]
+        for (path, text) in custom { if let kind = metadata(text)["schema_for"] as? String { customTypes[OrbitByteString(kind), default: []].append(path) } }
         for (kind, paths) in customTypes where paths.count > 1 {
-            for path in paths.sorted() { findings.append(schemaFinding(path, path, "error", "Duplicate schema_for \(kind): " + paths.sorted().joined(separator: ", "))) }
+            for path in paths.sorted() { findings.append(schemaFinding(path, path, "error", "Duplicate schema_for \(kind.value): " + paths.sorted().joined(separator: ", "))) }
         }
         for (path, text) in defaults.merging(custom, uniquingKeysWith: { _, new in new }).sorted(by: { $0.key < $1.key }) {
             let meta = metadata(text)
             let kind = meta["schema_for"] as? String
-            if custom[path] == nil, let kind, customTypes[kind] != nil { continue }
+            if custom[path] == nil, let kind, customTypes[OrbitByteString(kind)] != nil { continue }
             var invalid: [String] = []
             for field in ["id", "title", "summary", "schema_for"] {
                 if let value = meta[field] as? String, !schemaTrim(value).isEmpty {} else { invalid.append(field + " must be a nonempty string") }
@@ -94,8 +94,8 @@ extension OrbitEngine {
             }
             let lines = schemaLines(text.trimmingPrefixBOM())
             if lines.first != "---" || !lines.dropFirst().contains("---") { invalid.append("schema must have closed frontmatter") }
-            if invalid.isEmpty, let kind, (customTypes[kind]?.count ?? 0) <= 1 {
-                definitions[kind] = meta.merging(["path": path], uniquingKeysWith: { old, _ in old })
+            if invalid.isEmpty, let kind, (customTypes[OrbitByteString(kind)]?.count ?? 0) <= 1 {
+                definitions[OrbitByteString(kind)] = meta.merging(["path": path], uniquingKeysWith: { old, _ in old })
             } else { findings += invalid.map { schemaFinding(path, path, "error", $0) } }
         }
         return (definitions, findings)
@@ -106,7 +106,7 @@ extension OrbitEngine {
         var findings = base
         for note in notes {
             let meta = note["meta"] as? JSONObject ?? [:]
-            guard let kind = meta["type"] as? String, let schema = definitions[kind] else { continue }
+            guard let kind = meta["type"] as? String, let schema = definitions[OrbitByteString(kind)] else { continue }
             let severity = schema["validation"] as? String == "strict" ? "error" : "warning"
             var messages: [String] = []
             for field in schema["required_fields"] as? [String] ?? [] {
@@ -115,7 +115,7 @@ extension OrbitEngine {
             }
             if let value = meta["schema_version"], !(value is NSNull), schemaInteger(value) == nil || schemaInteger(value) != schemaInteger(schema["schema_version"]) { messages.append("schema_version must match \(schemaInteger(schema["schema_version"]) ?? 0)") }
             let headings = schemaHeadings(note["text"] as? String ?? "")
-            for section in schema["required_sections"] as? [String] ?? [] where !headings.contains(schemaFold(section)) { messages.append("Missing required section: " + section) }
+            for section in schema["required_sections"] as? [String] ?? [] where !headings.contains(OrbitByteString(schemaFold(section))) { messages.append("Missing required section: " + section) }
             findings += messages.map { schemaFinding(note["path"] as? String ?? "", schema["path"] as? String ?? "", severity, $0) }
         }
         return findings
@@ -126,23 +126,23 @@ extension OrbitEngine {
         var (definitions, _) = try schemaDefinitions(root, notes: notes, resolvingPaths: [])
         var findings = try schemaWarnings(root, notes: notes)
         if let noteType {
-            definitions = definitions.filter { $0.key == noteType }
-            let paths = Set(notes.filter { ($0["meta"] as? JSONObject)?["type"] as? String == noteType }.compactMap { $0["path"] as? String })
+            definitions = definitions.filter { $0.key == OrbitByteString(noteType) }
+            let paths = Set(notes.filter { (($0["meta"] as? JSONObject)?["type"] as? String).map(OrbitByteString.init) == OrbitByteString(noteType) }.compactMap { $0["path"] as? String })
             findings = findings.filter { paths.contains($0["path"] as? String ?? "") || $0["path"] as? String == $0["schema"] as? String }
         }
-        return ["data_format": 3, "definitions": definitions, "warnings": findings]
+        return ["data_format": 3, "definitions": try losslessJSONObject(.object(definitions.sorted(by: { $0.key < $1.key }).map { ($0.key.value, OrderedJSON.sorted($0.value)) })), "warnings": findings]
     }
 }
 
 func schemaFinding(_ path: String, _ schema: String, _ severity: String, _ message: String) -> JSONObject { ["path": path, "schema": schema, "severity": severity, "message": message] }
-func schemaHeadings(_ text: String) -> Set<String> {
-    var result: Set<String> = [], fence: String?
+func schemaHeadings(_ text: String) -> Set<OrbitByteString> {
+    var result: Set<OrbitByteString> = [], fence: String?
     for line in schemaLines(text) {
         if let marker = schemaMatches(#"^\s{0,3}(`{3,}|~{3,})"#, line).first?[1] {
             if fence == nil { fence = marker } else if marker.first == fence?.first, marker.count >= (fence?.count ?? 0) { fence = nil }
             continue
         }
-        if fence == nil, let heading = schemaMatches(#"^#{1,6}\s+(.+?)\s*#*$"#, line).first?[1] { result.insert(schemaFold(schemaTrim(heading))) }
+        if fence == nil, let heading = schemaMatches(#"^#{1,6}\s+(.+?)\s*#*$"#, line).first?[1] { result.insert(OrbitByteString(schemaFold(schemaTrim(heading)))) }
     }
     return result
 }

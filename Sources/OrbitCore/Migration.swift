@@ -80,7 +80,7 @@ extension OrbitEngine {
         let projects = notes.filter { $0["type"] as? String == "project" }
         var identities = migrationIdentities(projects)
         for project in projects {
-            if let name = (project["meta"] as? JSONObject)?["project"] as? String, !schemaTrim(name).isEmpty, let path = project["path"] as? String { identities[schemaFold(name), default: []].insert(path) }
+            if let name = (project["meta"] as? JSONObject)?["project"] as? String, !schemaTrim(name).isEmpty, let path = project["path"] as? String { identities[OrbitByteString(schemaFold(name)), default: []].insert(path) }
         }
         var mapping: [String: String] = [:], warnings: [String] = []
         for note in notes {
@@ -92,7 +92,7 @@ extension OrbitEngine {
             else if kind == "decision" || kind == "session" {
                 let names = strings((note["meta"] as? JSONObject)?["project"])
                 guard names.count == 1 else { throw OrbitError("A decision/session needs one unambiguous project: " + old) }
-                let matches = (identities[schemaFold(names[0])] ?? []).sorted()
+                let matches = (identities[OrbitByteString(schemaFold(names[0]))] ?? []).sorted()
                 if matches.isEmpty { throw OrbitError("No matching project for " + old + ": " + names[0]) }
                 if matches.count > 1 { throw OrbitError("Ambiguous project for " + old + ": " + names[0] + " matches " + matches.joined(separator: ", ")) }
                 let owner = projects.first { $0["path"] as? String == matches[0] }!
@@ -146,9 +146,9 @@ extension OrbitEngine {
             desired[new] = try migrationRewrite(migrationRead(root, old) ?? "", old: old, new: new, mapping: mapping, identities: table)
         }
         for old in mapping.keys.sorted() where old != mapping[old] && desired[old] == nil { desired[old] = NSNull() }
-        let schemaTypes = Set(desired.compactMap { path, value in (path as NSString).deletingLastPathComponent == "Schemas" ? (value as? String).flatMap { metadata($0)["schema_for"] as? String } : nil })
+        let schemaTypes = Set(desired.compactMap { path, value in (path as NSString).deletingLastPathComponent == "Schemas" ? (value as? String).flatMap { (metadata($0)["schema_for"] as? String).map(OrbitByteString.init) } : nil })
         for (path, value) in try schemaBootstrap(root) {
-            if desired[path] == nil, try !schemaExists(try safe(root, path)), !schemaTypes.contains(metadata(value)["schema_for"] as? String ?? "") { desired[path] = value }
+            if desired[path] == nil, try !schemaExists(try safe(root, path)), !schemaTypes.contains(OrbitByteString(metadata(value)["schema_for"] as? String ?? "")) { desired[path] = value }
         }
         let projected: [JSONObject] = desired.keys.sorted().compactMap { path in
             guard let text = desired[path] as? String, path.lowercased().hasSuffix(".md") else { return nil }
@@ -408,13 +408,13 @@ private func migrationSegment(_ value: Any) throws -> String {
     return value
 }
 
-private func migrationIdentities(_ notes: [JSONObject]) -> [String: Set<String>] {
-    var table: [String: Set<String>] = [:]
+private func migrationIdentities(_ notes: [JSONObject]) -> NoteIdentityTable {
+    var table: NoteIdentityTable = [:]
     for note in notes {
         guard let path = note["path"] as? String else { continue }
         var keys = [path, (path as NSString).deletingPathExtension, ((path as NSString).lastPathComponent as NSString).deletingPathExtension]
         keys += [note["title"], note["id"]].compactMap { $0 as? String }; keys += note["aliases"] as? [String] ?? []
-        for key in keys where !key.isEmpty { table[schemaFold(key), default: []].insert(path) }
+        for key in keys where !key.isEmpty { table[OrbitByteString(schemaFold(key)), default: []].insert(path) }
     }
     return table
 }
@@ -448,7 +448,7 @@ private func migrationRelpath(_ destination: String, from parent: String) -> Str
     return result.isEmpty ? "." : result.joined(separator: "/")
 }
 
-func migrationRewrite(_ text: String, old: String, new: String, mapping: [String: String], identities: [String: Set<String>]) throws -> String {
+func migrationRewrite(_ text: String, old: String, new: String, mapping: [String: String], identities: NoteIdentityTable) throws -> String {
     let header = schemaMatches(#"^\uFEFF?---\r?\n.*?\r?\n---(?:\r?\n|$)"#, text, options: [.dotMatchesLineSeparators]).first?.first ?? ""
     let body = String(text.dropFirst(header.count))
     let link = #"(!?\[[^\]\n]*\]\()(<[^>\n]+>|[^\s()]+)(\s+(?:"[^"\n]*"|'[^'\n]*'))?(\))"#
@@ -480,7 +480,7 @@ func migrationRewrite(_ text: String, old: String, new: String, mapping: [String
             let prefix = token.prefix { $0 != "|" && $0 != "#" }
             let target = schemaTrim(String(prefix))
             if target.isEmpty { return match[0] }
-            let resolved = (identities[schemaFold(target)] ?? []).sorted()
+            let resolved = (identities[OrbitByteString(schemaFold(target))] ?? []).sorted()
             if resolved.count > 1 { throw OrbitError("Ambiguous wikilink in " + old + ": " + target) }
             guard let path = resolved.first, let dest = mapping[path], dest != path else { return match[0] }
             return "[[" + (dest as NSString).deletingPathExtension + token.dropFirst(prefix.count) + "]]"

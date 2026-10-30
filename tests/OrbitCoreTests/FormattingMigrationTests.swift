@@ -117,7 +117,7 @@ final class FormattingMigrationTests: XCTestCase {
     }
 
     func testFencedHeadingsDoNotSatisfySchema() {
-        XCTAssertEqual(schemaHeadings("# Real\n```md\n## Fake\n```\n### End ###\n"), Set(["real", "end"]))
+        XCTAssertEqual(Set(schemaHeadings("# Real\n```md\n## Fake\n```\n### End ###\n").map(\.value)), Set(["real", "end"]))
     }
 
     func testDuplicateSchemaTypesRefuseDefinitions() throws {
@@ -132,7 +132,7 @@ final class FormattingMigrationTests: XCTestCase {
 
     func testMigrationRewritesLinksPreservesCodeAndMetadata() throws {
         let mapping = ["Project.md": "Projects/Garden/Overview.md", "Decision.md": "Projects/Garden/Decisions/Decision.md", "Asset.pdf": "Asset.pdf"]
-        let identities: [String: Set<String>] = ["project": ["Project.md"], "decision": ["Decision.md"]]
+        let identities: NoteIdentityTable = [OrbitByteString("project"): ["Project.md"], OrbitByteString("decision"): ["Decision.md"]]
         let input = "---\nid: stable\n---\n# Decision\n[[Project#Context|Garden]]\n[Project](Project.md#Context)\n[Asset](Asset.pdf)\n`[[Project]]`\n```md\n[[Project]]\n```\n"
         let output = try migrationRewrite(input, old: "Decision.md", new: mapping["Decision.md"]!, mapping: mapping, identities: identities)
         XCTAssertTrue(output.hasPrefix("---\nid: stable\n---\n"))
@@ -146,7 +146,7 @@ final class FormattingMigrationTests: XCTestCase {
     func testMigrationRefusesMetadataRewritingAndAmbiguousLinks() {
         let mapping = ["old.md": "Knowledge/old.md"]
         XCTAssertThrowsError(try migrationRewrite("---\ncustom: old.md\n---\nBody", old: "old.md", new: "Knowledge/old.md", mapping: mapping, identities: [:]))
-        XCTAssertThrowsError(try migrationRewrite("[[duplicate]]", old: "old.md", new: "Knowledge/old.md", mapping: mapping, identities: ["duplicate": ["a.md", "b.md"]]))
+        XCTAssertThrowsError(try migrationRewrite("[[duplicate]]", old: "old.md", new: "Knowledge/old.md", mapping: mapping, identities: [OrbitByteString("duplicate"): ["a.md", "b.md"]]))
         XCTAssertThrowsError(try migrationRewrite("<a href='old.md'>Old</a>", old: "old.md", new: "Knowledge/old.md", mapping: mapping, identities: [:]))
     }
 

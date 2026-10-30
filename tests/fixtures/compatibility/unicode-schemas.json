@@ -1,0 +1,296 @@
+{
+  "reference": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "inputs": {
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 2, \"orbit_version\": \"0.5.0\"}\n",
+    "Knowledge/A.md": "---\nid: note-a\ntitle: Composed note\ntype: \"café\"\nsummary: Composed note\ndecomposed_evidence: Wrong field\n---\n# Café\n",
+    "Knowledge/B.md": "---\nid: note-b\ntitle: Decomposed note\ntype: \"café\"\nsummary: Decomposed note\ncomposed_evidence: Wrong field\n---\n# Café\n",
+    "Schemas/Composed.md": "---\nid: composed-schema\ntitle: Custom schema\ntype: schema\nsummary: Distinct custom schema\nschema_for: \"café\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"composed_evidence\"]\nrequired_sections: [\"Café\"]\nvalidation: strict\n---\n# Custom schema\n",
+    "Schemas/Decomposed.md": "---\nid: decomposed-schema\ntitle: Custom schema\ntype: schema\nsummary: Distinct custom schema\nschema_for: \"café\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"decomposed_evidence\"]\nrequired_sections: [\"Café\"]\nvalidation: strict\n---\n# Custom schema\n"
+  },
+  "checks": {
+    "all": {
+      "data_format": 3,
+      "definitions": {
+        "concept": {
+          "path": "Schemas/Concept.md",
+          "id": "orbit-schema-concept-v1",
+          "title": "Concept schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit concept notes.",
+          "schema_for": "concept",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary"
+          ],
+          "required_sections": [],
+          "validation": "warn"
+        },
+        "decision": {
+          "path": "Schemas/Decision.md",
+          "id": "orbit-schema-decision-v1",
+          "title": "Decision schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit decision notes.",
+          "schema_for": "decision",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "project"
+          ],
+          "required_sections": [
+            "Rationale",
+            "Alternatives"
+          ],
+          "validation": "warn"
+        },
+        "map": {
+          "path": "Schemas/Map.md",
+          "id": "orbit-schema-map-v1",
+          "title": "Map schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit map notes.",
+          "schema_for": "map",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary"
+          ],
+          "required_sections": [],
+          "validation": "warn"
+        },
+        "person": {
+          "path": "Schemas/Person.md",
+          "id": "orbit-schema-person-v1",
+          "title": "Person schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit person notes.",
+          "schema_for": "person",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary"
+          ],
+          "required_sections": [],
+          "validation": "warn"
+        },
+        "project": {
+          "path": "Schemas/Project.md",
+          "id": "orbit-schema-project-v1",
+          "title": "Project schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit project notes.",
+          "schema_for": "project",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "status"
+          ],
+          "required_sections": [
+            "Purpose",
+            "Current state"
+          ],
+          "validation": "warn"
+        },
+        "session": {
+          "path": "Schemas/Session.md",
+          "id": "orbit-schema-session-v1",
+          "title": "Session schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit session notes.",
+          "schema_for": "session",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "project",
+            "observed"
+          ],
+          "required_sections": [
+            "Objective",
+            "Outcomes",
+            "Open questions",
+            "Next actions",
+            "Connections"
+          ],
+          "validation": "warn"
+        },
+        "source": {
+          "path": "Schemas/Source.md",
+          "id": "orbit-schema-source-v1",
+          "title": "Source schema",
+          "type": "schema",
+          "summary": "Version 1 requirements for Orbit source notes.",
+          "schema_for": "source",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary"
+          ],
+          "required_sections": [],
+          "validation": "warn"
+        },
+        "café": {
+          "path": "Schemas/Composed.md",
+          "id": "composed-schema",
+          "title": "Custom schema",
+          "type": "schema",
+          "summary": "Distinct custom schema",
+          "schema_for": "café",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "composed_evidence"
+          ],
+          "required_sections": [
+            "Café"
+          ],
+          "validation": "strict"
+        },
+        "café": {
+          "path": "Schemas/Decomposed.md",
+          "id": "decomposed-schema",
+          "title": "Custom schema",
+          "type": "schema",
+          "summary": "Distinct custom schema",
+          "schema_for": "café",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "decomposed_evidence"
+          ],
+          "required_sections": [
+            "Café"
+          ],
+          "validation": "strict"
+        }
+      },
+      "warnings": [
+        {
+          "path": "Knowledge/A.md",
+          "schema": "Schemas/Composed.md",
+          "severity": "error",
+          "message": "Missing required field: composed_evidence"
+        },
+        {
+          "path": "Knowledge/A.md",
+          "schema": "Schemas/Composed.md",
+          "severity": "error",
+          "message": "Missing required section: Café"
+        },
+        {
+          "path": "Knowledge/B.md",
+          "schema": "Schemas/Decomposed.md",
+          "severity": "error",
+          "message": "Missing required field: decomposed_evidence"
+        },
+        {
+          "path": "Knowledge/B.md",
+          "schema": "Schemas/Decomposed.md",
+          "severity": "error",
+          "message": "Missing required section: Café"
+        }
+      ]
+    },
+    "composed": {
+      "data_format": 3,
+      "definitions": {
+        "café": {
+          "path": "Schemas/Composed.md",
+          "id": "composed-schema",
+          "title": "Custom schema",
+          "type": "schema",
+          "summary": "Distinct custom schema",
+          "schema_for": "café",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "composed_evidence"
+          ],
+          "required_sections": [
+            "Café"
+          ],
+          "validation": "strict"
+        }
+      },
+      "warnings": [
+        {
+          "path": "Knowledge/A.md",
+          "schema": "Schemas/Composed.md",
+          "severity": "error",
+          "message": "Missing required field: composed_evidence"
+        },
+        {
+          "path": "Knowledge/A.md",
+          "schema": "Schemas/Composed.md",
+          "severity": "error",
+          "message": "Missing required section: Café"
+        }
+      ]
+    },
+    "decomposed": {
+      "data_format": 3,
+      "definitions": {
+        "café": {
+          "path": "Schemas/Decomposed.md",
+          "id": "decomposed-schema",
+          "title": "Custom schema",
+          "type": "schema",
+          "summary": "Distinct custom schema",
+          "schema_for": "café",
+          "schema_version": 1,
+          "required_fields": [
+            "id",
+            "title",
+            "type",
+            "summary",
+            "decomposed_evidence"
+          ],
+          "required_sections": [
+            "Café"
+          ],
+          "validation": "strict"
+        }
+      },
+      "warnings": [
+        {
+          "path": "Knowledge/B.md",
+          "schema": "Schemas/Decomposed.md",
+          "severity": "error",
+          "message": "Missing required field: decomposed_evidence"
+        },
+        {
+          "path": "Knowledge/B.md",
+          "schema": "Schemas/Decomposed.md",
+          "severity": "error",
+          "message": "Missing required section: Café"
+        }
+      ]
+    }
+  }
+}
