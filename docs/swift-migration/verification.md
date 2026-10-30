@@ -4,7 +4,7 @@ The migration is not complete. Native desktop-host installation/fresh-conversati
 
 ## Tested source and artifacts
 
-OrbitCore package revision: `6657be92ef4012efded9104f3c348882d675c07a`, package `0.7.0-dev`, tool contract 1, disk format 3. Python reference source is `94ffc6ad9be082ceceb2daebb45296ebd53f3863`; its engine remains unchanged. The app consumes this exact remote revision pin, coordinated through its integration PR. LocalInference is pinned separately to version0.2.0.
+OrbitCore package revision: `6657be92ef4012efded9104f3c348882d675c07a`, package `0.7.0-dev`, tool contract 1, disk format 3. Python reference source is `94ffc6ad9be082ceceb2daebb45296ebd53f3863`; its engine remains unchanged. The app consumes this exact remote revision pin in [app PR2](https://github.com/aataraxiaa/orbit-app/pull/2), commit `5feab1884ab2446e2f81ce39ed164b7a68317780`. LocalInference is pinned separately to version0.2.0. The app [handoff](https://github.com/aataraxiaa/orbit-app/blob/codex/orbit-core-adapter/HANDOFF.md) records adapter/controller ownership and the remaining acceptance gates.
 
 MobileBuildMCP built a universal arm64/x86_64 Release executable. Both slices record macOS13 minimum deployment. Execution checks ran on the current Apple Silicon Mac. Intel hardware and a separate Mac without a development toolchain were not available. The relocated checks remove developer/Python tools from PATH, and linked dependencies are system libraries/frameworks.
 
@@ -21,6 +21,8 @@ MobileBuildMCP built a universal arm64/x86_64 Release executable. Both slices re
 | Mixed Python/Swift transport, faults, retries and local process locks | 157/157 | `mixed-replica-results.json` |
 | Mixed concurrent source integration with controlled clocks/UUIDs | 53/53 | `mixed-integration-results.json` |
 | Historical byte-distinct Unicode identities through production executables | 55/55 | `mixed-unicode-results.json` |
+| Final-pin app simulator unit/integration and UI tests | 23/23 | 21 unit/integration and two XCUITests; app handoff and result bundle |
+| Signed app device build and installation | Passed; launch blocked | iPhone locked; no phone runtime acceptance |
 | Frozen migration, recovery, schemas, registry and opaque-metadata fixtures | Passed within Swift suite | `tests/fixtures/compatibility` |
 | Relocated native Codex, Claude-plugin and MCPB launch configurations | Passed mechanically | `tests/test_swift_package.py` |
 | Acceptance package ignores ambient registry even if manifest env is lost | Passed mechanically | Explicit launch argument regression |
@@ -39,3 +41,5 @@ Independent review found and reproduced defects beyond the first fixtures: Found
 - The linked-provider gate stays enforced until native acceptance. Sample storage is limited to explicit demo/tests; this does not make the still-gated linked-folder experience production-accepted.
 
 Use `transition.md` for cutover and rollback. Do not remove the Python production runtime or claim the required final state before these gates pass.
+
+The mobile chat controller deliberately exposes the shared search/read/schema/apply definitions and enforces a bounded host allowlist. Other maintenance operations remain implemented in OrbitCore and exposed by desktop MCP; mobile chat does not independently redefine them or grant the model migration/recovery authority. Actual model tool quality and usable context capacity remain unverified.
