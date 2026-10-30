@@ -6,6 +6,14 @@ func eObjects(_ value: Any?) -> [JSONObject] { value as? [JSONObject] ?? [] }
 func eInt(_ value: Any?, _ fallback: Int = 0) -> Int { value as? Int ?? fallback }
 func eBool(_ value: Any?) -> Bool { value as? Bool ?? false }
 func eExists(_ url: URL) -> Bool { FileManager.default.fileExists(atPath: url.path) }
+func eRelative(_ url: URL, root: URL) throws -> String {
+  let base = realURL(root).path
+  let path = realURL(url).path
+  guard path.hasPrefix(base + "/") else {
+    throw OrbitError("Path escapes Orbit folder (including symlinks)")
+  }
+  return String(path.dropFirst(base.count + 1))
+}
 func eText(_ url: URL) throws -> String {
   let data = try Data(contentsOf: url)
   guard let text = String(data: data, encoding: .utf8) else {
@@ -676,7 +684,7 @@ extension OrbitEngine {
     }
     var receipt: JSONObject = [
       "status": pair.1 ? "already-captured" : "captured",
-      "path": pair.0.path.replacingOccurrences(of: root.path + "/", with: ""), "sha256": hash,
+      "path": try eRelative(pair.0, root: root), "sha256": hash,
       "bytes": raw.count, "original_name": sourceURL.lastPathComponent,
       "extraction": "not-performed", "integration": "not-performed",
       "next":

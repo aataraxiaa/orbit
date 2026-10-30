@@ -179,7 +179,8 @@ final class EngineOperationsTests: XCTestCase {
     try atomic(
       root.appendingPathComponent("Knowledge/Garden.md"), Data(note(body: "Human edit\n").utf8))
     let flags = eObjects(try engine.knowledgeMaintain(root)["candidates"])
-    XCTAssertTrue(flags.contains { eString($0["kind"]) == "integration-evidence-changed" })
+    XCTAssertTrue(
+      flags.contains { eString($0["kind"]) == "integration-evidence-changed" }, eJSON(flags))
   }
 
   func testUnavailableIndexFallsBackOnlyWithoutScope() throws {

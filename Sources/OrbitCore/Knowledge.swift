@@ -127,7 +127,7 @@ extension OrbitEngine {
       try migrationEnsureWritable(root)
       if replicationEnabled(root),
         strings(try replicationReconcile(root)["blocked_paths"]).contains(
-          path.path.replacingOccurrences(of: root.path + "/", with: ""))
+          try eRelative(path, root: root))
       {
         throw OrbitError("Source integration has conflicting revisions; inspect orbit_sync history")
       }
@@ -151,13 +151,14 @@ extension OrbitEngine {
     throws -> JSONObject?
   {
     if !replicationEnabled(root) {
-      try atomic(path, encode(value))
+      try atomic(path, knowledgeEncodeRecord(value, path: path, controls: controls))
       return nil
     }
     var write: JSONObject = [
-      "path": path.path.replacingOccurrences(of: root.path + "/", with: ""),
+      "path": try eRelative(path, root: root),
       "before": eExists(path) ? try eText(path) as Any : NSNull(),
-      "after": String(data: try encode(value), encoding: .utf8)!,
+      "after": String(
+        data: try knowledgeEncodeRecord(value, path: path, controls: controls), encoding: .utf8)!,
       "reason": "Update source integration evidence",
     ]
     for field in ["expected_heads", "observations"] {
@@ -174,7 +175,7 @@ extension OrbitEngine {
       let folder = try safe(root, ".orbit/integrations")
       let sync = replicationEnabled(root) ? try replicationInspect(root) : [:]
       for path in try eChildren(folder, suffix: ".json") {
-        let relative = path.path.replacingOccurrences(of: root.path + "/", with: "")
+        let relative = try eRelative(path, root: root)
         do {
           if strings(sync["blocked_paths"]).contains(relative) {
             errors.append([
@@ -419,4 +420,58 @@ extension OrbitEngine {
         "Mechanical signals only. Repository freshness and contradictions require source inspection.",
     ]
   }
+}
+
+private func knowledgeEncodeRecord(_ value: JSONObject, path: URL, controls: JSONObject) throws
+  -> Data
+{
+  let old: OrderedJSON? = eExists(path) ? try OrderedJSON.parse(Data(contentsOf: path)) : nil
+  let request = Thread.current.threadDictionary["orbit.orderedRequest"] as? OrderedJSON
+  let initialKeys = [
+    "schema", "source_sha256", "source_path", "version", "stage", "coverage", "extraction", "notes",
+    "operation", "operations", "verification", "deferred", "errors", "updated",
+  ]
+  func shape(_ value: Any, old: OrderedJSON?) -> OrderedJSON {
+    if let object = value as? JSONObject {
+      var keys: [String] = []
+      if let old, case .object(let pairs) = old {
+        keys = pairs.map { $0.0 }.filter { object[$0] != nil }
+      }
+      keys += object.keys.filter { !keys.contains($0) }.sorted()
+      return .object(keys.map { ($0, shape(object[$0]!, old: old?[$0])) })
+    }
+    if let array = value as? [Any] {
+      let previous: [OrderedJSON]
+      if let old, case .array(let values) = old { previous = values } else { previous = [] }
+      return .array(
+        array.enumerated().map {
+          shape($0.element, old: $0.offset < previous.count ? previous[$0.offset] : nil)
+        })
+    }
+    return .scalar(value)
+  }
+  var keys: [String]
+  if let old, case .object(let pairs) = old {
+    keys = pairs.map { $0.0 }.filter { value[$0] != nil }
+  } else {
+    keys = initialKeys.filter { value[$0] != nil }
+  }
+  keys += value.keys.filter { !keys.contains($0) }.sorted()
+  let ordered = OrderedJSON.object(
+    keys.map { key in
+      if controls[key] != nil, let incoming = request?[key] {
+        return (key, shape(value[key]!, old: incoming))
+      }
+      if old == nil && key == "coverage", let coverage = value[key] as? JSONObject {
+        return (
+          key,
+          .object(
+            ["status", "description"].compactMap { name in
+              coverage[name].map { (name, OrderedJSON.sorted($0)) }
+            })
+        )
+      }
+      return (key, shape(value[key]!, old: old?[key]))
+    })
+  return Data((try ordered.rendered(pretty: true) + "\n").utf8)
 }
