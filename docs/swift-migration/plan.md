@@ -1,0 +1,9 @@
+# Swift migration execution
+
+Reference: companion main 94ffc6ad9be082ceceb2daebb45296ebd53f3863 and app plan 5024146. The precise companion reference is also recorded by the fixture generator.
+
+Completion requires equivalent results and durable bytes for every supported operation, passing regression and differential fixtures, packaged native MCP installation in desktop hosts, a pinned app integration, and disposable native folder/iCloud round trips. A build or direct executable invocation cannot satisfy host acceptance. No production cutover or Python removal precedes these gates.
+
+Units: capture contract and baseline; port engine and revision state; port schemas, formatting and migration; port retrieval and source integration; integrate shared boundary into MCP and app; exercise parity and recovery; package and verify native hosts/devices; retire Python and document rollback. Independent modules use separate worktrees. All discrepancies remain failures until explained and tested.
+
+The source has 19 tool actions and nine engine modules. Beyond the requested inventory, parity includes graph diagnostics, source byte deduplication, bounded catalogs/context, integration stages and verification evidence, schema-definition conflicts, unknown metadata blocks, external observations, migration journals, and immutable receipts. File format remains 3, with explicit legacy migration support. Package, contract and disk versions remain separate.

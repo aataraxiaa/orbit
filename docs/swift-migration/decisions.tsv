@@ -1,0 +1,2 @@
+ts	phase	decision	why	evidence	result
+2026-10-30T16:10:00Z	frame	Retain Python launcher until all acceptance gates pass	Unverified native code must not replace the working runtime	AGENTS.md; docs/swift-migration/plan.md	open
