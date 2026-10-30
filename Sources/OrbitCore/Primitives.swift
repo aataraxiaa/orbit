@@ -24,7 +24,7 @@ public func encode(_ value: Any) throws -> Data {
     Data((try OrderedJSON.sorted(value).rendered(pretty: true) + "\n").utf8)
 }
 public func readJSON(_ url: URL) throws -> JSONObject {
-    guard let result = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? JSONObject else { throw OrbitError("Expected JSON object") }
+    guard let result = try OrderedJSON.parse(Data(contentsOf: url)).value as? JSONObject else { throw OrbitError("Expected JSON object") }
     return result
 }
 public func atomic(_ url: URL, _ data: Data) throws {
@@ -89,7 +89,7 @@ func truthy(_ value: Any?) -> Bool {
 }
 public func scalar(_ value: String) -> Any {
     let s = value.trimmingCharacters(in: .whitespacesAndNewlines)
-    if let data = s.data(using: .utf8), let v = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed) { return v }
+    if let data = s.data(using: .utf8), let v = try? OrderedJSON.parse(data).value { return v }
     return s.trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
 }
 public func metadata(_ text: String) -> JSONObject {

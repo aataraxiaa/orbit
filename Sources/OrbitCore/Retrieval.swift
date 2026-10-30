@@ -152,7 +152,7 @@ extension OrbitEngine {
     let identity = eString(try readJSON(safe(root, ".orbit/vault.json"))["id"])
     let key = digest(Data((realURL(root).path + "\0" + identity).utf8))
     let directory = realURL(cacheURL)
-    if directory.path == root.path || directory.path.hasPrefix(root.path + "/") {
+    if directory.path == realURL(root).path || directory.path.hasPrefix(realURL(root).path + "/") {
       throw RetrievalError("Search cache must be outside the vault")
     }
     try FileManager.default.createDirectory(

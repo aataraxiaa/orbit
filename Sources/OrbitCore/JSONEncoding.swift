@@ -9,6 +9,13 @@ indirect enum OrderedJSON {
         var parser = Parser(bytes:Array(data)); let value = try parser.value(); parser.space()
         guard parser.index == parser.bytes.count else { throw OrbitError("Invalid JSON") }; return value
     }
+    var value: Any {
+        switch self {
+        case let .object(pairs): return Dictionary(pairs.map { ($0.0, $0.1.value) }, uniquingKeysWith: { _, new in new })
+        case let .array(values): return values.map { $0.value }
+        case let .scalar(value): return value
+        }
+    }
     subscript(_ key: String) -> OrderedJSON? {
         guard case let .object(pairs) = self else { return nil }; return pairs.first { $0.0 == key }?.1
     }
@@ -62,6 +69,46 @@ indirect enum OrderedJSON {
             }
             return .scalar(try atom())
         }
+        func decodeString(_ token: [UInt8]) throws -> String {
+            guard token.count >= 2, token.last == 34 else { throw OrbitError("Invalid JSON string") }
+            var output: [UInt8] = [], cursor = 1
+            func hex(_ offset: Int) throws -> UInt32 {
+                guard offset + 4 <= token.count - 1,
+                      let value = UInt32(String(decoding:token[offset..<offset+4],as:UTF8.self),radix:16) else { throw OrbitError("Invalid JSON Unicode escape") }
+                return value
+            }
+            while cursor < token.count - 1 {
+                let c = token[cursor]; cursor += 1
+                if c == 92 {
+                    guard cursor < token.count - 1 else { throw OrbitError("Invalid JSON escape") }
+                    let escape = token[cursor]; cursor += 1
+                    switch escape {
+                    case 34,47,92: output.append(escape)
+                    case 98: output.append(8)
+                    case 102: output.append(12)
+                    case 110: output.append(10)
+                    case 114: output.append(13)
+                    case 116: output.append(9)
+                    case 117:
+                        var code = try hex(cursor); cursor += 4
+                        if (0xD800...0xDBFF).contains(code) {
+                            guard cursor + 6 <= token.count - 1, token[cursor] == 92, token[cursor+1] == 117 else { throw OrbitError("Invalid surrogate pair") }
+                            let low = try hex(cursor+2)
+                            guard (0xDC00...0xDFFF).contains(low) else { throw OrbitError("Invalid surrogate pair") }
+                            code = 0x10000 + ((code-0xD800) << 10) + low - 0xDC00; cursor += 6
+                        }
+                        guard let scalar = UnicodeScalar(code) else { throw OrbitError("Invalid Unicode scalar") }
+                        output += String(scalar).utf8
+                    default: throw OrbitError("Invalid JSON escape")
+                    }
+                } else {
+                    guard c >= 32, c != 34 else { throw OrbitError("Invalid JSON string") }
+                    output.append(c)
+                }
+            }
+            guard String(data:Data(output),encoding:.utf8) != nil else { throw OrbitError("Invalid UTF-8") }
+            return String(decoding:output,as:UTF8.self)
+        }
         mutating func atom() throws -> Any {
             space(); let start = index
             guard index < bytes.count else { throw OrbitError("Invalid JSON") }
@@ -76,6 +123,7 @@ indirect enum OrderedJSON {
                 while index < bytes.count && ![9,10,13,32,44,93,125,58].contains(bytes[index]) { index += 1 }
             }
             guard index > start else { throw OrbitError("Invalid JSON") }
+            if bytes[start] == 34 { return try decodeString(Array(bytes[start..<index])) }
             return try JSONSerialization.jsonObject(with:Data(bytes[start..<index]),options:.fragmentsAllowed)
         }
     }
@@ -105,13 +153,13 @@ public func requestDigest(_ plan: JSONObject) throws -> String {
 
 extension OrbitEngine {
     public func execute(_ action: String, argumentsJSON: Data) throws -> JSONObject {
-        guard let arguments = try JSONSerialization.jsonObject(with:argumentsJSON) as? JSONObject else { throw OrbitError("arguments: expected object") }
+        guard let arguments = try OrderedJSON.parse(argumentsJSON).value as? JSONObject else { throw OrbitError("arguments: expected object") }
         return try withOrderedPlan(argumentsJSON,planPath:["plan"]) { try execute(action,arguments:arguments) }
     }
 }
 extension OrbitMCPServer {
     public func handle(data: Data) throws -> JSONObject? {
-        let value = try JSONSerialization.jsonObject(with:data,options:.fragmentsAllowed)
+        let value = try OrderedJSON.parse(data).value
         return try withOrderedPlan(data,planPath:["params","arguments","plan"]) { handle(value) }
     }
 }

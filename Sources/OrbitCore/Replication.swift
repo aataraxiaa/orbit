@@ -124,8 +124,8 @@ extension OrbitEngine {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         do {
             let data = try Data(contentsOf: url)
-            guard let text = String(data: data, encoding: .utf8) else { throw OrbitError("Invalid UTF-8") }
-            return text
+            guard String(data: data, encoding: .utf8) != nil else { throw OrbitError("Invalid UTF-8") }
+            return String(decoding:data,as:UTF8.self)
         } catch { throw OrbitError("Cannot read snapshot target " + path) }
     }
 
