@@ -17,6 +17,7 @@ MobileBuildMCP built a universal arm64/x86_64 Release executable. Both slices re
 | Isolated reference smoke | Passed | `scripts/smoke.py` |
 | Reference plugin/MCPB/project archive rebuild | Passed | `scripts/package.py` |
 | All 19 tools through equivalent deterministic MCP requests | 38/38 | `all-tools-results.json` |
+| Original synthetic retrieval corpus, 100 notes and 120 requests | 120/120 | `retrieval-results.json` |
 | Mixed Python/Swift transport, faults, retries and local process locks | 157/157 | `mixed-replica-results.json` |
 | Mixed concurrent source integration with controlled clocks/UUIDs | 53/53 | `mixed-integration-results.json` |
 | Historical byte-distinct Unicode identities through production executables | 55/55 | `mixed-unicode-results.json` |

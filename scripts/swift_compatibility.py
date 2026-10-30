@@ -102,6 +102,13 @@ def main():
         previous = dict(os.environ)
         try:
             os.environ.update(ORBIT_CONFIG=str(base / 'seed-config.json'), ORBIT_CACHE=str(base / 'seed-cache'), ORBIT_STATE=str(base / 'seed-state'))
+            for relative, content in fixture.get('inputs', {}).items():
+                path = Path(relative)
+                if path.is_absolute() or '..' in path.parts:
+                    raise ValueError('Fixture input must be inside its disposable folder')
+                target = seed / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(content.encode('utf-8'))
             orbit.setup(str(seed), 'Seed', create=True)
         finally:
             os.environ.clear(); os.environ.update(previous)

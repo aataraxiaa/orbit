@@ -1,0 +1,1388 @@
+{
+  "schema": 1,
+  "description": "Frozen language-neutral original retrieval corpus, 100 notes and 120 labeled queries. Measures engine equivalence, not LLM quality or speed.",
+  "inputs": {
+    "Archive/record-00000.md": "---\nid: \"Archive/record-00000.md\"\ntitle: \"storage review 0\"\ntype: \"reference\"\nsummary: \"Team 0 reviewed storage during iteration 0.\"\nproject: \"archive-0\"\nstatus: \"current\"\naliases: []\n---\n# storage review 0\n\nTeam 0 reviewed storage during iteration 0.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 0 before the next meeting.\n",
+    "Archive/record-00001.md": "---\nid: \"Archive/record-00001.md\"\ntitle: \"identity review 1\"\ntype: \"reference\"\nsummary: \"Team 1 reviewed identity during iteration 1.\"\nproject: \"archive-1\"\nstatus: \"current\"\naliases: []\n---\n# identity review 1\n\nTeam 1 reviewed identity during iteration 1.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 1 before the next meeting.\n",
+    "Archive/record-00002.md": "---\nid: \"Archive/record-00002.md\"\ntitle: \"deployment review 2\"\ntype: \"reference\"\nsummary: \"Team 2 reviewed deployment during iteration 2.\"\nproject: \"archive-2\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 2\n\nTeam 2 reviewed deployment during iteration 2.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 2 before the next meeting.\n",
+    "Archive/record-00003.md": "---\nid: \"Archive/record-00003.md\"\ntitle: \"cache review 3\"\ntype: \"reference\"\nsummary: \"Team 3 reviewed cache during iteration 3.\"\nproject: \"archive-3\"\nstatus: \"current\"\naliases: []\n---\n# cache review 3\n\nTeam 3 reviewed cache during iteration 3.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 3 before the next meeting.\n",
+    "Archive/record-00004.md": "---\nid: \"Archive/record-00004.md\"\ntitle: \"source review 4\"\ntype: \"reference\"\nsummary: \"Team 4 reviewed source during iteration 4.\"\nproject: \"archive-4\"\nstatus: \"current\"\naliases: []\n---\n# source review 4\n\nTeam 4 reviewed source during iteration 4.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 4 before the next meeting.\n",
+    "Archive/record-00005.md": "---\nid: \"Archive/record-00005.md\"\ntitle: \"conversation review 5\"\ntype: \"reference\"\nsummary: \"Team 5 reviewed conversation during iteration 5.\"\nproject: \"archive-5\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 5\n\nTeam 5 reviewed conversation during iteration 5.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 5 before the next meeting.\n",
+    "Archive/record-00006.md": "---\nid: \"Archive/record-00006.md\"\ntitle: \"permissions review 6\"\ntype: \"reference\"\nsummary: \"Team 6 reviewed permissions during iteration 6.\"\nproject: \"archive-6\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 6\n\nTeam 6 reviewed permissions during iteration 6.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 6 before the next meeting.\n",
+    "Archive/record-00007.md": "---\nid: \"Archive/record-00007.md\"\ntitle: \"search review 7\"\ntype: \"reference\"\nsummary: \"Team 7 reviewed search during iteration 7.\"\nproject: \"archive-7\"\nstatus: \"current\"\naliases: []\n---\n# search review 7\n\nTeam 7 reviewed search during iteration 7.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 7 before the next meeting.\n",
+    "Archive/record-00008.md": "---\nid: \"Archive/record-00008.md\"\ntitle: \"payment review 8\"\ntype: \"reference\"\nsummary: \"Team 8 reviewed payment during iteration 8.\"\nproject: \"archive-8\"\nstatus: \"current\"\naliases: []\n---\n# payment review 8\n\nTeam 8 reviewed payment during iteration 8.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 8 before the next meeting.\n",
+    "Archive/record-00009.md": "---\nid: \"Archive/record-00009.md\"\ntitle: \"terminal review 9\"\ntype: \"reference\"\nsummary: \"Team 9 reviewed terminal during iteration 9.\"\nproject: \"archive-9\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 9\n\nTeam 9 reviewed terminal during iteration 9.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 9 before the next meeting.\n",
+    "Archive/record-00010.md": "---\nid: \"Archive/record-00010.md\"\ntitle: \"storage review 10\"\ntype: \"reference\"\nsummary: \"Team 10 reviewed storage during iteration 10.\"\nproject: \"archive-10\"\nstatus: \"current\"\naliases: []\n---\n# storage review 10\n\nTeam 10 reviewed storage during iteration 10.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 10 before the next meeting.\n",
+    "Archive/record-00011.md": "---\nid: \"Archive/record-00011.md\"\ntitle: \"identity review 11\"\ntype: \"reference\"\nsummary: \"Team 11 reviewed identity during iteration 11.\"\nproject: \"archive-11\"\nstatus: \"current\"\naliases: []\n---\n# identity review 11\n\nTeam 11 reviewed identity during iteration 11.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 11 before the next meeting.\n",
+    "Archive/record-00012.md": "---\nid: \"Archive/record-00012.md\"\ntitle: \"deployment review 12\"\ntype: \"reference\"\nsummary: \"Team 12 reviewed deployment during iteration 12.\"\nproject: \"archive-12\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 12\n\nTeam 12 reviewed deployment during iteration 12.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 12 before the next meeting.\n",
+    "Archive/record-00013.md": "---\nid: \"Archive/record-00013.md\"\ntitle: \"cache review 13\"\ntype: \"reference\"\nsummary: \"Team 13 reviewed cache during iteration 13.\"\nproject: \"archive-13\"\nstatus: \"current\"\naliases: []\n---\n# cache review 13\n\nTeam 13 reviewed cache during iteration 13.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 13 before the next meeting.\n",
+    "Archive/record-00014.md": "---\nid: \"Archive/record-00014.md\"\ntitle: \"source review 14\"\ntype: \"reference\"\nsummary: \"Team 14 reviewed source during iteration 14.\"\nproject: \"archive-14\"\nstatus: \"current\"\naliases: []\n---\n# source review 14\n\nTeam 14 reviewed source during iteration 14.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 14 before the next meeting.\n",
+    "Archive/record-00015.md": "---\nid: \"Archive/record-00015.md\"\ntitle: \"conversation review 15\"\ntype: \"reference\"\nsummary: \"Team 15 reviewed conversation during iteration 15.\"\nproject: \"archive-15\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 15\n\nTeam 15 reviewed conversation during iteration 15.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 15 before the next meeting.\n",
+    "Archive/record-00016.md": "---\nid: \"Archive/record-00016.md\"\ntitle: \"permissions review 16\"\ntype: \"reference\"\nsummary: \"Team 16 reviewed permissions during iteration 16.\"\nproject: \"archive-16\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 16\n\nTeam 16 reviewed permissions during iteration 16.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 16 before the next meeting.\n",
+    "Archive/record-00017.md": "---\nid: \"Archive/record-00017.md\"\ntitle: \"search review 17\"\ntype: \"reference\"\nsummary: \"Team 17 reviewed search during iteration 17.\"\nproject: \"archive-17\"\nstatus: \"current\"\naliases: []\n---\n# search review 17\n\nTeam 17 reviewed search during iteration 17.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 17 before the next meeting.\n",
+    "Archive/record-00018.md": "---\nid: \"Archive/record-00018.md\"\ntitle: \"payment review 18\"\ntype: \"reference\"\nsummary: \"Team 18 reviewed payment during iteration 18.\"\nproject: \"archive-18\"\nstatus: \"current\"\naliases: []\n---\n# payment review 18\n\nTeam 18 reviewed payment during iteration 18.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 18 before the next meeting.\n",
+    "Archive/record-00019.md": "---\nid: \"Archive/record-00019.md\"\ntitle: \"terminal review 19\"\ntype: \"reference\"\nsummary: \"Team 19 reviewed terminal during iteration 19.\"\nproject: \"archive-19\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 19\n\nTeam 19 reviewed terminal during iteration 19.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 19 before the next meeting.\n",
+    "Archive/record-00020.md": "---\nid: \"Archive/record-00020.md\"\ntitle: \"storage review 20\"\ntype: \"reference\"\nsummary: \"Team 20 reviewed storage during iteration 20.\"\nproject: \"archive-20\"\nstatus: \"current\"\naliases: []\n---\n# storage review 20\n\nTeam 20 reviewed storage during iteration 20.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 20 before the next meeting.\n",
+    "Archive/record-00021.md": "---\nid: \"Archive/record-00021.md\"\ntitle: \"identity review 21\"\ntype: \"reference\"\nsummary: \"Team 21 reviewed identity during iteration 21.\"\nproject: \"archive-21\"\nstatus: \"current\"\naliases: []\n---\n# identity review 21\n\nTeam 21 reviewed identity during iteration 21.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 21 before the next meeting.\n",
+    "Archive/record-00022.md": "---\nid: \"Archive/record-00022.md\"\ntitle: \"deployment review 22\"\ntype: \"reference\"\nsummary: \"Team 22 reviewed deployment during iteration 22.\"\nproject: \"archive-22\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 22\n\nTeam 22 reviewed deployment during iteration 22.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 22 before the next meeting.\n",
+    "Archive/record-00023.md": "---\nid: \"Archive/record-00023.md\"\ntitle: \"cache review 23\"\ntype: \"reference\"\nsummary: \"Team 23 reviewed cache during iteration 23.\"\nproject: \"archive-23\"\nstatus: \"current\"\naliases: []\n---\n# cache review 23\n\nTeam 23 reviewed cache during iteration 23.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 0 before the next meeting.\n",
+    "Archive/record-00024.md": "---\nid: \"Archive/record-00024.md\"\ntitle: \"source review 24\"\ntype: \"reference\"\nsummary: \"Team 24 reviewed source during iteration 24.\"\nproject: \"archive-24\"\nstatus: \"current\"\naliases: []\n---\n# source review 24\n\nTeam 24 reviewed source during iteration 24.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 1 before the next meeting.\n",
+    "Archive/record-00025.md": "---\nid: \"Archive/record-00025.md\"\ntitle: \"conversation review 25\"\ntype: \"reference\"\nsummary: \"Team 25 reviewed conversation during iteration 25.\"\nproject: \"archive-25\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 25\n\nTeam 25 reviewed conversation during iteration 25.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 2 before the next meeting.\n",
+    "Archive/record-00026.md": "---\nid: \"Archive/record-00026.md\"\ntitle: \"permissions review 26\"\ntype: \"reference\"\nsummary: \"Team 26 reviewed permissions during iteration 26.\"\nproject: \"archive-26\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 26\n\nTeam 26 reviewed permissions during iteration 26.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 3 before the next meeting.\n",
+    "Archive/record-00027.md": "---\nid: \"Archive/record-00027.md\"\ntitle: \"search review 27\"\ntype: \"reference\"\nsummary: \"Team 27 reviewed search during iteration 27.\"\nproject: \"archive-27\"\nstatus: \"current\"\naliases: []\n---\n# search review 27\n\nTeam 27 reviewed search during iteration 27.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 4 before the next meeting.\n",
+    "Archive/record-00028.md": "---\nid: \"Archive/record-00028.md\"\ntitle: \"payment review 28\"\ntype: \"reference\"\nsummary: \"Team 28 reviewed payment during iteration 28.\"\nproject: \"archive-28\"\nstatus: \"current\"\naliases: []\n---\n# payment review 28\n\nTeam 28 reviewed payment during iteration 28.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 5 before the next meeting.\n",
+    "Archive/record-00029.md": "---\nid: \"Archive/record-00029.md\"\ntitle: \"terminal review 29\"\ntype: \"reference\"\nsummary: \"Team 29 reviewed terminal during iteration 29.\"\nproject: \"archive-29\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 29\n\nTeam 29 reviewed terminal during iteration 29.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 6 before the next meeting.\n",
+    "Archive/record-00030.md": "---\nid: \"Archive/record-00030.md\"\ntitle: \"storage review 30\"\ntype: \"reference\"\nsummary: \"Team 30 reviewed storage during iteration 30.\"\nproject: \"archive-30\"\nstatus: \"current\"\naliases: []\n---\n# storage review 30\n\nTeam 30 reviewed storage during iteration 30.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 7 before the next meeting.\n",
+    "Archive/record-00031.md": "---\nid: \"Archive/record-00031.md\"\ntitle: \"identity review 31\"\ntype: \"reference\"\nsummary: \"Team 31 reviewed identity during iteration 31.\"\nproject: \"archive-31\"\nstatus: \"current\"\naliases: []\n---\n# identity review 31\n\nTeam 31 reviewed identity during iteration 31.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 8 before the next meeting.\n",
+    "Archive/record-00032.md": "---\nid: \"Archive/record-00032.md\"\ntitle: \"deployment review 32\"\ntype: \"reference\"\nsummary: \"Team 32 reviewed deployment during iteration 32.\"\nproject: \"archive-32\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 32\n\nTeam 32 reviewed deployment during iteration 32.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 9 before the next meeting.\n",
+    "Archive/record-00033.md": "---\nid: \"Archive/record-00033.md\"\ntitle: \"cache review 33\"\ntype: \"reference\"\nsummary: \"Team 33 reviewed cache during iteration 33.\"\nproject: \"archive-33\"\nstatus: \"current\"\naliases: []\n---\n# cache review 33\n\nTeam 33 reviewed cache during iteration 33.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 10 before the next meeting.\n",
+    "Archive/record-00034.md": "---\nid: \"Archive/record-00034.md\"\ntitle: \"source review 34\"\ntype: \"reference\"\nsummary: \"Team 34 reviewed source during iteration 34.\"\nproject: \"archive-34\"\nstatus: \"current\"\naliases: []\n---\n# source review 34\n\nTeam 34 reviewed source during iteration 34.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 11 before the next meeting.\n",
+    "Archive/record-00035.md": "---\nid: \"Archive/record-00035.md\"\ntitle: \"conversation review 35\"\ntype: \"reference\"\nsummary: \"Team 35 reviewed conversation during iteration 35.\"\nproject: \"archive-35\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 35\n\nTeam 35 reviewed conversation during iteration 35.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 12 before the next meeting.\n",
+    "Archive/record-00036.md": "---\nid: \"Archive/record-00036.md\"\ntitle: \"permissions review 36\"\ntype: \"reference\"\nsummary: \"Team 36 reviewed permissions during iteration 36.\"\nproject: \"archive-36\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 36\n\nTeam 36 reviewed permissions during iteration 36.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 13 before the next meeting.\n",
+    "Archive/record-00037.md": "---\nid: \"Archive/record-00037.md\"\ntitle: \"search review 37\"\ntype: \"reference\"\nsummary: \"Team 37 reviewed search during iteration 37.\"\nproject: \"archive-37\"\nstatus: \"current\"\naliases: []\n---\n# search review 37\n\nTeam 37 reviewed search during iteration 37.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 14 before the next meeting.\n",
+    "Archive/record-00038.md": "---\nid: \"Archive/record-00038.md\"\ntitle: \"payment review 38\"\ntype: \"reference\"\nsummary: \"Team 38 reviewed payment during iteration 38.\"\nproject: \"archive-38\"\nstatus: \"current\"\naliases: []\n---\n# payment review 38\n\nTeam 38 reviewed payment during iteration 38.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 15 before the next meeting.\n",
+    "Archive/record-00039.md": "---\nid: \"Archive/record-00039.md\"\ntitle: \"terminal review 39\"\ntype: \"reference\"\nsummary: \"Team 39 reviewed terminal during iteration 39.\"\nproject: \"archive-39\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 39\n\nTeam 39 reviewed terminal during iteration 39.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 16 before the next meeting.\n",
+    "Archive/record-00040.md": "---\nid: \"Archive/record-00040.md\"\ntitle: \"storage review 40\"\ntype: \"reference\"\nsummary: \"Team 40 reviewed storage during iteration 40.\"\nproject: \"archive-40\"\nstatus: \"current\"\naliases: []\n---\n# storage review 40\n\nTeam 40 reviewed storage during iteration 40.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 17 before the next meeting.\n",
+    "Archive/record-00041.md": "---\nid: \"Archive/record-00041.md\"\ntitle: \"identity review 41\"\ntype: \"reference\"\nsummary: \"Team 41 reviewed identity during iteration 41.\"\nproject: \"archive-41\"\nstatus: \"current\"\naliases: []\n---\n# identity review 41\n\nTeam 41 reviewed identity during iteration 41.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 18 before the next meeting.\n",
+    "Archive/record-00042.md": "---\nid: \"Archive/record-00042.md\"\ntitle: \"deployment review 42\"\ntype: \"reference\"\nsummary: \"Team 42 reviewed deployment during iteration 42.\"\nproject: \"archive-42\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 42\n\nTeam 42 reviewed deployment during iteration 42.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 19 before the next meeting.\n",
+    "Archive/record-00043.md": "---\nid: \"Archive/record-00043.md\"\ntitle: \"cache review 43\"\ntype: \"reference\"\nsummary: \"Team 43 reviewed cache during iteration 43.\"\nproject: \"archive-43\"\nstatus: \"current\"\naliases: []\n---\n# cache review 43\n\nTeam 43 reviewed cache during iteration 43.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 20 before the next meeting.\n",
+    "Archive/record-00044.md": "---\nid: \"Archive/record-00044.md\"\ntitle: \"source review 44\"\ntype: \"reference\"\nsummary: \"Team 44 reviewed source during iteration 44.\"\nproject: \"archive-44\"\nstatus: \"current\"\naliases: []\n---\n# source review 44\n\nTeam 44 reviewed source during iteration 44.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 21 before the next meeting.\n",
+    "Archive/record-00045.md": "---\nid: \"Archive/record-00045.md\"\ntitle: \"conversation review 45\"\ntype: \"reference\"\nsummary: \"Team 45 reviewed conversation during iteration 45.\"\nproject: \"archive-45\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 45\n\nTeam 45 reviewed conversation during iteration 45.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 22 before the next meeting.\n",
+    "Archive/record-00046.md": "---\nid: \"Archive/record-00046.md\"\ntitle: \"permissions review 46\"\ntype: \"reference\"\nsummary: \"Team 46 reviewed permissions during iteration 46.\"\nproject: \"archive-46\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 46\n\nTeam 46 reviewed permissions during iteration 46.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 0 before the next meeting.\n",
+    "Archive/record-00047.md": "---\nid: \"Archive/record-00047.md\"\ntitle: \"search review 47\"\ntype: \"reference\"\nsummary: \"Team 47 reviewed search during iteration 47.\"\nproject: \"archive-47\"\nstatus: \"current\"\naliases: []\n---\n# search review 47\n\nTeam 47 reviewed search during iteration 47.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 1 before the next meeting.\n",
+    "Archive/record-00048.md": "---\nid: \"Archive/record-00048.md\"\ntitle: \"payment review 48\"\ntype: \"reference\"\nsummary: \"Team 48 reviewed payment during iteration 48.\"\nproject: \"archive-48\"\nstatus: \"current\"\naliases: []\n---\n# payment review 48\n\nTeam 48 reviewed payment during iteration 48.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 2 before the next meeting.\n",
+    "Archive/record-00049.md": "---\nid: \"Archive/record-00049.md\"\ntitle: \"terminal review 49\"\ntype: \"reference\"\nsummary: \"Team 49 reviewed terminal during iteration 49.\"\nproject: \"archive-49\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 49\n\nTeam 49 reviewed terminal during iteration 49.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 3 before the next meeting.\n",
+    "Archive/record-00050.md": "---\nid: \"Archive/record-00050.md\"\ntitle: \"storage review 50\"\ntype: \"reference\"\nsummary: \"Team 50 reviewed storage during iteration 50.\"\nproject: \"archive-50\"\nstatus: \"current\"\naliases: []\n---\n# storage review 50\n\nTeam 50 reviewed storage during iteration 50.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 4 before the next meeting.\n",
+    "Archive/record-00051.md": "---\nid: \"Archive/record-00051.md\"\ntitle: \"identity review 51\"\ntype: \"reference\"\nsummary: \"Team 51 reviewed identity during iteration 51.\"\nproject: \"archive-51\"\nstatus: \"current\"\naliases: []\n---\n# identity review 51\n\nTeam 51 reviewed identity during iteration 51.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 5 before the next meeting.\n",
+    "Archive/record-00052.md": "---\nid: \"Archive/record-00052.md\"\ntitle: \"deployment review 52\"\ntype: \"reference\"\nsummary: \"Team 52 reviewed deployment during iteration 52.\"\nproject: \"archive-52\"\nstatus: \"current\"\naliases: []\n---\n# deployment review 52\n\nTeam 52 reviewed deployment during iteration 52.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 6 before the next meeting.\n",
+    "Archive/record-00053.md": "---\nid: \"Archive/record-00053.md\"\ntitle: \"cache review 53\"\ntype: \"reference\"\nsummary: \"Team 53 reviewed cache during iteration 53.\"\nproject: \"archive-53\"\nstatus: \"current\"\naliases: []\n---\n# cache review 53\n\nTeam 53 reviewed cache during iteration 53.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 7 before the next meeting.\n",
+    "Archive/record-00054.md": "---\nid: \"Archive/record-00054.md\"\ntitle: \"source review 54\"\ntype: \"reference\"\nsummary: \"Team 54 reviewed source during iteration 54.\"\nproject: \"archive-54\"\nstatus: \"current\"\naliases: []\n---\n# source review 54\n\nTeam 54 reviewed source during iteration 54.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 8 before the next meeting.\n",
+    "Archive/record-00055.md": "---\nid: \"Archive/record-00055.md\"\ntitle: \"conversation review 55\"\ntype: \"reference\"\nsummary: \"Team 55 reviewed conversation during iteration 55.\"\nproject: \"archive-55\"\nstatus: \"current\"\naliases: []\n---\n# conversation review 55\n\nTeam 55 reviewed conversation during iteration 55.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 9 before the next meeting.\n",
+    "Archive/record-00056.md": "---\nid: \"Archive/record-00056.md\"\ntitle: \"permissions review 56\"\ntype: \"reference\"\nsummary: \"Team 56 reviewed permissions during iteration 56.\"\nproject: \"archive-56\"\nstatus: \"current\"\naliases: []\n---\n# permissions review 56\n\nTeam 56 reviewed permissions during iteration 56.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 10 before the next meeting.\n",
+    "Archive/record-00057.md": "---\nid: \"Archive/record-00057.md\"\ntitle: \"search review 57\"\ntype: \"reference\"\nsummary: \"Team 57 reviewed search during iteration 57.\"\nproject: \"archive-57\"\nstatus: \"current\"\naliases: []\n---\n# search review 57\n\nTeam 57 reviewed search during iteration 57.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 11 before the next meeting.\n",
+    "Archive/record-00058.md": "---\nid: \"Archive/record-00058.md\"\ntitle: \"payment review 58\"\ntype: \"reference\"\nsummary: \"Team 58 reviewed payment during iteration 58.\"\nproject: \"archive-58\"\nstatus: \"current\"\naliases: []\n---\n# payment review 58\n\nTeam 58 reviewed payment during iteration 58.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 12 before the next meeting.\n",
+    "Archive/record-00059.md": "---\nid: \"Archive/record-00059.md\"\ntitle: \"terminal review 59\"\ntype: \"reference\"\nsummary: \"Team 59 reviewed terminal during iteration 59.\"\nproject: \"archive-59\"\nstatus: \"current\"\naliases: []\n---\n# terminal review 59\n\nTeam 59 reviewed terminal during iteration 59.\n\n## Outcome\nThe review recorded documentation updates and an owner rotation. It did not change the project policy.\n\n## Follow-up\nConfirm the review with group 13 before the next meeting.\n",
+    "History/Atlas.md": "---\nid: \"History/Atlas.md\"\ntitle: \"Atlas previous decision\"\ntype: \"reference\"\nsummary: \"Atlas previously planned a single irreversible cutover. That decision is superseded.\"\nproject: \"Atlas\"\nstatus: \"superseded\"\naliases: []\n---\n# Atlas previous decision\n\nAtlas previously planned a single irreversible cutover. That decision is superseded.\n",
+    "History/Beacon.md": "---\nid: \"History/Beacon.md\"\ntitle: \"Beacon previous decision\"\ntype: \"reference\"\nsummary: \"Beacon previously treated a missing heartbeat as idle. That decision is superseded.\"\nproject: \"Beacon\"\nstatus: \"superseded\"\naliases: []\n---\n# Beacon previous decision\n\nBeacon previously treated a missing heartbeat as idle. That decision is superseded.\n",
+    "History/Cedar.md": "---\nid: \"History/Cedar.md\"\ntitle: \"Cedar previous decision\"\ntype: \"reference\"\nsummary: \"Cedar previously displayed the disclosure even after removal. That decision is superseded.\"\nproject: \"Cedar\"\nstatus: \"superseded\"\naliases: []\n---\n# Cedar previous decision\n\nCedar previously displayed the disclosure even after removal. That decision is superseded.\n",
+    "History/Delta.md": "---\nid: \"History/Delta.md\"\ntitle: \"Delta previous decision\"\ntype: \"reference\"\nsummary: \"Delta previously deduplicated using the customer's name. That decision is superseded.\"\nproject: \"Delta\"\nstatus: \"superseded\"\naliases: []\n---\n# Delta previous decision\n\nDelta previously deduplicated using the customer's name. That decision is superseded.\n",
+    "History/Ember.md": "---\nid: \"History/Ember.md\"\ntitle: \"Ember previous decision\"\ntype: \"reference\"\nsummary: \"Ember previously deleted its old cache before rebuilding. That decision is superseded.\"\nproject: \"Ember\"\nstatus: \"superseded\"\naliases: []\n---\n# Ember previous decision\n\nEmber previously deleted its old cache before rebuilding. That decision is superseded.\n",
+    "History/Finch.md": "---\nid: \"History/Finch.md\"\ntitle: \"Finch previous decision\"\ntype: \"reference\"\nsummary: \"Finch previously assumed installation also granted directory permissions. That decision is superseded.\"\nproject: \"Finch\"\nstatus: \"superseded\"\naliases: []\n---\n# Finch previous decision\n\nFinch previously assumed installation also granted directory permissions. That decision is superseded.\n",
+    "History/Grove.md": "---\nid: \"History/Grove.md\"\ntitle: \"Grove previous decision\"\ntype: \"reference\"\nsummary: \"Grove previously marked every copied file fully integrated. That decision is superseded.\"\nproject: \"Grove\"\nstatus: \"superseded\"\naliases: []\n---\n# Grove previous decision\n\nGrove previously marked every copied file fully integrated. That decision is superseded.\n",
+    "History/Harbor.md": "---\nid: \"History/Harbor.md\"\ntitle: \"Harbor previous decision\"\ntype: \"reference\"\nsummary: \"Harbor previously retried conflicting writes without rereading. That decision is superseded.\"\nproject: \"Harbor\"\nstatus: \"superseded\"\naliases: []\n---\n# Harbor previous decision\n\nHarbor previously retried conflicting writes without rereading. That decision is superseded.\n",
+    "History/Iris.md": "---\nid: \"History/Iris.md\"\ntitle: \"Iris previous decision\"\ntype: \"reference\"\nsummary: \"Iris previously answered directly from isolated search snippets. That decision is superseded.\"\nproject: \"Iris\"\nstatus: \"superseded\"\naliases: []\n---\n# Iris previous decision\n\nIris previously answered directly from isolated search snippets. That decision is superseded.\n",
+    "History/Juniper.md": "---\nid: \"History/Juniper.md\"\ntitle: \"Juniper previous decision\"\ntype: \"reference\"\nsummary: \"Juniper previously merged contacts based on name similarity. That decision is superseded.\"\nproject: \"Juniper\"\nstatus: \"superseded\"\naliases: []\n---\n# Juniper previous decision\n\nJuniper previously merged contacts based on name similarity. That decision is superseded.\n",
+    "Knowledge/Atlas.md": "---\nid: \"Knowledge/Atlas.md\"\ntitle: \"Atlas decision\"\ntype: \"reference\"\nsummary: \"Release migrations in small reversible stages. Keep the previous schema readable until rollback is no longer needed.\"\nproject: \"Atlas\"\nstatus: \"current\"\naliases: [\"reversible migration rollback staged deployment\"]\n---\n# Atlas decision\n\nRelease migrations in small reversible stages. Keep the previous schema readable until rollback is no longer needed.\n\n## Implementation\nRollbackCoordinator implements this decision.\n\n## Evidence\n[[Sources/Atlas]]\n",
+    "Knowledge/Beacon.md": "---\nid: \"Knowledge/Beacon.md\"\ntitle: \"Beacon decision\"\ntype: \"reference\"\nsummary: \"Reconnect to the existing terminal process using its session identity. Display unknown state while checking whether it survived.\"\nproject: \"Beacon\"\nstatus: \"current\"\naliases: [\"terminal process session reconnect unknown checking\"]\n---\n# Beacon decision\n\nReconnect to the existing terminal process using its session identity. Display unknown state while checking whether it survived.\n\n## Implementation\nSessionRegistry implements this decision.\n\n## Evidence\n[[Sources/Beacon]]\n",
+    "Knowledge/Cedar.md": "---\nid: \"Knowledge/Cedar.md\"\ntitle: \"Cedar decision\"\ntype: \"reference\"\nsummary: \"Show a disclosure when a document is included in a conversation. Removing the document removes its disclosure.\"\nproject: \"Cedar\"\nstatus: \"current\"\naliases: [\"document attachment sharing disclosure conversation\"]\n---\n# Cedar decision\n\nShow a disclosure when a document is included in a conversation. Removing the document removes its disclosure.\n\n## Implementation\nAttachmentDisclosure implements this decision.\n\n## Evidence\n[[Sources/Cedar]]\n",
+    "Knowledge/Delta.md": "---\nid: \"Knowledge/Delta.md\"\ntitle: \"Delta decision\"\ntype: \"reference\"\nsummary: \"Deduplicate payment callbacks using the provider event identifier. Keep the ledger entry and processing receipt in one transaction.\"\nproject: \"Delta\"\nstatus: \"current\"\naliases: [\"duplicate payment callback event idempotent ledger\"]\n---\n# Delta decision\n\nDeduplicate payment callbacks using the provider event identifier. Keep the ledger entry and processing receipt in one transaction.\n\n## Implementation\nPaymentLedger implements this decision.\n\n## Evidence\n[[Sources/Delta]]\n",
+    "Knowledge/Ember.md": "---\nid: \"Knowledge/Ember.md\"\ntitle: \"Ember decision\"\ntype: \"reference\"\nsummary: \"Publish a completed cache generation atomically. Keep the previous generation available if a refresh is interrupted.\"\nproject: \"Ember\"\nstatus: \"current\"\naliases: [\"cache generation refresh interrupted previous atomic\"]\n---\n# Ember decision\n\nPublish a completed cache generation atomically. Keep the previous generation available if a refresh is interrupted.\n\n## Implementation\nCacheGeneration implements this decision.\n\n## Evidence\n[[Sources/Ember]]\n",
+    "Knowledge/Finch.md": "---\nid: \"Knowledge/Finch.md\"\ntitle: \"Finch decision\"\ntype: \"reference\"\nsummary: \"Grant access only to the selected vault and configuration directory. A plugin installation does not establish filesystem access.\"\nproject: \"Finch\"\nstatus: \"current\"\naliases: [\"plugin filesystem permission vault directory access\"]\n---\n# Finch decision\n\nGrant access only to the selected vault and configuration directory. A plugin installation does not establish filesystem access.\n\n## Implementation\nPermissionBroker implements this decision.\n\n## Evidence\n[[Sources/Finch]]\n",
+    "Knowledge/Grove.md": "---\nid: \"Knowledge/Grove.md\"\ntitle: \"Grove decision\"\ntype: \"reference\"\nsummary: \"Preserve original source bytes and record extraction coverage. A partial transcript must not be described as a complete recording.\"\nproject: \"Grove\"\nstatus: \"current\"\naliases: [\"partial transcript source extraction coverage recording\"]\n---\n# Grove decision\n\nPreserve original source bytes and record extraction coverage. A partial transcript must not be described as a complete recording.\n\n## Implementation\nSourceArchive implements this decision.\n\n## Evidence\n[[Sources/Grove]]\n",
+    "Knowledge/Harbor.md": "---\nid: \"Knowledge/Harbor.md\"\ntitle: \"Harbor decision\"\ntype: \"reference\"\nsummary: \"Reject updates based on stale content hashes. Read the latest user edits and reconcile before replacing the note.\"\nproject: \"Harbor\"\nstatus: \"current\"\naliases: [\"stale content hash conflict user edits reconcile\"]\n---\n# Harbor decision\n\nReject updates based on stale content hashes. Read the latest user edits and reconcile before replacing the note.\n\n## Implementation\nConflictResolver implements this decision.\n\n## Evidence\n[[Sources/Harbor]]\n",
+    "Knowledge/Iris.md": "---\nid: \"Knowledge/Iris.md\"\ntitle: \"Iris decision\"\ntype: \"reference\"\nsummary: \"Read the paragraph around a search match before quoting it. A matching sentence can be qualified or negated by adjacent text.\"\nproject: \"Iris\"\nstatus: \"current\"\naliases: [\"search evidence paragraph qualifier negation adjacent\"]\n---\n# Iris decision\n\nRead the paragraph around a search match before quoting it. A matching sentence can be qualified or negated by adjacent text.\n\n## Implementation\nEvidenceReader implements this decision.\n\n## Evidence\n[[Sources/Iris]]\n",
+    "Knowledge/Juniper.md": "---\nid: \"Knowledge/Juniper.md\"\ntitle: \"Juniper decision\"\ntype: \"reference\"\nsummary: \"Resolve people using stable identity and context. Two people with the same display name must remain separate entities.\"\nproject: \"Juniper\"\nstatus: \"current\"\naliases: [\"people identity display name ambiguity separate context\"]\n---\n# Juniper decision\n\nResolve people using stable identity and context. Two people with the same display name must remain separate entities.\n\n## Implementation\nIdentityResolver implements this decision.\n\n## Evidence\n[[Sources/Juniper]]\n",
+    "Other/Atlas.md": "---\nid: \"Other/Atlas.md\"\ntitle: \"Atlas decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Atlas-other\"\nstatus: \"current\"\naliases: []\n---\n# Atlas decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: reversible migration rollback staged deployment\n",
+    "Other/Beacon.md": "---\nid: \"Other/Beacon.md\"\ntitle: \"Beacon decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Beacon-other\"\nstatus: \"current\"\naliases: []\n---\n# Beacon decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: terminal process session reconnect unknown checking\n",
+    "Other/Cedar.md": "---\nid: \"Other/Cedar.md\"\ntitle: \"Cedar decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Cedar-other\"\nstatus: \"current\"\naliases: []\n---\n# Cedar decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: document attachment sharing disclosure conversation\n",
+    "Other/Delta.md": "---\nid: \"Other/Delta.md\"\ntitle: \"Delta decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Delta-other\"\nstatus: \"current\"\naliases: []\n---\n# Delta decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: duplicate payment callback event idempotent ledger\n",
+    "Other/Ember.md": "---\nid: \"Other/Ember.md\"\ntitle: \"Ember decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Ember-other\"\nstatus: \"current\"\naliases: []\n---\n# Ember decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: cache generation refresh interrupted previous atomic\n",
+    "Other/Finch.md": "---\nid: \"Other/Finch.md\"\ntitle: \"Finch decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Finch-other\"\nstatus: \"current\"\naliases: []\n---\n# Finch decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: plugin filesystem permission vault directory access\n",
+    "Other/Grove.md": "---\nid: \"Other/Grove.md\"\ntitle: \"Grove decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Grove-other\"\nstatus: \"current\"\naliases: []\n---\n# Grove decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: partial transcript source extraction coverage recording\n",
+    "Other/Harbor.md": "---\nid: \"Other/Harbor.md\"\ntitle: \"Harbor decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Harbor-other\"\nstatus: \"current\"\naliases: []\n---\n# Harbor decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: stale content hash conflict user edits reconcile\n",
+    "Other/Iris.md": "---\nid: \"Other/Iris.md\"\ntitle: \"Iris decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Iris-other\"\nstatus: \"current\"\naliases: []\n---\n# Iris decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: search evidence paragraph qualifier negation adjacent\n",
+    "Other/Juniper.md": "---\nid: \"Other/Juniper.md\"\ntitle: \"Juniper decision\"\ntype: \"reference\"\nsummary: \"A different project with the same short name. Its policy requires a manual approval for every change.\"\nproject: \"Juniper-other\"\nstatus: \"current\"\naliases: []\n---\n# Juniper decision\n\nA different project with the same short name. Its policy requires a manual approval for every change.\n\nTopics discussed: people identity display name ambiguity separate context\n",
+    "Sources/Atlas.md": "---\nid: \"Sources/Atlas.md\"\ntitle: \"Atlas planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Atlas\"\nstatus: \"current\"\naliases: []\n---\n# Atlas planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Atlas.\n\n## Acceptance condition\nThe rollback rehearsal must finish before the Friday change window.\n",
+    "Sources/Beacon.md": "---\nid: \"Sources/Beacon.md\"\ntitle: \"Beacon planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Beacon\"\nstatus: \"current\"\naliases: []\n---\n# Beacon planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Beacon.\n\n## Acceptance condition\nThe session lease lasts ninety seconds after transport loss.\n",
+    "Sources/Cedar.md": "---\nid: \"Sources/Cedar.md\"\ntitle: \"Cedar planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Cedar\"\nstatus: \"current\"\naliases: []\n---\n# Cedar planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Cedar.\n\n## Acceptance condition\nThe disclosure must remain readable with larger accessibility text.\n",
+    "Sources/Delta.md": "---\nid: \"Sources/Delta.md\"\ntitle: \"Delta planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Delta\"\nstatus: \"current\"\naliases: []\n---\n# Delta planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Delta.\n\n## Acceptance condition\nKeep provider event identifiers for thirteen months.\n",
+    "Sources/Ember.md": "---\nid: \"Sources/Ember.md\"\ntitle: \"Ember planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Ember\"\nstatus: \"current\"\naliases: []\n---\n# Ember planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Ember.\n\n## Acceptance condition\nRefresh receipts include the source revision and generation checksum.\n",
+    "Sources/Finch.md": "---\nid: \"Sources/Finch.md\"\ntitle: \"Finch planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Finch\"\nstatus: \"current\"\naliases: []\n---\n# Finch planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Finch.\n\n## Acceptance condition\nVerify access by writing and reading a uniquely labeled disposable note.\n",
+    "Sources/Grove.md": "---\nid: \"Sources/Grove.md\"\ntitle: \"Grove planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Grove\"\nstatus: \"current\"\naliases: []\n---\n# Grove planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Grove.\n\n## Acceptance condition\nThe missing segment starts at minute forty-two.\n",
+    "Sources/Harbor.md": "---\nid: \"Sources/Harbor.md\"\ntitle: \"Harbor planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Harbor\"\nstatus: \"current\"\naliases: []\n---\n# Harbor planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Harbor.\n\n## Acceptance condition\nNever expire the write lock solely because it is old.\n",
+    "Sources/Iris.md": "---\nid: \"Sources/Iris.md\"\ntitle: \"Iris planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Iris\"\nstatus: \"current\"\naliases: []\n---\n# Iris planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Iris.\n\n## Acceptance condition\nCode blocks must retain their surrounding heading when retrieved.\n",
+    "Sources/Juniper.md": "---\nid: \"Sources/Juniper.md\"\ntitle: \"Juniper planning record\"\ntype: \"reference\"\nsummary: \"Planning transcript.\"\nproject: \"Juniper\"\nstatus: \"current\"\naliases: []\n---\n# Juniper planning record\n\nPlanning transcript.\n\n## Agenda 0\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 1\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 2\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 3\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 4\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 5\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 6\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 7\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 8\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 9\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 10\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 11\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 12\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 13\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Agenda 14\nDiscussion of staffing, review windows and documentation ownership for Juniper.\n\n## Acceptance condition\nUse the organization and project context to disambiguate contacts.\n"
+  },
+  "calls": [
+    {
+      "name": "Atlas-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "RollbackCoordinator responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What is the recovery strategy when a database release goes wrong?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What safeguards are required when rolling out schema changes?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What deployment approach was abandoned?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What must be completed before the scheduled change window?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain the migration strategy and the prerequisite for the Friday release.",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Where is RollbackCoordinator documented?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we retain the ability to back out a schema rollout?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which database rollout policy applies in this project?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Before staged releases were adopted, how was the switch meant to happen?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "When does the exercise proving we can reverse changes need to finish?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Atlas-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What protects older readers during rollout, and what exercise gates the release?",
+        "limit": 5,
+        "scope": "Atlas"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "SessionRegistry responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should the terminal appear while we are unsure whether its process survived?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What should reconnection do with an existing shell?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How was a missing heartbeat interpreted under the old policy?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How long can transport remain disconnected before its lease runs out?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain how shell reconnection works and how long its lease survives disconnection.",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Find the behavior implemented by SessionRegistry.",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What do we show while checking whether a shell is still alive?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Should a reconnect attach to the old process or create another?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What status did the earlier implementation assign when heartbeats stopped?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What grace period follows losing the transport?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Beacon-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we identify the process to reattach to, and what is the disconnection grace period?",
+        "limit": 5,
+        "scope": "Beacon"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "AttachmentDisclosure responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What happens to the notice after an attached document is removed?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "When should a conversation include a document sharing notice?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What did removal do to the notice under the earlier behavior?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What accessibility requirement applies to the sharing message?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Describe when the document notice appears and its accessibility constraint.",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Find AttachmentDisclosure and its responsibilities.",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Should a conversation still warn about a file that is no longer attached?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What indication should users see when a document accompanies a message?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which obsolete behavior kept a notice visible after the attachment was gone?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should the notice behave when someone increases their text size?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Cedar-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "When should the sharing notice disappear, and how must enlarged text be handled?",
+        "limit": 5,
+        "scope": "Cedar"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "PaymentLedger responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do repeated provider notifications avoid creating a second charge?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What makes callback processing safe to retry?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which identifier did the earlier duplicate check use?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How long must identifiers from payment provider events be retained?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What identifies duplicate payment events, and how long do we keep that information?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What behavior does PaymentLedger implement?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we ensure a retried notification cannot bill a customer again?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which writes must succeed together when handling a provider callback?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What was wrong with the old customer-based duplicate detection policy?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "When can the retained provider event identifiers be discarded?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Delta-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How is double billing prevented, and what retention period supports that check?",
+        "limit": 5,
+        "scope": "Delta"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "CacheGeneration responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What remains usable if rebuilding cached data is interrupted?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should completed cached data become visible?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What did the previous rebuild process remove first?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which provenance fields must a refresh receipt contain?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain publication of refreshed cached data and what its receipt records.",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Find CacheGeneration and the rule it enforces.",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Can readers continue using the old cached data after a rebuild fails?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What must happen before a replacement generation becomes visible?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which discarded approach destroyed the usable cache before rebuilding?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What information lets us trace and check a published refresh?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Ember-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do failed refreshes affect readers, and what identifies a successful generation?",
+        "limit": 5,
+        "scope": "Ember"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "PermissionBroker responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Why might installed tooling still be unable to open notes?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which directories should receive access grants?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What did installation supposedly grant under the earlier assumption?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What concrete exercise proves the agent has write and read access?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain the access boundary and how to prove the needed permissions exist.",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Where is PermissionBroker described?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Why does loading an extension not prove it can use the vault?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How broad should the filesystem permission grant be?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which obsolete assumption equated installation with directory access?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How can we demonstrate permissions work without modifying real notes?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Finch-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What locations should be authorized, and what disposable check verifies that authorization?",
+        "limit": 5,
+        "scope": "Finch"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "SourceArchive responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should incomplete transcription be represented?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What must be retained alongside extracted recording text?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What completion claim did the earlier file-copy workflow make?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Where does the unavailable part of the recording begin?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we describe extraction completeness, and where is the missing audio?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What does SourceArchive preserve?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Can a transcript covering only some of a recording count as complete?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should original evidence and extraction gaps be recorded?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Why was the old fully-integrated label on copied files misleading?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "At what timestamp does the untranscribed segment start?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Grove-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What must remain available when transcription is partial, and what segment is absent?",
+        "limit": 5,
+        "scope": "Grove"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "ConflictResolver responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we avoid replacing a note with an outdated version?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What is required before retrying an update after user edits?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How did the old implementation retry conflicting writes?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Is the age of a write lock sufficient reason to remove it?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain how a conflicting edit is handled and the rule for aging write locks.",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Find ConflictResolver and its update policy.",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What should happen when the stored digest no longer matches the user’s note?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we reconcile changes before replacing current content?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which prior retry strategy could discard intervening edits?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What must never be used as the sole justification for expiring a lock?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Harbor-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How are newer edits protected, and may an old lock be expired automatically?",
+        "limit": 5,
+        "scope": "Harbor"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "EvidenceReader responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Why can an isolated matching sentence be unsafe to quote?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How much context should be read before answering from a search result?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What evidence did the earlier answering process rely on?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What context must stay attached to a retrieved code block?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain the contextual reading rule and the requirement for retrieved code.",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What responsibility belongs to EvidenceReader?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How do we catch qualifications that reverse the meaning of a matching sentence?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What should surround a search hit before it is used as evidence?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How did the old approach turn isolated snippets directly into answers?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "When returning a code excerpt, which surrounding structure must be preserved?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Iris-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What additional context protects prose interpretations and code excerpts?",
+        "limit": 5,
+        "scope": "Iris"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "IdentityResolver responsibilities",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How should two people sharing a display name be represented?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What information determines whether contacts are the same person?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What criterion caused contacts to merge under the earlier rule?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which contextual attributes should resolve a contact-name collision?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-development-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Explain identity resolution and the context needed when names collide.",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-symbol",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Find IdentityResolver and its matching rule.",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-paraphrase",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Why is a matching display name insufficient to combine two contacts?",
+        "limit": 5
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-scope",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What prevents different people from becoming a single entity?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-history",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "Which abandoned matching approach depended on similar names?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-source",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "What additional information should be checked when contact names are identical?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    },
+    {
+      "name": "Juniper-heldout-multi",
+      "action": "search",
+      "arguments": {
+        "orbit": "Test",
+        "query": "How are same-name people kept distinct, and which affiliations help tell them apart?",
+        "limit": 5,
+        "scope": "Juniper"
+      },
+      "expect_error": false
+    }
+  ]
+}

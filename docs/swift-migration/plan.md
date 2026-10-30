@@ -7,3 +7,5 @@ Completion requires equivalent results and durable bytes for every supported ope
 Units: capture contract and baseline; port engine and revision state; port schemas, formatting and migration; port retrieval and source integration; integrate shared boundary into MCP and app; exercise parity and recovery; package and verify native hosts/devices; retire Python and document rollback. Independent modules use separate worktrees. All discrepancies remain failures until explained and tested.
 
 The source has 19 tool actions and nine engine modules. Beyond the requested inventory, parity includes graph diagnostics, source byte deduplication, bounded catalogs/context, integration stages and verification evidence, schema-definition conflicts, unknown metadata blocks, external observations, migration journals, and immutable receipts. File format remains 3, with explicit legacy migration support. Package, contract and disk versions remain separate.
+
+The detailed [behavior inventory](inventory.md) maps all public actions and internal preservation responsibilities to their Swift owners. Current proof and open gates are in [verification](verification.md).
