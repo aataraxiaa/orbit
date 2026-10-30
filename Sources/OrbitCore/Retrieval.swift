@@ -214,7 +214,9 @@ extension OrbitEngine {
   func retrievalRefresh(_ root: URL, rebuild: Bool = false) throws -> JSONObject {
     do { return try retrievalRefreshChecked(root, rebuild: rebuild) } catch let error
       as RetrievalError
-    { throw error } catch let error as OrbitError { throw error } catch {
+    { throw error } catch let error as OrbitError { throw error } catch is CancellationError {
+      throw CancellationError()
+    } catch {
       throw RetrievalError(String(describing: error))
     }
   }
@@ -363,6 +365,8 @@ extension OrbitEngine {
         root, query: query, limit: limit, scope: scope, noteType: noteType, status: status)
     } catch let error as RetrievalError { throw error } catch let error as OrbitError {
       throw error
+    } catch is CancellationError {
+      throw CancellationError()
     } catch { throw RetrievalError(String(describing: error)) }
   }
   private func retrievalSearchChecked(

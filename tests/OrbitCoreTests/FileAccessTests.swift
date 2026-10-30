@@ -117,4 +117,20 @@ final class FileAccessTests: XCTestCase {
     XCTAssertFalse(FileManager.default.fileExists(atPath: provided.path))
     XCTAssertEqual(access.calls.map { $0.mode }, [.write, .delete])
   }
+  @MainActor
+  func testCancelledTaskStopsBeforeFilesystemAccess() async throws {
+    let access = RecordingFileAccess()
+    let engine = OrbitEngine(
+      configURL: base.appendingPathComponent("config.json"),
+      cacheURL: base.appendingPathComponent("cache"),
+      stateURL: base.appendingPathComponent("state"), fileAccess: access)
+    let task = Task { @MainActor in try engine.execute("list") }
+    task.cancel()
+    do {
+      _ = try await task.value
+      XCTFail("Cancelled operation must not return missing or empty results")
+    } catch is CancellationError {}
+    XCTAssertTrue(access.calls.isEmpty)
+  }
+
 }

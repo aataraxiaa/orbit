@@ -115,7 +115,7 @@ extension OrbitEngine {
   func knowledgeLoadRecord(_ root: URL, path: URL) throws -> JSONObject {
     do { return try knowledgeValidateRecord(root, record: readJSON(path), path: path) } catch let
       error as OrbitError
-    { throw error } catch {
+    { throw error } catch is CancellationError { throw CancellationError() } catch {
       throw OrbitError(
         "Cannot read integration record " + path.lastPathComponent + ": "
           + String(describing: error))
@@ -175,6 +175,7 @@ extension OrbitEngine {
       let folder = try safe(root, ".orbit/integrations")
       let sync = replicationEnabled(root) ? try replicationInspect(root) : [:]
       for path in try eChildren(folder, suffix: ".json") {
+        try Task.checkCancellation()
         let relative = try eRelative(path, root: root)
         do {
           if strings(sync["blocked_paths"]).contains(relative) {
@@ -187,6 +188,8 @@ extension OrbitEngine {
           var entry = try knowledgeLoadRecord(root, path: safe(root, relative))
           if !sync.isEmpty { entry["heads"] = (sync["heads"] as? JSONObject)?[relative] ?? [] }
           records.append(entry)
+        } catch is CancellationError {
+          throw CancellationError()
         } catch {
           errors.append([
             "kind": "malformed-integration", "path": relative, "error": String(describing: error),
@@ -365,7 +368,9 @@ extension OrbitEngine {
       return value
     }
     for record in eObjects(integrations["records"]) {
-      do { try knowledgeCheckSource(root, record: record) } catch {
+      do { try knowledgeCheckSource(root, record: record) } catch is CancellationError {
+        throw CancellationError()
+      } catch {
         flags.append([
           "kind": "integration-source-changed", "source_sha256": record["source_sha256"] ?? "",
           "priority": 1,
@@ -387,7 +392,7 @@ extension OrbitEngine {
             changed =
               try eString(read(root, path: eString(note["path"]), count: 1)["sha256"])
               != eString(note["sha256"])
-          } catch {}
+          } catch is CancellationError { throw CancellationError() } catch {}
           if changed {
             flags.append([
               "kind": "integration-evidence-changed", "evidence_role": role,
