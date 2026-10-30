@@ -210,7 +210,9 @@ extension OrbitEngine {
   func retrievalRefresh(_ root: URL, rebuild: Bool = false) throws -> JSONObject {
     do { return try retrievalRefreshChecked(root, rebuild: rebuild) } catch let error
       as RetrievalError
-    { throw error } catch { throw RetrievalError(String(describing: error)) }
+    { throw error } catch let error as OrbitError { throw error } catch {
+      throw RetrievalError(String(describing: error))
+    }
   }
   private func retrievalRefreshChecked(_ root: URL, rebuild: Bool) throws -> JSONObject {
     let path = try retrievalCachePath(root)
@@ -257,7 +259,7 @@ extension OrbitEngine {
       for path in changed {
         let raw = try Data(contentsOf: safe(root, path))
         guard var text = String(data: raw, encoding: .utf8) else {
-          throw RetrievalError("Invalid UTF-8")
+          throw OrbitError("Invalid UTF-8")
         }
         if text.hasPrefix("\u{feff}") { text.removeFirst() }
         let meta = metadata(text)
@@ -349,6 +351,17 @@ extension OrbitEngine {
     ]
   }
   func retrievalSearch(
+    _ root: URL, query: String, limit: Int = 8, scope: String? = nil, noteType: String? = nil,
+    status: String? = nil
+  ) throws -> JSONObject {
+    do {
+      return try retrievalSearchChecked(
+        root, query: query, limit: limit, scope: scope, noteType: noteType, status: status)
+    } catch let error as RetrievalError { throw error } catch let error as OrbitError {
+      throw error
+    } catch { throw RetrievalError(String(describing: error)) }
+  }
+  private func retrievalSearchChecked(
     _ root: URL, query: String, limit: Int = 8, scope: String? = nil, noteType: String? = nil,
     status: String? = nil
   ) throws -> JSONObject {
