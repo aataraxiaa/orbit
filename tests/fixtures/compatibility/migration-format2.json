@@ -1,0 +1,43 @@
+{
+  "reference": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "inputs": {
+    ".orbit/integrations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json": "{\"source_sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"stage\": \"captured\", \"custom\": {\"z\": \"retained\", \"a\": true}}\r\n",
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 2, \"orbit_version\": \"0.5.0\", \"custom\": {\"z\": \"é\", \"a\": true}}\n",
+    "Knowledge/Exact.md": "﻿---\r\nid: exact\r\ntitle: Exact\r\ntype: knowledge\r\nsummary: Original\r\ncustom:\r\n  nested: yes\r\n---\r\nBody\r\n",
+    "Schemas/Concept.md": "---\nid: \"orbit-schema-concept-v1\"\ntitle: \"Concept schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit concept notes.\"\nschema_for: \"concept\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Concept schema\n\nStore reusable knowledge in Knowledge/. Maintain one coherent note for a concept. Project and session notes link here when the knowledge is reusable. Preserve evidence and qualifications when updating it.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Decision.md": "---\nid: \"orbit-schema-decision-v1\"\ntitle: \"Decision schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit decision notes.\"\nschema_for: \"decision\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\"]\nrequired_sections: [\"Rationale\", \"Alternatives\"]\nvalidation: \"warn\"\n---\n# Decision schema\n\nStore project decisions in Projects/<project>/Decisions/. Record the chosen action, its rationale, alternatives, and the evidence behind it. Keep one canonical decision and link to it from sessions and project overviews.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Map.md": "---\nid: \"orbit-schema-map-v1\"\ntitle: \"Map schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit map notes.\"\nschema_for: \"map\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Map schema\n\nStore navigation in Maps/. Explain useful starting points and link to canonical notes. Do not duplicate the catalog or copy the linked knowledge.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Person.md": "---\nid: \"orbit-schema-person-v1\"\ntitle: \"Person schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit person notes.\"\nschema_for: \"person\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Person schema\n\nStore people in People/. Save only relevant user-requested information and retain its source. Link to projects instead of duplicating project details.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Project.md": "---\nid: \"orbit-schema-project-v1\"\ntitle: \"Project schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit project notes.\"\nschema_for: \"project\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"status\"]\nrequired_sections: [\"Purpose\", \"Current state\"]\nvalidation: \"warn\"\n---\n# Project schema\n\nKeep the project overview in Projects/<project>/Overview.md. Summarize the current state and link to canonical decisions, knowledge, sources, and sessions. Do not copy their full contents here.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Session.md": "---\nid: \"orbit-schema-session-v1\"\ntitle: \"Session schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit session notes.\"\nschema_for: \"session\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\", \"observed\"]\nrequired_sections: [\"Objective\", \"Outcomes\", \"Open questions\", \"Next actions\", \"Connections\"]\nvalidation: \"warn\"\n---\n# Session schema\n\nStore a requested session summary in Projects/<project>/Sessions/. Use observed for the verified session date. Capture outcomes and enough context to resume. Link to canonical decisions and knowledge instead of copying their facts. Sessions describe what happened at a point in time; read linked notes for current knowledge. Do not capture a transcript or unrelated conversation unless requested. A non-project session may use a dedicated personal project.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Schemas/Source.md": "---\nid: \"orbit-schema-source-v1\"\ntitle: \"Source schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit source notes.\"\nschema_for: \"source\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Source schema\n\nStore source notes in Sources/ and originals in Sources/assets/. Preserve original bytes and separate source statements from synthesis. Record the source location, capture scope, extraction gaps, and verified dates or hashes when available.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n",
+    "Sources/assets/original.bin": "original\u0000bytes"
+  },
+  "plan": {
+    "status": "preview",
+    "data_format": 2,
+    "source_version": "0.5.0",
+    "target_version": "0.6.0",
+    "pending": [],
+    "target_format": 3,
+    "plan_id": "c4c0de99a405d542aa33f40590da0ad575b07b811d7ecedfdda78dc2fb13c456",
+    "changes": [
+      {
+        "path": ".orbit/vault.json",
+        "action": "update"
+      },
+      {
+        "path": ".orbit/commits",
+        "action": "seed"
+      }
+    ],
+    "warnings": [
+      "Upgrade every participating installation before applying; offline old clients cannot be fenced."
+    ],
+    "schema_warnings": []
+  },
+  "marker_after": "{\n  \"schema\": 1,\n  \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\",\n  \"data_format\": 3,\n  \"orbit_version\": \"0.6.0\",\n  \"custom\": {\n    \"z\": \"é\",\n    \"a\": true\n  }\n}\n",
+  "seed_history": {
+    ".orbit/commits/73e38b8d-04fc-5799-96a3-f1c753cbca5b.json": "aec833c1ed0cf6bfb917142a5e767349eb051330dba44422cb16bf14893a36bc"
+  }
+}

@@ -164,4 +164,19 @@ final class FormattingMigrationTests: XCTestCase {
         try atomic(safe(root, ".orbit/vault.json"), encode(["id": UUID().uuidString, "data_format": 2, "orbit_version": "10.0.0"]))
         XCTAssertThrowsError(try engine.migrationEnsureWritable(root))
     }
+
+    func testFormatTwoMigrationMatchesFrozenPythonPlanHashesAndMarkerBytes() throws {
+        let fixtureURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/migration-format2.json")
+        let fixture = try readJSON(fixtureURL)
+        let (root, engine) = try workspace()
+        for (path, text) in fixture["inputs"] as! [String: String] { try put(root, path, text) }
+        let expected = fixture["plan"] as! JSONObject
+        let plan = try engine.migrate(root)
+        XCTAssertEqual(plan["plan_id"] as? String, expected["plan_id"] as? String)
+        let result = try engine.migrate(root, action: "apply", planID: plan["plan_id"] as? String)
+        XCTAssertEqual(result["verified"] as? Bool, true)
+        XCTAssertEqual(try Data(contentsOf: safe(root, ".orbit/vault.json")), Data((fixture["marker_after"] as! String).utf8))
+        let seedHistory = fixture["seed_history"] as! [String: String]
+        for (path, hash) in seedHistory { XCTAssertEqual(digest(try Data(contentsOf: safe(root, path))), hash) }
+    }
 }
