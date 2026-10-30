@@ -4,7 +4,7 @@ The migration is not complete. Native desktop-host installation/fresh-conversati
 
 ## Tested source and artifacts
 
-OrbitCore package revision: `6657be92ef4012efded9104f3c348882d675c07a`, package `0.7.0-dev`, tool contract 1, disk format 3. Python reference source is `94ffc6ad9be082ceceb2daebb45296ebd53f3863`; its engine remains unchanged. The app consumes an exact remote revision pin, coordinated through its integration PR.
+OrbitCore package revision: `6657be92ef4012efded9104f3c348882d675c07a`, package `0.7.0-dev`, tool contract 1, disk format 3. Python reference source is `94ffc6ad9be082ceceb2daebb45296ebd53f3863`; its engine remains unchanged. The app consumes this exact remote revision pin, coordinated through its integration PR. LocalInference is pinned separately to version0.2.0.
 
 MobileBuildMCP built a universal arm64/x86_64 Release executable. Both slices record macOS13 minimum deployment. Execution checks ran on the current Apple Silicon Mac. Intel hardware and a separate Mac without a development toolchain were not available. The relocated checks remove developer/Python tools from PATH, and linked dependencies are system libraries/frameworks.
 
