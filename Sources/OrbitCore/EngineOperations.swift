@@ -7,7 +7,7 @@ func eInt(_ value: Any?, _ fallback: Int = 0) -> Int { value as? Int ?? fallback
 func eBool(_ value: Any?) -> Bool { value as? Bool ?? false }
 func eExists(_ url: URL) -> Bool { FileManager.default.fileExists(atPath: url.path) }
 func eText(_ url: URL) throws -> String { let data = try Data(contentsOf: url); guard let text = String(data:data,encoding:.utf8) else { throw OrbitError("Invalid UTF-8: " + url.path) }; return text }
-func eLines(_ text: String) -> [String] { var lines = text.components(separatedBy: .newlines); if lines.last == "" { lines.removeLast() }; return lines }
+func eLines(_ text: String) -> [String] { var lines = text.replacingOccurrences(of:"\r\n",with:"\n").components(separatedBy: .newlines); if lines.last == "" { lines.removeLast() }; return lines }
 func eEqual(_ lhs: Any?, _ rhs: Any?) -> Bool { if lhs == nil || lhs is NSNull { return rhs == nil || rhs is NSNull }; guard let lhs, let rhs else { return false }; return (try? canonical(lhs)) == (try? canonical(rhs)) }
 func eMatches(_ pattern: String, _ text: String, _ options: NSRegularExpression.Options = []) -> [[String]] { guard let regex = try? NSRegularExpression(pattern:pattern, options:options) else { return [] }; let ns = text as NSString; return regex.matches(in:text,range:NSRange(location:0,length:ns.length)).map { match in (0..<match.numberOfRanges).map { match.range(at:$0).location == NSNotFound ? "" : ns.substring(with:match.range(at:$0)) } } }
 func eReplace(_ pattern: String, _ text: String, _ replacement: String, _ options: NSRegularExpression.Options = []) -> String { guard let regex = try? NSRegularExpression(pattern:pattern, options:options) else { return text }; return regex.stringByReplacingMatches(in:text,range:NSRange(text.startIndex...,in:text),withTemplate:replacement) }
@@ -218,7 +218,7 @@ extension OrbitEngine {
         return try dispatchCurrent(action,arguments:arguments,root:root)
     }
     func dispatchCurrent(_ action:String,arguments a:JSONObject,root:URL)throws->JSONObject {
-        if ["search","catalog","context","relations","index"].contains(action),!eObjects(try migrationStatus(root)["pending"]).isEmpty { throw OrbitError("Finish the pending migration before retrieving a coherent Orbit view") }
+        if ["search","catalog","context","relations","index"].contains(action),!((try migrationStatus(root)["pending"]) as? [Any] ?? []).isEmpty { throw OrbitError("Finish the pending migration before retrieving a coherent Orbit view") }
         switch action {
         case "format":return try apply(root,plan:a["plan"] as? JSONObject ?? [:],dryRun:a["dry_run"] as? Bool ?? true,formatMetadata:true)
         case "migrate":return try migrate(root,action:a["action"] as? String ?? "plan",targetVersion:a["target_version"] as? String,planID:a["plan_id"] as? String,operation:a["operation"] as? String)

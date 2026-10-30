@@ -7,7 +7,8 @@ private let sqliteTransient=unsafeBitCast(-1,to:sqlite3_destructor_type.self)
 private final class SearchDB {
     var pointer:OpaquePointer?
     init(_ url:URL)throws { let code=sqlite3_open(url.path,&pointer);guard code == SQLITE_OK else { let message=pointer.map{String(cString:sqlite3_errmsg($0))} ?? "Cannot open search cache";if pointer != nil { sqlite3_close(pointer) };pointer=nil;throw RetrievalError(message,code) };sqlite3_busy_timeout(pointer,3000);chmod(url.path,0o600) }
-    deinit { sqlite3_close(pointer) }
+    deinit { close() }
+    func close() { if pointer != nil { sqlite3_close(pointer);pointer=nil } }
     func execute(_ sql:String,_ values:[Any]=[])throws { _=try query(sql,values) }
     func script(_ sql:String)throws { let code=sqlite3_exec(pointer,sql,nil,nil,nil);if code != SQLITE_OK { throw RetrievalError(String(cString:sqlite3_errmsg(pointer)),code) } }
     func query(_ sql:String,_ values:[Any]=[])throws->[JSONObject] {
@@ -91,6 +92,7 @@ extension OrbitEngine {
             best=[];selected=[];overview=[:]
             for row in try db.query(sql+" ORDER BY rank,n.path,p.start",params) { let path=eString(row["path"]);if best.contains(path) { continue };best.insert(path);selected.append(row);selected.sort(by:ordering);if selected.count>bounded { selected.removeLast() } }
             for index in selected.indices { let path=eString(selected[index]["path"]);selected[index]["body"]=try db.query("SELECT body FROM passages WHERE id=?",[selected[index]["passage_id"] ?? 0]).first?["body"] ?? "";if let opening=try db.query("SELECT * FROM passages WHERE path=? ORDER BY start LIMIT 1",[path]).first { overview[path]=opening } }
+            db.close()
             let stale=try selected.contains{try digest(Data(contentsOf:safe(root,eString($0["path"])))) != eString($0["sha256"])}
             if !stale { break };if attempt == 1 { throw RetrievalError("Retrieved evidence changed repeatedly; retry against current files") };freshness=try retrievalRefresh(root,rebuild:true)
         }
