@@ -159,7 +159,8 @@ extension OrbitEngine {
             let evidence = (record["notes"] as? [JSONObject] ?? []) + (record["extraction"] as? [JSONObject] ?? [])
             let affected = try evidence.contains { item in
                 guard let path = item["path"] as? String, let destination = mapping[path] else { return false }
-                return destination != path || !migrationEqual(desired[destination], try migrationRead(root, path))
+                let original = try migrationRead(root, path)
+                return destination != path || !migrationEqual(desired[destination], original)
             }
             if affected {
                 var errors = record["errors"] as? [String] ?? []
