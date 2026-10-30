@@ -202,8 +202,9 @@ extension OrbitEngine {
     }
 
     private func migrationExecuteLegacy(_ root: URL, record input: JSONObject, journal: URL, rollback: Bool = false) throws -> JSONObject {
+        try migrationValidateJournal(input, replicated: false)
         var record = input
-        let writes = record["writes"] as? [JSONObject] ?? []
+        let writes = record["writes"] as! [JSONObject]
         for write in writes { try migrationPreflight(root, write) }
         if !rollback { for directory in orbitDirectories { try FileManager.default.createDirectory(at: safe(root, directory), withIntermediateDirectories: true) } }
         let direction = rollback ? "rollback" : "forward"
@@ -294,6 +295,7 @@ extension OrbitEngine {
     }
 
     private func migrationExecuteReplication(_ root: URL, record input: JSONObject, journal: URL, rollback requestedRollback: Bool = false) throws -> JSONObject {
+        try migrationValidateJournal(input, replicated: true)
         var record = input
         guard let write = (record["writes"] as? [JSONObject])?.first, let baseline = record["inputs"] as? [String: String] else { throw OrbitError("Invalid migration journal") }
         let current = try migrationSnapshot(root), currentHistory = current.filter { migrationHistoryPath($0.key) }
@@ -361,6 +363,17 @@ extension OrbitEngine {
             try atomic(journal, encode(record))
             return try migrationExecuteReplication(root, record: record, journal: journal)
         }
+    }
+}
+
+private func migrationValidateJournal(_ record: JSONObject, replicated: Bool) throws {
+    guard record["id"] is String, record["status"] is String, let writes = record["writes"] as? [JSONObject] else { throw OrbitError("Invalid migration journal") }
+    for write in writes {
+        guard write["path"] is String, let before = write["before"], let after = write["after"], before is String || before is NSNull, after is String || after is NSNull else { throw OrbitError("Invalid migration journal write") }
+    }
+    if replicated {
+        guard record["inputs"] is [String: String], record["files"] is [String: String], let write = writes.first, write["path"] as? String == migrationMarker, write["before"] is String, write["after"] is String else { throw OrbitError("Invalid migration journal") }
+        if let history = record["seed_history"], !(history is [String: String]) { throw OrbitError("Invalid migration seed history") }
     }
 }
 

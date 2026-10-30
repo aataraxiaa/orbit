@@ -364,4 +364,18 @@ final class FormattingMigrationTests: XCTestCase {
             XCTAssertEqual(try engine.migrationSnapshot(root), expected["snapshot"] as? [String: String], item["name"] as? String ?? "")
         }
     }
+
+    func testCorruptRecoveryJournalRefusesBeforeTouchingNotes() throws {
+        for format in [1, 2, 3] {
+            let (root, engine) = try workspace()
+            try marker(root, format: format)
+            try put(root, "unchanged.md", "User-owned bytes")
+            let operation = "a8f00000-0000-4000-8000-000000000001"
+            let record: JSONObject = ["id": operation, "status": "prepared", "target_format": format == 3 ? 3 : 2, "writes": [["path": "unchanged.md", "before": 17, "after": "Replacement"]], "inputs": JSONObject(), "files": JSONObject()]
+            try atomic(safe(root, ".orbit/migrations/" + operation + ".json"), encode(record))
+            let snapshot = try engine.migrationSnapshot(root)
+            XCTAssertThrowsError(try engine.migrate(root, action: "resume", targetVersion: format == 3 ? "0.6.0" : "0.5.0", operation: operation))
+            XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
+        }
+    }
 }
