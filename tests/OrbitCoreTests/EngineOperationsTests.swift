@@ -136,4 +136,50 @@ final class EngineOperationsTests: XCTestCase {
     XCTAssertThrowsError(try engine.knowledgeValidateRecord(root, record: invalid, path: path))
   }
 
+  func testIntegrationRequiresEvidenceAndAdvancesThroughVerifiedRecall() throws {
+    let file = base.appendingPathComponent("source.txt")
+    try Data("Evidence about lavender".utf8).write(to: file)
+    let capture = try engine.capture(root, source: file.path)
+    let hash = eString(capture["sha256"])
+    XCTAssertThrowsError(
+      try engine.knowledgeIntegration(
+        root,
+        record: [
+          "source_sha256": hash, "expected_version": 1, "stage": "integrated",
+        ]))
+    let text = note(body: "Lavender needs dry soil.\n")
+    let operation = try engine.apply(root, plan: plan(text))
+    let evidence: JSONObject = ["path": "Knowledge/Garden.md", "sha256": digest(Data(text.utf8))]
+    let extracted = try engine.knowledgeIntegration(
+      root,
+      record: [
+        "source_sha256": hash, "expected_version": 1, "stage": "extracted",
+        "coverage": ["status": "full", "description": "Read complete source"],
+        "extraction": [evidence],
+      ])
+    XCTAssertEqual(extracted["version"] as? Int, 2)
+    let integrated = try engine.knowledgeIntegration(
+      root,
+      record: [
+        "source_sha256": hash, "expected_version": 2, "stage": "integrated",
+        "notes": [evidence], "operations": [eString(operation["operation"])],
+      ])
+    XCTAssertEqual(integrated["version"] as? Int, 3)
+    let verified = try engine.knowledgeIntegration(
+      root,
+      record: [
+        "source_sha256": hash, "expected_version": 3, "stage": "verified",
+        "verification": [["query": "lavender", "paths": ["Knowledge/Garden.md"]]],
+      ])
+    XCTAssertEqual(verified["stage"] as? String, "verified")
+    XCTAssertEqual(verified["version"] as? Int, 4)
+    let finalRecord = try engine.knowledgeLoadRecord(
+      root, path: engine.knowledgeRecordPath(root, sha: hash))
+    XCTAssertEqual(finalRecord["stage"] as? String, "verified")
+    try atomic(
+      root.appendingPathComponent("Knowledge/Garden.md"), Data(note(body: "Human edit\n").utf8))
+    let flags = eObjects(try engine.knowledgeMaintain(root)["candidates"])
+    XCTAssertTrue(flags.contains { eString($0["kind"]) == "integration-evidence-changed" })
+  }
+
 }
