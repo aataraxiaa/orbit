@@ -30,6 +30,13 @@ final class FormattingMigrationTests: XCTestCase {
         XCTAssertEqual(formattingUUID5(UUID(uuidString: "6ba7b810-9dad-11d1-80b4-00c04fd430c8")!, "python.org"), "886313e1-3b8a-5372-9b90-0c9aee199e5d")
     }
 
+    func testSchemaIntegersRejectBooleanAndFloatingPointValues() {
+        XCTAssertNil(schemaInteger(true))
+        XCTAssertNil(schemaInteger(1.0))
+        XCTAssertNil(schemaInteger(2.5))
+        XCTAssertEqual(schemaInteger(1), 1)
+    }
+
     func testFormattingPreservesExactBodyBytesAndStableIDs() throws {
         let (root, engine) = try workspace()
         try marker(root, format: 1)

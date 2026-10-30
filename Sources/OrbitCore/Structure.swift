@@ -22,7 +22,7 @@ func schemaLines(_ text: String, keepingEnds: Bool = false) -> [String] {
 }
 
 func schemaInteger(_ value: Any?) -> Int? {
-    guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(), floor(number.doubleValue) == number.doubleValue else { return nil }
+    guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(), !["f", "d"].contains(String(cString: number.objCType)) else { return nil }
     return number.intValue
 }
 
