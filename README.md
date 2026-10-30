@@ -444,3 +444,7 @@ With no choice, Orbit uses the sole registered entry or asks when there are seve
 Unknown or unavailable names fail without saving elsewhere. Each save is confirmed
 with the actual Orbit name and path after reading back the content. Hooks pass their
 Orbit name explicitly, and must use its new name after a rename.
+
+## Swift migration development
+
+A shared `OrbitCore` Swift package and native `orbit-mcp` executable are under validation. See [architecture](docs/swift-migration/architecture.md) and [transition gates](docs/swift-migration/transition.md). The shipping manifests remain on Python until parity, app integration and native acceptance pass. `scripts/package_swift.py` stages a separate native candidate without Python runtime files. Building that candidate does not install or publish it.

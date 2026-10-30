@@ -157,3 +157,7 @@ scenarios through real installed plugin processes, then confirm cross-app and fr
 readback; deterministic file copying cannot establish iCloud transport behavior.
 
 The synthetic retrieval evaluation creates an existing format-1 corpus before setup. Its report labels `data_format: 1`; it measures retrieval rather than replication performance. Cross-device behavior is covered by the replica and MCP suites.
+
+## Swift compatibility checks
+
+Build and test the root Swift package through MobileBuildMCP. Run `scripts/swift_compatibility.py --swift <built-orbit-mcp> --output <report.json>` using supported Python. The runner creates all folders/config/cache/state in a disposable temporary directory and compares responses plus stored file hashes. Frozen fixtures also cover exact legacy migration plans, seed histories, schema conflicts and interrupted recovery. These are mechanical checks. Follow [native transition acceptance](docs/swift-migration/transition.md) before switching the shipping runtime.

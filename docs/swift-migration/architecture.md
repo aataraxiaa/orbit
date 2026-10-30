@@ -1,0 +1,15 @@
+# Shared Swift implementation
+
+`Package.swift` exposes the `OrbitCore` library and `orbit-mcp` executable. Package revision, command contract version 1, and on-disk format 3 are separate. The development package identifies itself as `0.7.0-dev`. It retains existing `0.6.0` format metadata and explicit legacy migrations. No release or personal-folder migration is authorized by this work.
+
+`OrbitEngine` receives registry, cache and state URLs. `execute(action, argumentsJSON:)` validates the complete public contract and binds the original ordered request bytes for retry hashing. A persisted approved request must retain its action, arguments bytes, UUID and immutable target identity. Dictionary callers receive stable sorted encoding for requests they originate. They must not reconstruct another host's ordered request during an ambiguous retry.
+
+`Contract.swift` and versioned resources supply all 19 tools, validation, MCP initialization instructions and shared save/recall workflows. The native MCP adapter handles newline-delimited JSON-RPC, request bounds and protocol negotiation. The app uses the same engine boundary off the UI thread. Model output remains an untrusted operation request.
+
+`Primitives.swift` preserves conservative metadata parsing, verbatim unknown blocks, safe paths, hashes and atomic replacements. `JSONEncoding.swift` uses Unicode scalar key ordering and preserves BOMs inside JSON string content. Foundation's JSON decoder removed such BOMs in this environment, and Foundation's sorted keys differed from Python. Both differences have regression coverage.
+
+`Replication.swift` accepts immutable snapshots and external observations, checks ancestry and assets, retains alternatives, serializes local projections and returns local durability separately from projection verification. POSIX realpath and process locks share the Python local-state identity. Reentrant locks do not reacquire flock. Local indexes, locks and checkout recovery stay outside the synced folder.
+
+`EngineOperations.swift` validates complete writes, stable identities, unknown metadata, graph findings and expected versions. `Structure.swift`, `Formatting.swift` and `Migration.swift` implement schemas, byte-preserving formatting, both legacy migration routes, backup journals, resume and rollback. `Retrieval.swift` provides incremental FTS5 passages with current-byte checks and bounded lexical fallback. `Knowledge.swift` retains source originals, integration evidence, relationships and maintenance diagnostics.
+
+The Python implementation remains the shipping reference until the native acceptance gates in [transition](transition.md) pass. A compiled port, passing fixtures or an app package pin does not establish iCloud or desktop-host support.

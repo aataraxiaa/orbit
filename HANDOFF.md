@@ -1,5 +1,7 @@
 # Orbit handoff
 
+Swift migration in progress, 30 October 2026. The native OrbitCore package, command boundary, replication, retrieval, source integration, schemas and legacy migrations are implemented on `codex/swift-core-migration`. Read [Swift architecture](docs/swift-migration/architecture.md), [execution plan](docs/swift-migration/plan.md) and [transition/rollback](docs/swift-migration/transition.md). Python remains the shipping runtime pending full acceptance. Earlier Python-preservation guidance below describes that temporary transition rule. No native-host or iCloud completion is claimed.
+
 Updated 2026-10-25. Orbit v0.6.0 testing prerelease.
 Native two-Mac iCloud and cross-app acceptance remain unproven.
 

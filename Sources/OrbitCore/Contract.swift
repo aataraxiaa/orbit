@@ -10,7 +10,19 @@ public enum OrbitContract {
         }
     }
     public static var tools: [JSONObject] { get throws { try document["tools"] as! [JSONObject] } }
-    public static var instructions: String { get throws { try document["instructions"] as! String } }
+    public static var instructions: String {
+        get throws {
+            let base = try document["instructions"] as! String
+            let workflows = try workflowDocument["workflows"] as! JSONObject
+            return base + "\n\nShared workflow instructions v1\n\n" + ["orbit-save", "orbit-recall"].map { (workflows[$0] as! JSONObject)["instructions"] as! String }.joined(separator:"\n\n")
+        }
+    }
+    public static var workflowDocument: JSONObject {
+        get throws {
+            guard let url = Bundle.module.url(forResource:"workflows",withExtension:"json",subdirectory:"Resources") else { throw OrbitError("Missing workflow instructions") }
+            return try readJSON(url)
+        }
+    }
     public static func validate(action: String, arguments: JSONObject) throws {
         guard let tool = try tools.first(where: { $0["name"] as? String == "orbit_" + action }) else { throw OrbitError("Unknown tool") }
         try validateValue(arguments,schema: tool["inputSchema"] as! JSONObject,path:"arguments")

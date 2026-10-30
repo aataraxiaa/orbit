@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
     binary = args.binary.resolve()
     bundle = args.resources.resolve()
-    if not binary.is_file() or not (bundle / 'Resources/contract.json').is_file():
+    if not binary.is_file() or not any(bundle.glob('**/contract.json')):
         parser.error('Supply the native executable and matching OrbitCore resource bundle')
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
