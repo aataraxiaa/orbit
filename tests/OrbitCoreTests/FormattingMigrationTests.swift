@@ -83,6 +83,10 @@ final class FormattingMigrationTests: XCTestCase {
         }
     }
 
+    func testQuotedMetadataPreservesLeadingBOMInsideString() throws {
+        XCTAssertEqual(try formattingScalar("\"\u{FEFF}Existing title\""), "\u{FEFF}Existing title")
+    }
+
     func testFormattingRefusesChangedAndUnsafeTargets() throws {
         let (root, engine) = try workspace()
         try marker(root, format: 1)

@@ -8,7 +8,7 @@ func formattingScalar(_ input: String) throws -> String {
     let value = schemaTrim(input)
     var parsed: String
     if value.hasPrefix("\"") {
-        guard let object = try? JSONSerialization.jsonObject(with: Data(value.utf8), options: [.fragmentsAllowed]), let text = object as? String else { throw OrbitError("Required metadata must use a supported single-line string") }
+        guard let object = try? OrderedJSON.parse(Data(value.utf8)).value, let text = object as? String else { throw OrbitError("Required metadata must use a supported single-line string") }
         parsed = text
     } else if value.hasPrefix("'") {
         guard value.count >= 2, value.hasSuffix("'"), !value.dropFirst().dropLast().contains("'") else { throw OrbitError("Required metadata must use a supported single-line string") }
