@@ -310,7 +310,7 @@ final class FormattingMigrationTests: XCTestCase {
             for write in writes.suffix(3) {
                 let path = write["path"] as! String
                 if let text = write["before"] as? String { try put(root, path, text) }
-                else if schemaExists(try safe(root, path)) { try FileManager.default.removeItem(at: safe(root, path)) }
+                else if try schemaExists(safe(root, path)) { try FileManager.default.removeItem(at: safe(root, path)) }
             }
             if resolution == "changed" {
                 try put(root, "Projects/Garden/Overview.md", "Human edit after interruption")
@@ -324,7 +324,7 @@ final class FormattingMigrationTests: XCTestCase {
                     for write in fixture["writes"] as! [JSONObject] {
                         let url = try safe(root, write["path"] as! String)
                         if let text = write["after"] as? String { XCTAssertEqual(try Data(contentsOf: url), Data(text.utf8)) }
-                        else { XCTAssertFalse(schemaExists(url)) }
+                        else { XCTAssertFalse(try schemaExists(url)) }
                     }
                 }
                 XCTAssertNotNil(try readJSON(journal)["backup_manifest"])

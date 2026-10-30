@@ -5,7 +5,7 @@ public enum OrbitContract {
     public static let version = "1"
     public static var document: JSONObject {
         get throws {
-            guard let url = Bundle.module.url(forResource: "contract", withExtension: "json", subdirectory: "Resources") else { throw OrbitError("Missing tool contract") }
+            guard let url = Bundle.module.url(forResource: "contract", withExtension: "json") else { throw OrbitError("Missing tool contract") }
             return try readJSON(url)
         }
     }
@@ -19,7 +19,7 @@ public enum OrbitContract {
     }
     public static var workflowDocument: JSONObject {
         get throws {
-            guard let url = Bundle.module.url(forResource:"workflows",withExtension:"json",subdirectory:"Resources") else { throw OrbitError("Missing workflow instructions") }
+            guard let url = Bundle.module.url(forResource:"workflows",withExtension:"json") else { throw OrbitError("Missing workflow instructions") }
             return try readJSON(url)
         }
     }
@@ -58,7 +58,7 @@ public enum OrbitContract {
             for item in array { try validateValue(item,schema:schema["items"] as! JSONObject,path:path + "[]") }
         case "string":
             let text = value as! String
-            guard text.trimmingCharacters(in:.whitespacesAndNewlines).count >= schema["minLength"] as? Int ?? 0 else { throw OrbitError("\(path): nonempty string required") }
+            guard text.trimmingCharacters(in:.whitespacesAndNewlines).unicodeScalars.count >= schema["minLength"] as? Int ?? 0 else { throw OrbitError("\(path): nonempty string required") }
             if let pattern = schema["pattern"] as? String, text.range(of:"\\A(?:" + pattern + ")\\z",options:.regularExpression) == nil { throw OrbitError("\(path): invalid format") }
         case "integer":
             let n = (value as! NSNumber).int64Value

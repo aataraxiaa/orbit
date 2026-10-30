@@ -19,7 +19,7 @@ public final class OrbitEngine {
         self.runtime = runtime
     }
     public convenience init(environment: [String:String] = ProcessInfo.processInfo.environment) {
-        let home = FileManager.default.homeDirectoryForCurrentUser
+        let home = URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
         func location(_ key: String, _ fallback: String) -> URL {
             let path = environment[key] ?? home.appendingPathComponent(fallback).path
             return URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
@@ -51,7 +51,7 @@ struct OrbitTarget {
 
 extension OrbitEngine {
     func nameKey(_ name: String) throws -> String {
-        guard !name.isEmpty, name == name.trimmingCharacters(in: .whitespacesAndNewlines), name.count <= 80, !name.unicodeScalars.contains(where: { $0.value < 32 || (127...159).contains($0.value) }) else { throw OrbitError("Orbit name must contain 1 to 80 characters without surrounding whitespace or control characters") }
+        guard !name.isEmpty, name == name.trimmingCharacters(in: .whitespacesAndNewlines), name.unicodeScalars.count <= 80, !name.unicodeScalars.contains(where: { $0.value < 32 || (127...159).contains($0.value) }) else { throw OrbitError("Orbit name must contain 1 to 80 characters without surrounding whitespace or control characters") }
         return casefold(name)
     }
     func identity(_ root: URL) throws -> String {
@@ -145,7 +145,7 @@ extension OrbitEngine {
         let expanded = (path as NSString).expandingTildeInPath
         guard expanded.hasPrefix("/") else { throw OrbitError("Registration requires an absolute path") }
         let root = realURL(URL(fileURLWithPath:expanded))
-        guard root.path != "/", root.path != FileManager.default.homeDirectoryForCurrentUser.path else { throw OrbitError("Choose a dedicated Orbit directory") }
+        guard root.path != "/", root.path != URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true).path else { throw OrbitError("Choose a dedicated Orbit directory") }
         var isDir: ObjCBool = false
         let exists = try fileExists(atPath:root.path,isDirectory:&isDir)
         if exists && !isDir.boolValue { throw OrbitError("Orbit folder must be a directory") }

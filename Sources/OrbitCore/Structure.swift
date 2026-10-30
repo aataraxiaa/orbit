@@ -32,7 +32,7 @@ func schemaExists(_ url: URL) throws -> Bool { try fileExists(atPath: url.path) 
 
 extension OrbitEngine {
     func schemaTemplates() throws -> [String: String] {
-        guard let directory = Bundle.module.url(forResource: "Schemas", withExtension: nil, subdirectory: "Resources") else { throw OrbitError("Missing bundled note schemas") }
+        guard let directory = Bundle.module.url(forResource: "Schemas", withExtension: nil) else { throw OrbitError("Missing bundled note schemas") }
         var result: [String: String] = [:]
         for path in try directoryContents(at: directory, includingPropertiesForKeys: nil).sorted(by: { $0.path < $1.path }) where path.pathExtension == "md" {
             result["Schemas/" + path.lastPathComponent] = try readString( path, encoding: .utf8)
