@@ -5,7 +5,24 @@ import Darwin
 
 private let replicationLimit = 64 * 1024 * 1024
 private let replicationLocksGuard = NSLock()
-private var replicationLocks: [String: NSRecursiveLock] = [:]
+private final class ReplicaLockEntry {
+    let mutex = NSRecursiveLock()
+    var depth = 0
+}
+private var replicationLocks: [String: ReplicaLockEntry] = [:]
+private func rRealPath(_ input: URL) -> String {
+    var path = input.standardizedFileURL.path
+    var suffix: [String] = []
+    while true {
+        if let resolved = realpath(path, nil) {
+            defer { free(resolved) }
+            return ([String(cString: resolved)] + suffix.reversed()).joined(separator: "/")
+        }
+        if path == "/" { return input.path }
+        suffix.append((path as NSString).lastPathComponent)
+        path = (path as NSString).deletingLastPathComponent
+    }
+}
 private func rObject(_ value: Any?) -> JSONObject { value as? JSONObject ?? [:] }
 private func rObjects(_ value: Any?) -> [JSONObject] { value as? [JSONObject] ?? [] }
 private func rStrings(_ value: Any?) -> [String] { value as? [String] ?? [] }
@@ -52,28 +69,25 @@ extension OrbitEngine {
     }
 
     private func replicaStateURL(_ root: URL) throws -> URL {
-        let base = stateURL.standardizedFileURL.resolvingSymlinksInPath()
-        let root = root.standardizedFileURL.resolvingSymlinksInPath()
-        if base.path == root.path || base.path.hasPrefix(root.path + "/") {
+        let base = rRealPath(stateURL), canonicalRoot = rRealPath(root)
+        if base == canonicalRoot || base.hasPrefix(canonicalRoot + "/") {
             throw OrbitError("ORBIT_STATE must be outside the synced Orbit folder")
         }
-        return base.appendingPathComponent(try rHash([root.path, replicaIdentity(root)]))
+        return URL(fileURLWithPath: base).appendingPathComponent(try rHash([canonicalRoot, replicaIdentity(root)]))
     }
 
     public func withLocalLock<T>(_ root: URL, body: () throws -> T) throws -> T {
         let directory = try replicaStateURL(root)
         let key = directory.path
         replicationLocksGuard.lock()
-        let mutex = replicationLocks[key] ?? NSRecursiveLock()
-        replicationLocks[key] = mutex
+        let entry = replicationLocks[key] ?? ReplicaLockEntry()
+        replicationLocks[key] = entry
         replicationLocksGuard.unlock()
-        mutex.lock()
-        defer { mutex.unlock() }
-        let local = Thread.current.threadDictionary
-        let depthKey = "OrbitCore.replication." + key
-        if let depth = local[depthKey] as? Int, depth > 0 {
-            local[depthKey] = depth + 1
-            defer { local[depthKey] = depth }
+        entry.mutex.lock()
+        defer { entry.mutex.unlock() }
+        if entry.depth > 0 {
+            entry.depth += 1
+            defer { entry.depth -= 1 }
             return try body()
         }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -82,8 +96,8 @@ extension OrbitEngine {
         defer { close(fd) }
         guard flock(fd, LOCK_EX) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { flock(fd, LOCK_UN) }
-        local[depthKey] = 1
-        defer { local.removeObject(forKey: depthKey) }
+        entry.depth = 1
+        defer { entry.depth = 0 }
         return try body()
     }
 
@@ -185,7 +199,7 @@ extension OrbitEngine {
             guard !paths.isEmpty, paths.contains(path) else { throw OrbitError("Missing version path") }
             for p in paths { _ = try replicaPath(root, p) }
             let matching = writes.filter { paths.contains(rString($0["path"])) }
-            let retired = (version["retired"] as? NSNumber)?.boolValue ?? false
+            let retired = truthy(version["retired"])
             if retired {
                 guard let value = version["retired"] as? NSNumber, CFGetTypeID(value) == CFBooleanGetTypeID(), content == nil, !rStrings(version["parents"]).isEmpty, versions.contains(where: { rString($0["entity"]) != entity && rString($0["path"]) == path && rText($0["content"]) != nil }) else { throw OrbitError("Invalid collision retirement") }
             }

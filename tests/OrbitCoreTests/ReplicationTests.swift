@@ -150,4 +150,167 @@ final class ReplicationTests: XCTestCase {
         XCTAssertThrowsError(try engine.replicationCommit(a, writes: [write(a, "A.md", decomposed)]))
     }
 
+    func testConcurrentPathCollisionRequiresUnionAndRetainsLoser() throws {
+        _ = try engine.replicationCommit(a, writes: [write(a, "Same.md", note("left", "left"))])
+        _ = try engine.replicationCommit(b, writes: [write(b, "Same.md", note("right", "right"))])
+        try deliver(a, b); try deliver(b, a)
+        let state = try engine.replicationReconcile(a)
+        XCTAssertEqual((state["conflicts"] as! [JSONObject]).count, 2)
+        XCTAssertEqual(state["blocked_paths"] as? [String], ["Same.md"])
+        let heads = (state["heads"] as! JSONObject)["Same.md"] as! [String]
+        var change = try write(a, "Same.md", note("right", "right"))
+        change["expected_heads"] = Array(heads.prefix(1))
+        XCTAssertThrowsError(try engine.replicationCommit(a, writes: [change]))
+        change["expected_heads"] = heads
+        let result = try engine.replicationCommit(a, writes: [change])
+        XCTAssertEqual(result["verified"] as? Bool, true)
+        XCTAssertEqual((result["sync"] as! JSONObject)["status"] as? String, "ready")
+        try deliver(a, b)
+        XCTAssertEqual(try engine.replicationReconcile(b)["status"] as? String, "ready")
+        for root in [a!, b!] {
+            XCTAssertEqual(try String(contentsOf: root.appendingPathComponent("Same.md")), note("right", "right"))
+            let revisions = try engine.replicationHistory(root, path: "Same.md")["revisions"] as! [JSONObject]
+            XCTAssertTrue(revisions.contains { $0["retired"] as? Bool == true })
+            XCTAssertTrue(revisions.contains { $0["content"] as? String == note("left", "left") })
+        }
+        XCTAssertEqual(try engine.replicationCommit(a, writes: [write(a, "Same.md", note("right", "later"))])["verified"] as? Bool, true)
+    }
+    func testStalePhysicalBytesCannotParentUnreadAcceptedHead() throws {
+        let accepted = try engine.replicationCommit(a, writes: [write(a, "A.md", note("a", "remote"))])
+        try deliver(a, b, only: accepted["operation"] as? String)
+        XCTAssertThrowsError(try engine.replicationCommit(b, writes: [write(b, "A.md", note("a", "overwrite"))]))
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: b.appendingPathComponent(".orbit/commits").path).count, 2)
+    }
+    func testMarkdownBeforeEnvelopeNeverInventsAncestry() throws {
+        let result = try engine.replicationCommit(a, writes: [write(a, "A.md", note("a", "remote"))])
+        try atomic(b.appendingPathComponent("A.md"), Data(contentsOf: a.appendingPathComponent("A.md")))
+        XCTAssertEqual(try engine.replicationReconcile(b)["status"] as? String, "conflicted")
+        try deliver(a, b, only: result["operation"] as? String)
+        XCTAssertEqual(try engine.replicationReconcile(b)["status"] as? String, "ready")
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: b.appendingPathComponent(".orbit/commits").path).count, 2)
+    }
+    func testPlainObservationAdoptsIdentityAndDuplicateIdentityBlocksBoth() throws {
+        try atomic(a.appendingPathComponent("Plain.md"), Data("# Plain\n".utf8))
+        let state = try engine.replicationReconcile(a)
+        let conflict = (state["conflicts"] as! [JSONObject]).first { $0["entity"] as? String == "path:Plain.md" }!
+        var change = try write(a, "Plain.md", note("a", "duplicate"))
+        change["expected_heads"] = [String]()
+        change["observations"] = conflict["observations"]!
+        let result = try engine.replicationCommit(a, writes: [change])
+        let sync = result["sync"] as! JSONObject
+        XCTAssertEqual(sync["status"] as? String, "conflicted")
+        XCTAssertEqual(sync["blocked_paths"] as? [String], ["A.md", "Plain.md"])
+        XCTAssertEqual(try String(contentsOf: a.appendingPathComponent("Plain.md")), "# Plain\n")
+    }
+    private func durableFiles(_ root: URL) throws -> [String: Data] {
+        var files: [String: Data] = [:]
+        func walk(_ directory: URL, _ prefix: String) throws {
+            for path in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey]) {
+                let key = prefix + path.lastPathComponent
+                if try path.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true { try walk(path, key + "/") }
+                else { files[key] = try Data(contentsOf: path) }
+            }
+        }
+        try walk(root, ""); return files
+    }
+    func testDryRunAdoptsEphemeralObservationWithoutAnyWrites() throws {
+        try atomic(a.appendingPathComponent("Plain.md"), Data("# Plain\n".utf8))
+        let state = try engine.replicationInspect(a)
+        let conflict = (state["conflicts"] as! [JSONObject]).first { $0["entity"] as? String == "path:Plain.md" }!
+        var change = try write(a, "Plain.md", note("formatted", "Plain"))
+        change["expected_heads"] = [String](); change["observations"] = conflict["observations"]!
+        let before = try durableFiles(base)
+        let result = try engine.replicationCommit(a, writes: [change], dryRun: true)
+        XCTAssertEqual(result["status"] as? String, "preview")
+        XCTAssertEqual(try durableFiles(base), before)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: a.appendingPathComponent(".orbit/observations").path))
+        XCTAssertEqual(try engine.replicationCommit(a, writes: [change])["verified"] as? Bool, true)
+    }
+    func testDryRunRetryNeverReconcilesAcceptedOperation() throws {
+        let request = UUID().uuidString.lowercased()
+        let writes = try [write(a, "A.md", note("a", "accepted"))]
+        let result = try engine.replicationCommit(a, writes: writes, requestID: request)
+        try atomic(a.appendingPathComponent("A.md"), Data(note("a", "original A").utf8))
+        let before = try durableFiles(base)
+        let preview = try engine.replicationCommit(a, writes: writes, requestID: request, dryRun: true)
+        XCTAssertEqual(preview["status"] as? String, "preview")
+        XCTAssertEqual(preview["already_committed"] as? Bool, true)
+        XCTAssertEqual(preview["operation"] as? String, result["operation"] as? String)
+        XCTAssertEqual(try durableFiles(base), before)
+        XCTAssertThrowsError(try engine.replicationCommit(a, writes: writes, requestID: request, requestDigest: "changed", dryRun: true))
+    }
+    func testNestedLocksAndMissingHistory() throws {
+        try engine.withLocalLock(a) {
+            try engine.withLocalLock(a) { XCTAssertEqual(try engine.replicationInspect(a)["status"] as? String, "ready") }
+        }
+        try FileManager.default.removeItem(at: a.appendingPathComponent(".orbit/commits"))
+        XCTAssertEqual(try engine.replicationInspect(a)["status"] as? String, "invalid")
+        XCTAssertEqual(try engine.replicationReconcile(a)["materialized"] as? [String], [])
+    }
+    func testRenameDescendantRemovesOldLocationAfterLateDelivery() throws {
+        _ = try engine.replicationCommit(a, writes: [write(a, "A.md", nil), write(a, "New.md", note("a", "renamed"))])
+        _ = try engine.replicationCommit(a, writes: [write(a, "New.md", note("a", "later"))])
+        try deliver(a, b)
+        XCTAssertEqual(try engine.replicationReconcile(b)["status"] as? String, "ready")
+        try atomic(b.appendingPathComponent("A.md"), Data(note("a", "original A").utf8))
+        XCTAssertEqual(try engine.replicationReconcile(b)["status"] as? String, "ready")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: b.appendingPathComponent("A.md").path))
+        XCTAssertEqual(try String(contentsOf: b.appendingPathComponent("New.md")), note("a", "later"))
+    }
+
+    func testEveryDeliveryOrderKeepsIdenticalHeads() throws {
+        let seedFiles = try FileManager.default.contentsOfDirectory(at: a.appendingPathComponent(".orbit/commits"), includingPropertiesForKeys: nil)
+        let first = try engine.replicationCommit(a, writes: [write(a, "A.md", note("a", "one"))])["operation"] as! String
+        let second = try engine.replicationCommit(a, writes: [write(a, "A.md", note("a", "two"))])["operation"] as! String
+        let third = try engine.replicationCommit(b, writes: [write(b, "A.md", note("a", "concurrent"))])["operation"] as! String
+        let sources = [first: a!, second: a!, third: b!]
+        let orders = [[first,second,third],[first,third,second],[second,first,third],[second,third,first],[third,first,second],[third,second,first]]
+        var reports: [Data] = []
+        for (number, order) in orders.enumerated() {
+            let target = base.appendingPathComponent("order-" + String(number))
+            try atomic(target.appendingPathComponent(".orbit/vault.json"), Data(contentsOf: a.appendingPathComponent(".orbit/vault.json")))
+            try atomic(target.appendingPathComponent(".orbit/commits/" + seedFiles[0].lastPathComponent), Data(contentsOf: seedFiles[0]))
+            try atomic(target.appendingPathComponent("A.md"), Data(note("a", "original A").utf8))
+            try atomic(target.appendingPathComponent("B.md"), Data(note("b", "original B").utf8))
+            for operation in order {
+                try deliver(sources[operation]!, target, only: operation)
+                _ = try engine.replicationReconcile(target)
+                try deliver(sources[operation]!, target, only: operation)
+            }
+            reports.append(try canonical(engine.replicationInspect(target)))
+            let conflicts = try engine.replicationInspect(target)["conflicts"] as! [JSONObject]
+            XCTAssertEqual((conflicts[0]["heads"] as! [String]).count, 2)
+        }
+        XCTAssertTrue(reports.allSatisfy { $0 == reports[0] })
+    }
+    func testConcurrentIntegrationVersionsPreserveBothEvidenceSets() throws {
+        let hash = String(repeating: "a", count: 64), path = ".orbit/integrations/" + String(repeating: "a", count: 64) + ".json"
+        let initial = String(data: try canonical(["source_sha256": hash,"stage":"captured","version":1]), encoding: .utf8)!
+        _ = try engine.replicationCommit(a, writes: [write(a, path, initial)])
+        try deliver(a, b); _ = try engine.replicationReconcile(b)
+        for (root, evidence) in [(a!, "left evidence"), (b!, "right evidence")] {
+            let content = String(data: try canonical(["source_sha256": hash,"stage":"extracted","version":2,"evidence":evidence]), encoding: .utf8)!
+            _ = try engine.replicationCommit(root, writes: [write(root, path, content)])
+        }
+        try deliver(a, b)
+        let report = try engine.replicationReconcile(b)
+        XCTAssertEqual(report["blocked_paths"] as? [String], [path])
+        XCTAssertEqual((((report["conflicts"] as! [JSONObject])[0])["heads"] as! [String]).count, 2)
+        XCTAssertEqual((try engine.replicationHistory(b, path: path)["revisions"] as! [JSONObject]).count, 3)
+    }
+    func testDryRunChecksExactHeadsWithoutChangingAnyFiles() throws {
+        _ = try engine.replicationCommit(a, writes: [write(a,"A.md",note("a","left"))])
+        _ = try engine.replicationCommit(b, writes: [write(b,"A.md",note("a","right"))])
+        try deliver(b,a)
+        let state = try engine.replicationInspect(a), heads = (try engine.replicationInspect(a)["heads"] as! JSONObject)["A.md"] as! [String]
+        let before = try durableFiles(base)
+        for supplied in [[String](),Array(heads.prefix(1)),["stale"]] {
+            var change = try write(a,"A.md",note("a","resolved")); change["expected_heads"] = supplied
+            XCTAssertThrowsError(try engine.replicationCommit(a,writes:[change],dryRun:true))
+        }
+        var change = try write(a,"A.md",note("a","resolved")); change["expected_heads"] = (state["heads"] as! JSONObject)["A.md"]!
+        XCTAssertEqual(try engine.replicationCommit(a,writes:[change],dryRun:true)["status"] as? String,"preview")
+        XCTAssertEqual(try durableFiles(base),before)
+    }
+
 }
