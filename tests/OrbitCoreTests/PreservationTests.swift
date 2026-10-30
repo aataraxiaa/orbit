@@ -16,6 +16,24 @@ final class PreservationTests: XCTestCase {
         XCTAssertEqual(parsed["café"]?.value as? Int,1)
         XCTAssertEqual(parsed["cafe\u{301}"]?.value as? Int,2)
     }
+    func testNumericSerializationMatchesFrozenPythonValues() throws {
+        let url = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/json-numbers.json")
+        for item in try readJSON(url)["cases"] as! [JSONObject] {
+            let input = item["input"] as! String
+            XCTAssertEqual(try OrderedJSON.parse(Data(input.utf8)).rendered(pretty:false),item["output"] as? String,input)
+        }
+    }
+    func testOpaqueMigrationMatchesFrozenPythonBytesAndPlan() throws {
+        let url = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/opaque-metadata.json")
+        let fixture = try readJSON(url)
+        let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
+        for (path,text) in fixture["inputs"] as! [String:String] { try atomic(safe(root,path),Data(text.utf8)) }
+        let plan = try engine.migrate(root)
+        XCTAssertEqual(plan["plan_id"] as? String,(fixture["plan"] as! JSONObject)["plan_id"] as? String)
+        _ = try engine.migrate(root,action:"apply",planID:plan["plan_id"] as? String)
+        XCTAssertEqual(try readData(safe(root,".orbit/vault.json")),Data((fixture["marker_after"] as! String).utf8))
+        for (path,hash) in fixture["seed_history"] as! [String:String] { XCTAssertEqual(digest(try readData(safe(root,path))),hash) }
+    }
     func testMigrationPreservesUnknownByteDistinctKeysAndNumericTypes() throws {
         let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
         _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test","create":true])
