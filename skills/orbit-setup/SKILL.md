@@ -40,7 +40,7 @@ Read [host setup](../../references/setup.md) and [tools](../../references/tools.
    the selection.
 4. Run `orbit_doctor` with the selected `orbit`.
    Read its reported rules file with `orbit_read`. Preserve
-   identity, rules, unknown config fields and user content. New Orbits use format 2
+   identity, rules, unknown config fields and user content. New Orbits use format 3
    and the standard folders with schema notes. Existing Orbits are not reorganized;
    use [migrate](../orbit-migrate/SKILL.md) when the user requests their upgrade.
    For requested metadata formatting in place, use [format](../orbit-format/SKILL.md).

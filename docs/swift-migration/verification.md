@@ -33,7 +33,7 @@ Independent review found and reproduced defects beyond the first fixtures: Found
 
 ## Open acceptance gates
 
-- Codex's computer-use tool refuses access to the application, so agent-driven installation controls and fresh-conversation checks could not run. A separately named acceptance candidate and isolated paths are prepared for manual installation.
+- The user installed Codex acceptance candidate0.7.0-dev. Actual tool discovery still exposed only the shipping `orbit` server, and the callable list returned its existing registry. No native acceptance process or test write was observed. Both manifests shared the server key `orbit`; candidate0.7.0-dev.1 now uses `orbit-swift-acceptance` and an absolute system launcher for the Codex working-directory path. Reinstallation and native save/read/fresh-chat checks remain pending. See `codex-host-results.json`. The computer-use tool still refuses Codex installation controls.
 - Claude is absent from the available app inventory. No Claude/Cowork/Chat extension acceptance is claimed.
 - The app agent's signed simulator tests exercise the actual core store and approved writes. Physical test-runner provisioning and a locked Mac/iPhone blocked the intended device tests. A signed app build alone is not device acceptance.
 - Security-scoped provider bookmarks, pending ancestor downloads, revoked access, offline/reconnect, suspension and actual Mac/phone iCloud delivery remain unverified on physical hardware. Disposable filesystem transport is separate evidence.

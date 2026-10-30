@@ -9,7 +9,6 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
-import stat
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +20,7 @@ def main():
     parser.add_argument('--resources', required=True, type=Path)
     parser.add_argument('--output', default=ROOT / 'dist/swift-candidate', type=Path)
     parser.add_argument('--acceptance-root', type=Path, help='Isolate host verification from personal registries and folders')
+    parser.add_argument('--candidate-version', default='0.7.0-dev', help='Installable candidate version; does not publish a package release')
     args = parser.parse_args()
     binary = args.binary.resolve()
     bundle = args.resources.resolve()
@@ -37,12 +37,25 @@ def main():
         shutil.copytree(ROOT / name, plugin / name)
     for name in ('README.md', 'LOCAL_TEST.md', 'HANDOFF.md'):
         shutil.copy2(ROOT / name, plugin / name)
+    setup_reference = plugin / 'references/setup.md'
+    setup_text = setup_reference.read_text()
+    start = setup_text.index('The plugin provides local MCP tools')
+    end = setup_text.index('\n\n## Check the connection first', start)
+    setup_text = setup_text[:start] + ('This native candidate provides MCP tools through bin/orbit-mcp and OrbitCore. '
+                  'It does not require or bundle Python. The companion checkout retains Python only as the compatibility reference and shipping runtime pending native acceptance. '
+                  'Configuration, cache and recovery state remain outside the installed plugin.') + setup_text[end:]
+    setup_reference.write_text(setup_text)
+    tools_reference = plugin / 'references/tools.md'
+    tools_text = tools_reference.read_text().replace(
+        'The optional `scripts/orbit.py` CLI remains available for engineering and recovery.',
+        'The Python reference CLI remains in the companion source checkout for engineering and recovery; it is not bundled in this native candidate.')
+    tools_reference.write_text(tools_text)
     native = plugin / 'bin'
     native.mkdir()
     shutil.copy2(binary, native / 'orbit-mcp')
     (native / 'orbit-mcp').chmod(0o755)
     shutil.copytree(bundle, native / bundle.name)
-    version = '0.7.0-dev'
+    version = args.candidate_version
     plugin_name = 'orbit-swift-acceptance' if args.acceptance_root else 'orbit'
     acceptance_env = {}
     if args.acceptance_root:
@@ -54,8 +67,11 @@ def main():
         if acceptance_env:
             server['args'] = ['--config', acceptance_env['ORBIT_CONFIG'], '--cache', acceptance_env['ORBIT_CACHE'], '--state', acceptance_env['ORBIT_STATE']]
         if host == '.codex.mcp.json':
+            # Resolve the system launcher before cwd; resolve the native path inside cwd.
+            server['command'] = '/usr/bin/env'
+            server['args'] = ['./bin/orbit-mcp', *server['args']]
             server['cwd'] = '.'
-        (plugin / host).write_text(json.dumps({'mcpServers': {'orbit': server}}, indent=2) + '\n')
+        (plugin / host).write_text(json.dumps({'mcpServers': {plugin_name: server}}, indent=2) + '\n')
     manifest = json.loads((ROOT / 'manifest.json').read_text())
     if args.acceptance_root:
         manifest['display_name'] = 'Orbit Swift acceptance'
@@ -85,7 +101,7 @@ def main():
         with zipfile.ZipFile(out / filename, 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in paths:
                 archive.write(path, path.relative_to(plugin))
-    receipt = {'status': 'candidate', 'package_version': version, 'plugin_name': plugin_name, 'acceptance_only': bool(acceptance_env),
+    receipt = {'status': 'candidate', 'package_version': version, 'plugin_name': plugin_name, 'mcp_server_name': plugin_name, 'acceptance_only': bool(acceptance_env),
                'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
                'runtime': 'native Swift', 'python_runtime_files': [],
                'desktop_host_acceptance': 'NOT VERIFIED',
