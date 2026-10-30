@@ -71,13 +71,22 @@ extension OrbitEngine {
         } else { data = ["schema": 2, "orbits": JSONObject()] }
         try validateRegistry(data); return data
     }
+    func registryEntries(_ data: JSONObject) throws -> [(String,JSONObject)] {
+        let raw = rawOrderedJSONObject(data) ?? .sorted(data)
+        guard case let .object(entries)? = raw["orbits"] else { throw OrbitError("Malformed named Orbit registry") }
+        return try entries.map { (name,value) in
+            guard case .object = value else { throw OrbitError("Malformed Orbit registry entry") }
+            return (name,try losslessJSONObject(value))
+        }
+    }
     func validateRegistry(_ data: JSONObject) throws {
         guard let schema = schemaInteger(data["schema"]), schema == 2 else { throw OrbitError("Unsupported Orbit config schema") }
-        guard let entries = data["orbits"] as? JSONObject, data["vault"] == nil else { throw OrbitError("Malformed named Orbit registry") }
-        var keys = Set<String>(), ids = Set<String>(), roots: [String] = []
-        for (name, value) in entries {
-            let key = try nameKey(name)
-            guard let e = value as? JSONObject, let path = e["path"] as? String, let id = e["vault_id"] as? String else { throw OrbitError("Malformed Orbit registry entry") }
+        guard data["vault"] == nil else { throw OrbitError("Malformed named Orbit registry") }
+        let entries = try registryEntries(data)
+        var keys = Set<Data>(), ids = Set<String>(), roots: [String] = []
+        for (name,e) in entries {
+            let key = Data(try nameKey(name).utf8)
+            guard let path = e["path"] as? String, let id = e["vault_id"] as? String else { throw OrbitError("Malformed Orbit registry entry") }
             guard UUID(uuidString: id) != nil else { throw OrbitError("Malformed registered Orbit identity") }
             guard path.hasPrefix("/"), lexicalPath(path) == path else { throw OrbitError("Registered paths must be absolute and canonical") }
             guard !keys.contains(key), !ids.contains(id), !roots.contains(where: { overlaps(path, $0) }) else { throw OrbitError("Duplicate name, identity, or overlapping Orbit roots") }
@@ -93,31 +102,30 @@ extension OrbitEngine {
     }
     func resolveTarget(name: String?, path: String?) throws -> OrbitTarget {
         guard name == nil || path == nil else { throw OrbitError("Choose an Orbit name or folder path, not both") }
-        let entries = try readConfig()["orbits"] as! JSONObject
+        let entries = try registryEntries(readConfig())
         if let name {
-            let key = try nameKey(name)
-            for (display, value) in entries where try nameKey(display) == key { return try checked(display, entry: value as! JSONObject, source: "orbit") }
+            let key = Data(try nameKey(name).utf8)
+            for (display,value) in entries where try Data(nameKey(display).utf8) == key { return try checked(display,entry:value,source:"orbit") }
             throw OrbitError("Unknown Orbit name: " + name)
         }
         if path == nil && entries.count != 1 { throw OrbitError("Select an explicit Orbit name; the registry has zero or multiple entries") }
         if let path {
             let root = realURL(URL(fileURLWithPath: (path as NSString).expandingTildeInPath))
-            for (display, value) in entries {
-                let entry = value as! JSONObject
-                if root.path == entry["path"] as? String { return try checked(display, entry: entry, source: "vault") }
+            for (display,entry) in entries {
+                if root.path == entry["path"] as? String { return try checked(display,entry:entry,source:"vault") }
             }
             throw OrbitError("Selected path is not a registered Orbit")
         }
-        let (display, entry) = entries.first!
-        return try checked(display, entry: entry as! JSONObject, source: "only-orbit")
+        let (display,entry) = entries[0]
+        return try checked(display,entry:entry,source:"only-orbit")
     }
     func listOrbits() throws -> JSONObject {
-        let entries = try readConfig()["orbits"] as! JSONObject
+        let entries = try registryEntries(readConfig())
         var results: [JSONObject] = []
-        for (name, value) in entries.sorted(by: { $0.key < $1.key }) {
-            let entry = value as! JSONObject
+        for (name,entry) in entries {
             var item: JSONObject = ["name":name,"path":entry["path"]!,"vault_id":entry["vault_id"]!]
-            do { _ = try checked(name, entry: entry, source: "list"); item["status"] = "available" }
+            do { _ = try checked(name,entry:entry,source:"list"); item["status"] = "available" }
+            catch is CancellationError { throw CancellationError() }
             catch { item["status"] = "unavailable"; item["error"] = String(describing:error) }
             results.append(item)
         }
@@ -132,17 +140,17 @@ extension OrbitEngine {
         return try body()
     }
     func registration(_ data: JSONObject, root: URL, name: String, id: String?) throws -> JSONObject {
-        let key = try nameKey(name); var entries = data["orbits"] as! JSONObject
-        for (display,value) in entries {
-            let e = value as! JSONObject
-            if try nameKey(display) == key {
-                guard display == name, e["path"] as? String == root.path, e["vault_id"] as? String == id else { throw OrbitError("Orbit name already exists; rebinding or case collisions are not allowed") }
+        let key = Data(try nameKey(name).utf8)
+        for (display,e) in try registryEntries(data) {
+            if try Data(nameKey(display).utf8) == key {
+                guard byteEqual(display,name), e["path"] as? String == root.path, e["vault_id"] as? String == id else { throw OrbitError("Orbit name already exists; rebinding or case collisions are not allowed") }
                 return data
             }
-            if overlaps(root.path, e["path"] as! String) || (id != nil && e["vault_id"] as? String == id) { throw OrbitError("Duplicate identity or overlapping Orbit roots") }
+            if overlaps(root.path,e["path"] as! String) || (id != nil && e["vault_id"] as? String == id) { throw OrbitError("Duplicate identity or overlapping Orbit roots") }
         }
-        entries[name] = ["path":root.path,"vault_id":id as Any? ?? NSNull()]
-        var updated = data; updated["orbits"] = entries; return updated
+        let raw = rawOrderedJSONObject(data) ?? .sorted(data)
+        let entry = OrderedJSON.object([("path",.scalar(root.path)),("vault_id",.scalar(id as Any? ?? NSNull()))])
+        return try losslessJSONObject(raw.setting("orbits",(raw["orbits"] ?? .object([])).setting(name,entry)))
     }
     func setup(path: String, name: String, create: Bool) throws -> JSONObject {
         _ = try nameKey(name)
@@ -162,7 +170,7 @@ extension OrbitEngine {
                 try initialize(root,create:create); id = try identity(root)
             }
             let updated = try registration(current,root:root,name:name,id:id); try validateRegistry(updated)
-            let changed = !NSDictionary(dictionary:updated).isEqual(to:current)
+            let changed = try canonical(updated) != canonical(current)
             if changed {
                 let original = try orderedConfig()
                 let entry = OrderedJSON.object([("path",.scalar(root.path)),("vault_id",.scalar(id!))])
@@ -173,19 +181,19 @@ extension OrbitEngine {
         }
     }
     func renameOrbit(_ old: String, name: String) throws -> JSONObject {
-        let key = try nameKey(old), newKey = try nameKey(name)
+        let key = Data(try nameKey(old).utf8), newKey = Data(try nameKey(name).utf8)
         return try configLock {
-            let current = try readConfig(); let entries = current["orbits"] as! JSONObject
-            guard let display = try entries.keys.first(where: { try nameKey($0) == key }) else { throw OrbitError("Unknown Orbit name: " + old) }
-            if try entries.keys.contains(where:{ try nameKey($0) == newKey && $0 != display }) { throw OrbitError("Orbit name already exists: " + name) }
-            let target = try checked(display,entry:entries[display] as! JSONObject,source:"rename")
-            let changed = display != name
+            let current = try readConfig(), entries = try registryEntries(current)
+            guard let (display,entry) = try entries.first(where:{ try Data(nameKey($0.0).utf8) == key }) else { throw OrbitError("Unknown Orbit name: " + old) }
+            if try entries.contains(where:{ try Data(nameKey($0.0).utf8) == newKey && !byteEqual($0.0,display) }) { throw OrbitError("Orbit name already exists: " + name) }
+            let target = try checked(display,entry:entry,source:"rename")
+            let changed = !byteEqual(display,name)
             if changed {
-                var updated = current; var renamed = entries; renamed[name] = renamed.removeValue(forKey:display); updated["orbits"] = renamed
-                try validateRegistry(updated)
                 let original = try orderedConfig()
-                let entries = (original["orbits"] ?? .object([])).renamed(display,to:name)
-                try atomic(configURL,original.setting("orbits",entries).encoded()); try syncParent(configURL)
+                let renamed = (original["orbits"] ?? .object([])).renamed(display,to:name)
+                let updated = try losslessJSONObject(original.setting("orbits",renamed))
+                try validateRegistry(updated)
+                try atomic(configURL,original.setting("orbits",renamed).encoded()); try syncParent(configURL)
             }
             return ["status":changed ? "renamed":"unchanged","previous_name":display,"target":OrbitTarget(name:name,root:target.root,vaultID:target.vaultID,source:"rename").receipt]
         }

@@ -57,6 +57,23 @@ final class PreservationTests: XCTestCase {
             XCTAssertEqual(String(describing:$0),"arguments.count: outside supported range")
         }
     }
+    func testByteDistinctRegistryNamesRouteIndependently() throws {
+        let (base,engine) = try workspace(), first = "café", second = "cafe\u{301}"
+        XCTAssertNotEqual(Data(try engine.nameKey(first).utf8),Data(try engine.nameKey(second).utf8))
+        let rootA = base.appendingPathComponent("a"), rootB = base.appendingPathComponent("b")
+        _ = try engine.execute("setup",arguments:["path":rootA.path,"name":first,"create":true])
+        _ = try engine.execute("setup",arguments:["path":rootB.path,"name":second,"create":true])
+        let listed = try engine.execute("list")["orbits"] as! [JSONObject]
+        XCTAssertEqual(listed.count,2)
+        XCTAssertEqual(Data((listed[0]["name"] as! String).utf8),Data(first.utf8))
+        XCTAssertEqual(Data((listed[1]["name"] as! String).utf8),Data(second.utf8))
+        XCTAssertEqual(try engine.resolveTarget(name:first,path:nil).root.path,rootA.path)
+        XCTAssertEqual(try engine.resolveTarget(name:second,path:nil).root.path,rootB.path)
+        _ = try engine.execute("rename",arguments:["orbit":second,"name":"Renamed"])
+        XCTAssertThrowsError(try engine.resolveTarget(name:second,path:nil))
+        XCTAssertEqual(try engine.resolveTarget(name:first,path:nil).root.path,rootA.path)
+        XCTAssertEqual(try engine.resolveTarget(name:"Renamed",path:nil).root.path,rootB.path)
+    }
     func testMigrationPreservesUnknownByteDistinctKeysAndNumericTypes() throws {
         let (base,engine) = try workspace(); let root = base.appendingPathComponent("folder")
         _ = try engine.execute("setup",arguments:["path":root.path,"name":"Test","create":true])

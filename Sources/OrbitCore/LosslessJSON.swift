@@ -23,6 +23,11 @@ func orderedJSONObject(_ object: JSONObject) -> OrderedJSON? {
     return preservingJSON(source.original, current:object).sortedTree()
 }
 
+func rawOrderedJSONObject(_ object: JSONObject) -> OrderedJSON? {
+    guard let source = object[losslessJSONKey] as? LosslessJSONSource else { return nil }
+    return preservingJSON(source.original,current:object)
+}
+
 private func preservingJSON(_ old: OrderedJSON, current: Any) -> OrderedJSON {
     if let current = current as? JSONObject, case let .object(pairs) = old {
         let baseline = old.value as! JSONObject
