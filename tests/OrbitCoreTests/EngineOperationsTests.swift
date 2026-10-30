@@ -182,4 +182,30 @@ final class EngineOperationsTests: XCTestCase {
     XCTAssertTrue(flags.contains { eString($0["kind"]) == "integration-evidence-changed" })
   }
 
+  func testUnavailableIndexFallsBackOnlyWithoutScope() throws {
+    let text = note(body: "Lavender survives here.\n")
+    _ = try engine.apply(root, plan: plan(text))
+    let badCacheEngine = OrbitEngine(
+      configURL: engine.configURL,
+      cacheURL: root.appendingPathComponent(".orbit/cache"), stateURL: engine.stateURL)
+    let fallback = try badCacheEngine.search(root, query: "lavender")
+    XCTAssertEqual(fallback["mode"] as? String, "lexical-bm25-with-title-and-alias-boost")
+    XCTAssertEqual((fallback["coverage"] as? JSONObject)?["state"] as? String, "degraded")
+    XCTAssertEqual(eObjects(fallback["results"]).count, 1)
+    let scoped = try badCacheEngine.search(root, query: "lavender", scope: "Knowledge")
+    XCTAssertEqual(scoped["mode"] as? String, "unavailable")
+    XCTAssertTrue(eObjects(scoped["results"]).isEmpty)
+    XCTAssertFalse(eExists(root.appendingPathComponent(".orbit/cache")))
+  }
+  func testCorruptDerivedCacheRebuildDoesNotChangeNotes() throws {
+    let text = note(body: "Lavender survives here.\n")
+    _ = try engine.apply(root, plan: plan(text))
+    let cache = try engine.retrievalCachePath(root)
+    try Data("This is not a SQLite database".utf8).write(to: cache)
+    let result = try engine.search(root, query: "lavender")
+    XCTAssertEqual(result["mode"] as? String, "sqlite-fts5-passages")
+    XCTAssertEqual(eObjects(result["results"]).count, 1)
+    XCTAssertEqual(try eText(root.appendingPathComponent("Knowledge/Garden.md")), text)
+  }
+
 }
