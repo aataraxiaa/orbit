@@ -1,7 +1,7 @@
 {
   "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
   "fixture": "tests/fixtures/compatibility/replica-integration.json",
-  "native_binary_sha256": "a657fb5d7af63b32e654073923ac46a88b516cf969c945f5345e02ff7d6fd539",
+  "native_binary_sha256": "f1a742c343e759f6b30e66a190626f6714f2f75003055c4c8012799a6cb46fa5",
   "cases": [
     {
       "scenario": "source-integration-concurrent-evidence",

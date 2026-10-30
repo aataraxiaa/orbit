@@ -1,7 +1,7 @@
 {
   "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
   "fixture": "tests/fixtures/compatibility/replica-transport.json",
-  "native_binary_sha256": "7186a9f10eda0cbd74848130b69ade6807e6fc224db0fb67fae4c73c90190684",
+  "native_binary_sha256": "e3157c99a55aa5844d578dd2a2e87df65460b770afd8617da6d982ce23ca998b",
   "cases": [
     {
       "scenario": "independent-offline-writes",
@@ -2511,6 +2511,9 @@
   "native_host_acceptance": "NOT VERIFIED",
   "icloud_acceptance": "NOT VERIFIED",
   "transport": "deterministic file delivery",
+  "comparison_policy": "Exact values after world path normalization and independently validated folder-specific cache identities",
+  "python_driver": "mcp_server.py",
+  "native_driver": "orbit-mcp",
   "faults": "denied projection writes, stale physical checkout, killed and restarted MCP processes",
   "passed": 157,
   "total": 157,

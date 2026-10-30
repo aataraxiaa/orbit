@@ -1,7 +1,7 @@
 {
   "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
   "fixture": "tests/fixtures/compatibility/replica-unicode-identities.json",
-  "native_binary_sha256": "73853eb90aef2ce217e71de12c99d18b9e47d8a00e1ac11fdd70cf30c72bf4c0",
+  "native_binary_sha256": "e3157c99a55aa5844d578dd2a2e87df65460b770afd8617da6d982ce23ca998b",
   "cases": [
     {
       "scenario": "byte-distinct-unicode-identities",
@@ -879,6 +879,9 @@
   "native_host_acceptance": "NOT VERIFIED",
   "icloud_acceptance": "NOT VERIFIED",
   "transport": "deterministic file delivery",
+  "comparison_policy": "Exact values after world path normalization and independently validated folder-specific cache identities",
+  "python_driver": "mcp_server.py",
+  "native_driver": "orbit-mcp",
   "faults": "denied projection writes, stale physical checkout, killed and restarted MCP processes",
   "passed": 55,
   "total": 55,

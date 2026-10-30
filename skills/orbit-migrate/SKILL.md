@@ -62,3 +62,5 @@ verified. A subprocess check does not prove native desktop or fresh-chat behavio
 
 This is Orbit's only migration skill. Future releases add tested routes and
 reference instructions here rather than another user-facing migration skill.
+
+For the native Swift runtime replacement, read [runtime transition](references/native-swift-transition.md). It adds no on-disk migration route and does not waive native host or cross-device acceptance.

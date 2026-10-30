@@ -57,6 +57,9 @@ def main():
             server['cwd'] = '.'
         (plugin / host).write_text(json.dumps({'mcpServers': {'orbit': server}}, indent=2) + '\n')
     manifest = json.loads((ROOT / 'manifest.json').read_text())
+    if args.acceptance_root:
+        manifest['display_name'] = 'Orbit Swift acceptance'
+        manifest['description'] = 'Disposable verification of the native Orbit runtime.'
     manifest.update(name=plugin_name, version=version, server={'type': 'binary', 'entry_point': 'bin/orbit-mcp',
                     'mcp_config': {'command': '${__dirname}/bin/orbit-mcp', 'args': []}},
                     compatibility={'platforms': ['darwin']})
@@ -66,6 +69,10 @@ def main():
     for host in ('.codex-plugin', '.claude-plugin'):
         path = plugin / host / 'plugin.json'
         data = json.loads(path.read_text()); data['version'] = version; data['name'] = plugin_name
+        if args.acceptance_root:
+            data['description'] = 'Disposable verification of the native Orbit runtime.'
+            if 'interface' in data:
+                data['interface']['displayName'] = 'Orbit Swift acceptance'
         path.write_text(json.dumps(data, indent=2) + '\n')
     for host, source in [('.claude-plugin', {'name': 'orbit-swift-local', 'owner': {'name': 'Orbit'}, 'plugins': [{'name': 'orbit', 'source': './plugins/orbit'}]}),
                          ('.agents/plugins', {'name': 'orbit-swift-local', 'plugins': [{'name': 'orbit', 'source': {'source': 'local', 'path': './plugins/orbit'}, 'policy': {'installation': 'AVAILABLE', 'authentication': 'ON_INSTALL'}, 'category': 'Productivity'}]})]:

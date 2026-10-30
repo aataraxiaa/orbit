@@ -58,6 +58,37 @@ class SwiftPackageTest(unittest.TestCase):
             self.assertEqual((target / 'Knowledge/Packaged.md').read_text(), content)
             self.assertTrue(call(manifests[2], 'search', {'orbit': 'Disposable', 'query': 'persistence'})['results'])
 
+    def test_acceptance_launch_arguments_isolate_even_when_host_drops_env(self):
+        with tempfile.TemporaryDirectory(prefix='orbit-native-isolation-') as temp:
+            base = Path(temp).resolve()
+            candidate = base / 'candidate'
+            isolation = base / 'isolation'
+            built = subprocess.run([sys.executable, str(ROOT / 'scripts/package_swift.py'),
+                                    '--binary', str(BINARY), '--resources', str(BUNDLE),
+                                    '--output', str(candidate), '--acceptance-root', str(isolation)],
+                                   capture_output=True, text=True)
+            self.assertEqual(built.returncode, 0, built.stderr)
+            plugin = candidate / 'marketplace/plugins/orbit'
+            manifests = [json.loads((plugin / name).read_text())['mcpServers']['orbit']
+                         for name in ('.mcp.json', '.codex.mcp.json')]
+            manifests.append(json.loads((plugin / 'manifest.json').read_text())['server']['mcp_config'])
+            env = dict(os.environ, ORBIT_CONFIG=str(base / 'ambient/config.json'),
+                       ORBIT_CACHE=str(base / 'ambient/cache'), ORBIT_STATE=str(base / 'ambient/state'))
+            for index, server in enumerate(manifests):
+                self.assertIn('--config', server['args'])
+                command = server['command'].replace('${CLAUDE_PLUGIN_ROOT}', str(plugin)).replace('${__dirname}', str(plugin))
+                arguments = {'name': 'Isolated', 'path': str(base / 'folder'), 'create': True}
+                request = {'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                           'params': {'name': 'orbit_setup' if index == 0 else 'orbit_list',
+                                      'arguments': arguments if index == 0 else {}}}
+                result = subprocess.run([command, *server['args']], input=json.dumps(request)+'\n',
+                                        cwd=plugin, env=env, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                value = json.loads(result.stdout)['result']
+                self.assertFalse(value['isError'], value)
+            self.assertTrue((isolation / 'config.json').is_file())
+            self.assertFalse((base / 'ambient').exists())
+
     def test_deep_request_is_parse_error_and_process_remains_available(self):
         # A sub-8MiB malformed request must not overflow the Swift stack.
         raw = '[' * 20000 + '0' + ']' * 20000 + '\n'
