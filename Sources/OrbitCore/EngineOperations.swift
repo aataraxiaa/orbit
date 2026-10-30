@@ -188,7 +188,7 @@ extension OrbitEngine {
         }
       }
       if matched.isEmpty { continue }
-      if names.map({ $0.lowercased() }).contains(query.lowercased()) { score += 12 }
+      if names.map({ casefold($0) }).contains(casefold(query)) { score += 12 }
       if ["superseded", "archived"].contains(eString(note["status"])) { score *= 0.8 }
       let ranked = eLines(eString(note["text"])).enumerated().sorted { a, b in
         let x = Set(tokens(a.element)).intersection(terms).count
@@ -198,7 +198,12 @@ extension OrbitEngine {
       results.append([
         "path": note["path"] ?? "", "title": note["title"] ?? "", "status": note["status"] ?? "",
         "score": (score * 10000).rounded() / 10000, "matched": matched,
-        "snippets": ranked.map { ["line": $0.offset + 1, "text": String($0.element.prefix(350))] },
+        "snippets": ranked.map {
+          [
+            "line": $0.offset + 1,
+            "text": String(String.UnicodeScalarView($0.element.unicodeScalars.prefix(350))),
+          ]
+        },
       ])
     }
     results.sort {

@@ -125,7 +125,7 @@ func notePassages(_ text: String) -> [OrbitPassage] {
           fence = nil
         }
       }
-      size += line.count + 1
+      size += line.unicodeScalars.count + 1
       if fence == nil && line.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && size >= 1800
       {
@@ -262,19 +262,20 @@ extension OrbitEngine {
         if text.hasPrefix("\u{feff}") { text.removeFirst() }
         let meta = metadata(text)
         let title =
-          eString(meta["title"]).isEmpty
+          !truthy(meta["title"])
           ? eMatches("^#\\s+(.+)$", text, [.anchorsMatchLines]).first?[1]
             ?? URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent
-          : eString(meta["title"])
+          : pyString(meta["title"]!)
         let aliases = strings(meta["aliases"])
-        let summary = eString(meta["summary"])
+        let summary = pyString(meta["summary"] ?? "")
         try db.execute(
           "INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
           [
-            path, current[path] ?? "", digest(raw), eString(meta["id"]), title,
+            path, current[path] ?? "", digest(raw), pyString(meta["id"] ?? ""), title,
             eJSON(aliases).trimmingCharacters(in: .whitespacesAndNewlines),
-            eString(meta["project"]), meta["status"] ?? "current", eString(meta["type"]), summary,
-            meta["schema_version"].map { String(describing: $0) } ?? "", eString(meta["observed"]),
+            pyString(meta["project"] ?? ""), pyString(meta["status"] ?? "current"),
+            pyString(meta["type"] ?? ""), summary,
+            pyString(meta["schema_version"] ?? ""), pyString(meta["observed"] ?? ""),
             eJSON(strings(meta["topics"])).trimmingCharacters(in: .whitespacesAndNewlines),
           ])
         for passage in notePassages(text) {
@@ -320,7 +321,7 @@ extension OrbitEngine {
       let prefix = scope.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/"
       sql +=
         " AND (project=? OR path=? OR substr(path,1,?)=? OR EXISTS (SELECT 1 FROM json_each(notes.topics) WHERE value=?))"
-      params += [scope, scope, prefix.count, prefix, scope]
+      params += [scope, scope, prefix.unicodeScalars.count, prefix, scope]
     }
     let total = eInt(try db.query("SELECT count(*) AS count " + sql, params).first?["count"])
     let offset = max(0, offset)
@@ -371,10 +372,10 @@ extension OrbitEngine {
         ?? []
     }
     func ordering(_ a: JSONObject, _ b: JSONObject) -> Bool {
-      let exactA = ([eString(a["title"])] + aliases(a)).map { $0.lowercased() }.contains(
-        query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
-      let exactB = ([eString(b["title"])] + aliases(b)).map { $0.lowercased() }.contains(
-        query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
+      let exactA = ([eString(a["title"])] + aliases(a)).map { casefold($0) }.contains(
+        casefold(query).trimmingCharacters(in: .whitespacesAndNewlines))
+      let exactB = ([eString(b["title"])] + aliases(b)).map { casefold($0) }.contains(
+        casefold(query).trimmingCharacters(in: .whitespacesAndNewlines))
       if exactA != exactB { return exactA }
       let rankA = a["rank"] as? Double ?? 0
       let rankB = b["rank"] as? Double ?? 0
@@ -399,7 +400,7 @@ extension OrbitEngine {
       if let scope {
         let prefix = scope.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/"
         sql += " AND (n.project=? OR n.path=? OR substr(n.path,1,?)=?)"
-        params += [scope, scope, prefix.count, prefix]
+        params += [scope, scope, prefix.unicodeScalars.count, prefix]
       }
       best = []
       selected = []
@@ -467,7 +468,7 @@ extension OrbitEngine {
       ]
       results.append(candidate)
       result["results"] = results
-      if eJSON(result).count > 12000 {
+      if eJSON(result).unicodeScalars.count > 12000 {
         results.removeLast()
         truncated = true
         break
@@ -480,7 +481,7 @@ extension OrbitEngine {
           candidate["snippets"] = snippets
           results[results.count - 1] = candidate
           result["results"] = results
-          if eJSON(result).count > 12000 {
+          if eJSON(result).unicodeScalars.count > 12000 {
             snippets.removeLast()
             candidate["snippets"] = snippets
             results[results.count - 1] = candidate
