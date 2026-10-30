@@ -179,7 +179,13 @@ final class FormattingMigrationTests: XCTestCase {
         let fixtureURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/migration-format2.json")
         let fixture = try readJSON(fixtureURL)
         let (root, engine) = try workspace()
+        let fixtureNote = (fixture["inputs"] as! [String: String])["Knowledge/Exact.md"]!
+        XCTAssertEqual(fixtureNote.unicodeScalars.first?.value, 0xFEFF, "Fixture JSON must preserve a BOM inside note content")
         for (path, text) in fixture["inputs"] as! [String: String] { try put(root, path, text) }
+        let noteBytes = try Data(contentsOf: safe(root, "Knowledge/Exact.md"))
+        XCTAssertEqual(Array(noteBytes.prefix(3)), [0xEF, 0xBB, 0xBF], "Replay must preserve raw BOM bytes")
+        let preserved = try migrationRead(root, "Knowledge/Exact.md")!
+        XCTAssertEqual(preserved.unicodeScalars.first?.value, 0xFEFF, "Migration snapshots must preserve BOM bytes")
         let expected = fixture["plan"] as! JSONObject
         let plan = try engine.migrate(root)
         XCTAssertEqual(plan["plan_id"] as? String, expected["plan_id"] as? String)
