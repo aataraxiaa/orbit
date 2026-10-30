@@ -50,21 +50,26 @@ extension OrbitEngine {
         for path in try migrationFiles(root, ".orbit/operations") where try readJSON(path)["status"] as? String == "prepared" { throw OrbitError("Recover the pending save operation before migrating") }
     }
 
-    func migrationSnapshot(_ root: URL) throws -> [String: String] {
-        var result: [String: String] = [:]
+    func migrationSnapshot(_ root: URL) throws -> [String: String] { Dictionary(uniqueKeysWithValues: try migrationSnapshotPairs(root)) }
+
+    private func migrationSnapshotPairs(_ root: URL) throws -> [(String, String)] {
+        var result: [(String, String)] = []
         func walk(_ directory: URL) throws {
-            for entry in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted(by: { $0.path < $1.path }) {
+            let entries = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted(by: { $0.path < $1.path })
+            var directories: [URL] = []
+            for entry in entries {
                 let relative = migrationRelative(entry, root)
                 let attrs = try entry.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
                 if attrs.isDirectory == true || attrs.isSymbolicLink == true && ((try? FileManager.default.attributesOfItem(atPath: entry.resolvingSymlinksInPath().path)[.type]) as? FileAttributeType) == .typeDirectory {
                     if entry.lastPathComponent.hasPrefix("."), relative != ".orbit" { continue }
                     _ = try safe(root, relative)
-                    try walk(entry)
+                    directories.append(entry)
                 } else {
                     if relative == ".orbit/write.lock" || relative.hasPrefix(".orbit/migrations/") { continue }
-                    result[relative] = digest(try Data(contentsOf: safe(root, relative)))
+                    result.append((relative, digest(try Data(contentsOf: safe(root, relative)))))
                 }
             }
+            for directory in directories { try walk(directory) }
         }
         try walk(root)
         return result
@@ -153,7 +158,10 @@ extension OrbitEngine {
         if !errors.isEmpty { throw OrbitError("Migrated schema validation failed: " + (try migrationJSON(errors))) }
         let duplicates = try issues(projected, root: root).filter { $0["kind"] as? String == "duplicate-id" }
         if !duplicates.isEmpty { throw OrbitError("Migration would duplicate note identities: " + (try migrationJSON(duplicates))) }
-        let movements: [JSONObject] = mapping.keys.sorted().compactMap { old in old != mapping[old] ? ["from": old, "to": mapping[old]!] : nil }
+        let movements: [JSONObject] = notes.compactMap { note in
+            guard let old = note["path"] as? String, let new = mapping[old], old != new else { return nil }
+            return ["from": old, "to": new]
+        }
         for path in files.keys.sorted() where path.hasPrefix(".orbit/integrations/") && path.hasSuffix(".json") {
             var record = try readJSON(safe(root, path))
             let evidence = (record["notes"] as? [JSONObject] ?? []) + (record["extraction"] as? [JSONObject] ?? [])
@@ -167,12 +175,14 @@ extension OrbitEngine {
                 errors.append("Migration changed evidence paths/content; previous verification is historical and requires re-verification")
                 record["errors"] = errors
                 record["migration"] = ["target_version": legacyMigrationTarget, "mapping": movements, "previous_stage": record["stage"] ?? NSNull(), "verification_stale": true]
-                desired[path] = String(data: try encode(record), encoding: .utf8)!
+                var ordered = try OrderedJSON.parse(Data((try migrationRead(root, path)!).utf8))
+                ordered = ordered.migrationSetting("errors", .sorted(record["errors"]!))
+                ordered = ordered.migrationSetting("migration", .object([("target_version", .scalar(legacyMigrationTarget)), ("mapping", .array(movements.map { .object([("from", .scalar($0["from"]!)), ("to", .scalar($0["to"]!))]) })), ("previous_stage", .sorted(record["stage"] ?? NSNull())), ("verification_stale", .scalar(true))]))
+                desired[path] = try migrationOrderedText(ordered)
             }
         }
-        var marker = try readJSON(safe(root, migrationMarker))
-        marker["data_format"] = 2; marker["orbit_version"] = legacyMigrationTarget
-        desired[migrationMarker] = String(data: try encode(marker), encoding: .utf8)!
+        let marker = try OrderedJSON.parse(Data((try migrationRead(root, migrationMarker)!).utf8)).migrationSetting("data_format", .scalar(2)).migrationSetting("orbit_version", .scalar(legacyMigrationTarget))
+        desired[migrationMarker] = try migrationOrderedText(marker)
         var writes: [JSONObject] = []
         for path in desired.keys.sorted() {
             let before = try migrationRead(root, path)
@@ -184,7 +194,8 @@ extension OrbitEngine {
             if ($0["after"] is NSNull) != ($1["after"] is NSNull) { return !($0["after"] is NSNull) }
             return left < right
         }
-        let planID = digest(try encode(["inputs": files, "writes": writes, "target_version": legacyMigrationTarget]))
+        let inputs = OrderedJSON.object(try migrationSnapshotPairs(root).map { ($0.0, .scalar($0.1)) })
+        let planID = digest(Data(try migrationOrderedText(.object([("inputs", inputs), ("writes", migrationOrderedWrites(writes)), ("target_version", .scalar(legacyMigrationTarget))])).utf8))
         let report = state.merging(["status": "preview", "target_format": 2, "plan_id": planID, "moves": movements, "warnings": warnings, "changes": migrationChanges(writes)], uniquingKeysWith: { _, new in new })
         return (report, writes)
     }
@@ -267,9 +278,13 @@ extension OrbitEngine {
         let inputs = try migrationSnapshot(root)
         if inputs.keys.contains(where: migrationHistoryPath) { throw OrbitError("Existing history requires inspection before migration") }
         let files = try migrationReplicationFiles(root), before = try migrationRead(root, migrationMarker)!
-        var marker = try readJSON(safe(root, migrationMarker)); marker["data_format"] = 3; marker["orbit_version"] = migrationTarget
-        let writes: [JSONObject] = [["path": migrationMarker, "before": before, "after": String(data: try encode(marker), encoding: .utf8)!]]
-        let planID = digest(try encode(["inputs": inputs, "files": files, "writes": writes, "target": migrationTarget]))
+        let marker = try OrderedJSON.parse(Data(before.utf8)).migrationSetting("data_format", .scalar(3)).migrationSetting("orbit_version", .scalar(migrationTarget))
+        let writes: [JSONObject] = [["path": migrationMarker, "before": before, "after": try migrationOrderedText(marker)]]
+        let orderedInputs = OrderedJSON.object(try migrationSnapshotPairs(root).map { ($0.0, .scalar($0.1)) })
+        var filePaths = try scan(root).compactMap { $0["path"] as? String }
+        filePaths += try migrationFiles(root, ".orbit/integrations").map { migrationRelative($0, root) }
+        let orderedFiles = OrderedJSON.object(filePaths.map { ($0, .scalar(files[$0]!)) })
+        let planID = digest(Data(try migrationOrderedText(.object([("inputs", orderedInputs), ("files", orderedFiles), ("writes", migrationOrderedWrites(writes)), ("target", .scalar(migrationTarget))])).utf8))
         let seed = try replicationSeedPreview(root, files: files)
         var history: [String: String] = [:]
         if let path = seed["path"] as? String, let hash = seed["sha256"] as? String { history[path] = hash }
@@ -357,6 +372,19 @@ private func migrationTruthy(_ value: Any?) -> Bool {
 }
 private func migrationHistoryPath(_ path: String) -> Bool { path.hasPrefix(".orbit/commits/") || path.hasPrefix(".orbit/observations/") }
 private func migrationJSON(_ value: Any) throws -> String { String(data: try JSONSerialization.data(withJSONObject: value, options: [.fragmentsAllowed, .withoutEscapingSlashes, .sortedKeys]), encoding: .utf8)! }
+private func migrationOrderedText(_ value: OrderedJSON) throws -> String { try value.rendered(pretty: true) + "\n" }
+private func migrationOrderedWrites(_ writes: [JSONObject]) -> OrderedJSON {
+    .array(writes.map { write in .object([("path", .scalar(write["path"]!)), ("before", .sorted(write["before"] ?? NSNull())), ("after", .sorted(write["after"] ?? NSNull()))]) })
+}
+
+private extension OrderedJSON {
+    func migrationSetting(_ key: String, _ value: OrderedJSON) -> OrderedJSON {
+        guard case .object(var pairs) = self else { return self }
+        if let index = pairs.firstIndex(where: { $0.0 == key }) { pairs[index].1 = value }
+        else { pairs.append((key, value)) }
+        return .object(pairs)
+    }
+}
 private func migrationChanges(_ writes: [JSONObject]) -> [JSONObject] { writes.map { ["path": $0["path"]!, "action": $0["after"] is NSNull ? "delete" : $0["before"] is NSNull ? "create" : "update"] } }
 
 private func migrationSegment(_ value: Any) throws -> String {

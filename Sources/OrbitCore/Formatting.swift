@@ -35,7 +35,7 @@ func formattingHeader(_ raw: Data) throws -> FormattingHeader {
     if !bom.isEmpty { text.removeFirst() }
     let lines = schemaLines(text, keepingEnds: true)
     let newline = schemaMatches("\\r\\n|\\n|\\r", text).first?.first ?? "\n"
-    func stripEnding(_ text: String) -> String { var value = text; while value.last == "\n" || value.last == "\r" { value.removeLast() }; return value }
+    func stripEnding(_ text: String) -> String { String(String.UnicodeScalarView(text.unicodeScalars.reversed().drop(while: { $0 == "\n" || $0 == "\r" }).reversed())) }
     guard let first = lines.first, stripEnding(first) == "---" else {
         if let first = lines.first, schemaTrim(first) == "---" { throw OrbitError("Ambiguous frontmatter delimiter") }
         return FormattingHeader(bom: bom, frontmatter: "", body: text, fields: [:], newline: newline)
