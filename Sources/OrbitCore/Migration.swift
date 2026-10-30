@@ -6,8 +6,8 @@ private let migrationMarker = ".orbit/vault.json"
 
 func migrationRead(_ root: URL, _ path: String) throws -> String? {
     let url = try safe(root, path)
-    guard schemaExists(url) else { return nil }
-    let data = try Data(contentsOf: url)
+    guard try schemaExists(url) else { return nil }
+    let data = try readData( url)
     guard String(data: data, encoding: .utf8) != nil else { throw OrbitError("Invalid UTF-8 in " + path) }
     return String(decoding: data, as: UTF8.self)
 }
@@ -20,8 +20,8 @@ func migrationEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
 
 func migrationFiles(_ root: URL, _ relative: String) throws -> [URL] {
     let directory = try safe(root, relative)
-    guard schemaExists(directory) else { return [] }
-    return try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil).filter { $0.pathExtension == "json" }.sorted(by: { $0.path < $1.path })
+    guard try schemaExists(directory) else { return [] }
+    return try directoryContents(at: directory, includingPropertiesForKeys: nil).filter { $0.pathExtension == "json" }.sorted(by: { $0.path < $1.path })
 }
 
 func migrationRelative(_ url: URL, _ root: URL) -> String { String(url.path.dropFirst(root.path.count + 1)) }
@@ -56,18 +56,18 @@ extension OrbitEngine {
     private func migrationSnapshotPairs(_ root: URL) throws -> [(String, String)] {
         var result: [(String, String)] = []
         func walk(_ directory: URL, prefix: String) throws {
-            let entries = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted(by: { $0.path < $1.path })
+            let entries = try directoryContents(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted(by: { $0.path < $1.path })
             var directories: [URL] = []
             for entry in entries {
                 let relative = prefix + entry.lastPathComponent
-                let attrs = try entry.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
-                if attrs.isDirectory == true || attrs.isSymbolicLink == true && ((try? FileManager.default.attributesOfItem(atPath: entry.resolvingSymlinksInPath().path)[.type]) as? FileAttributeType) == .typeDirectory {
+                let attrs = try fileResourceValues(entry, forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+                if attrs.isDirectory == true || attrs.isSymbolicLink == true && ((try? fileAttributes(atPath: realURL(entry).path)[.type]) as? FileAttributeType) == .typeDirectory {
                     if entry.lastPathComponent.hasPrefix("."), relative != ".orbit" { continue }
                     _ = try safe(root, relative)
                     directories.append(entry)
                 } else {
                     if relative == ".orbit/write.lock" || relative.hasPrefix(".orbit/migrations/") { continue }
-                    result.append((relative, digest(try Data(contentsOf: safe(root, relative)))))
+                    result.append((relative, digest(try readData( safe(root, relative)))))
                 }
             }
             for directory in directories { try walk(directory, prefix: prefix + directory.lastPathComponent + "/") }
@@ -123,7 +123,7 @@ extension OrbitEngine {
         for directory in orbitDirectories {
             let url = try safe(root, directory)
             var isDirectory: ObjCBool = false
-            if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue { throw OrbitError("Standard folder is occupied by a file: " + directory) }
+            if try fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue { throw OrbitError("Standard folder is occupied by a file: " + directory) }
         }
         var outputs: [String: String] = [:]
         let occupied = Dictionary(files.keys.map { (schemaFold($0), $0) }, uniquingKeysWith: { first, _ in first })
@@ -148,7 +148,7 @@ extension OrbitEngine {
         for old in mapping.keys.sorted() where old != mapping[old] && desired[old] == nil { desired[old] = NSNull() }
         let schemaTypes = Set(desired.compactMap { path, value in (path as NSString).deletingLastPathComponent == "Schemas" ? (value as? String).flatMap { metadata($0)["schema_for"] as? String } : nil })
         for (path, value) in try schemaBootstrap(root) {
-            if desired[path] == nil, !schemaExists(try safe(root, path)), !schemaTypes.contains(metadata(value)["schema_for"] as? String ?? "") { desired[path] = value }
+            if desired[path] == nil, try !schemaExists(try safe(root, path)), !schemaTypes.contains(metadata(value)["schema_for"] as? String ?? "") { desired[path] = value }
         }
         let projected: [JSONObject] = desired.keys.sorted().compactMap { path in
             guard let text = desired[path] as? String, path.lowercased().hasSuffix(".md") else { return nil }
@@ -206,7 +206,7 @@ extension OrbitEngine {
         var record = input
         let writes = record["writes"] as! [JSONObject]
         for write in writes { try migrationPreflight(root, write) }
-        if !rollback { for directory in orbitDirectories { try FileManager.default.createDirectory(at: safe(root, directory), withIntermediateDirectories: true) } }
+        if !rollback { for directory in orbitDirectories { try createDirectory(at: safe(root, directory), withIntermediateDirectories: true) } }
         let direction = rollback ? "rollback" : "forward"
         if record["status"] as? String != "prepared" || (record["direction"] as? String ?? "forward") != direction {
             record["status"] = "prepared"; record["direction"] = direction
@@ -216,7 +216,7 @@ extension OrbitEngine {
             try migrationPreflight(root, write)
             let url = try safe(root, write["path"] as! String)
             if let text = write[rollback ? "before" : "after"] as? String { try atomic(url, Data(text.utf8)) }
-            else if schemaExists(url) { try FileManager.default.removeItem(at: url) }
+            else if try schemaExists(url) { try removeFile(at: url) }
         }
         for write in writes where !migrationEqual(try migrationRead(root, write["path"] as! String), write[rollback ? "before" : "after"]) { throw OrbitError("Migration verification conflict: " + (write["path"] as! String)) }
         record["status"] = rollback ? "rolled-back" : "committed"
@@ -241,7 +241,7 @@ extension OrbitEngine {
                 let (report, writes) = try migrationPrepareLegacy(root)
                 if report["status"] as? String == "unchanged" { return report }
                 guard let planID, planID == report["plan_id"] as? String else { throw OrbitError("Migration preview is missing or stale; run plan again") }
-                let id = UUID().uuidString.lowercased(), journal = try safe(root, ".orbit/migrations/" + id + ".json")
+                let id = newUUID(), journal = try safe(root, ".orbit/migrations/" + id + ".json")
                 let backup = Dictionary(uniqueKeysWithValues: writes.map { ($0["path"] as! String, ($0["before"] as? String).map { digest(Data($0.utf8)) } as Any? ?? NSNull()) })
                 let record: JSONObject = ["id": id, "kind": "migration", "status": "prepared", "created": now(), "plan_id": planID, "source_format": 1, "target_format": 2, "writes": writes, "backup_manifest": backup]
                 try atomic(journal, encode(record))
@@ -249,7 +249,7 @@ extension OrbitEngine {
             }
             guard let operation, !schemaMatches(#"^[a-f0-9-]{36}$"#, operation).isEmpty else { throw OrbitError("A valid migration operation id is required") }
             let journal = try safe(root, ".orbit/migrations/" + operation + ".json")
-            guard schemaExists(journal) else { throw OrbitError("Migration operation not found") }
+            guard try schemaExists(journal) else { throw OrbitError("Migration operation not found") }
             let record = try readJSON(journal)
             if record["status"] as? String == "rolled-back", action == "resume" { throw OrbitError("Migration was rolled back; create a new plan") }
             if try migrationJournals(root).contains(where: { $0.1["id"] as? String != operation && $0.1["status"] as? String == "prepared" }) { throw OrbitError("Another migration is pending") }
@@ -316,7 +316,7 @@ extension OrbitEngine {
         }
         if rollback {
             try atomic(safe(root, migrationMarker), Data((write["before"] as! String).utf8))
-            for path in currentHistory.keys.sorted() { try FileManager.default.removeItem(at: safe(root, path)) }
+            for path in currentHistory.keys.sorted() { try removeFile(at: safe(root, path)) }
         } else {
             try replicationSeed(root, files: record["files"] as? [String: String] ?? [:])
             let seeded = try migrationSnapshot(root).filter { migrationHistoryPath($0.key) }
@@ -337,7 +337,7 @@ extension OrbitEngine {
         if action == "status" { return try migrationStatus(root) }
         if ["resume", "rollback"].contains(action), let operation, !schemaMatches(#"^[a-f0-9-]{36}$"#, operation).isEmpty {
             let journal = try safe(root, ".orbit/migrations/" + operation + ".json")
-            if schemaExists(journal), schemaInteger(try readJSON(journal)["target_format"]) == 3 {
+            if try schemaExists(journal), schemaInteger(try readJSON(journal)["target_format"]) == 3 {
                 return try withLock(root) {
                     let record = try readJSON(journal)
                     if record["status"] as? String == "rolled-back" {
@@ -358,7 +358,7 @@ extension OrbitEngine {
             let (report, optional) = try migrationPrepareReplication(root)
             if report["status"] as? String == "unchanged" { return report }
             guard let planID, planID == report["plan_id"] as? String, var record = optional else { throw OrbitError("Migration preview is missing or stale; run plan again") }
-            let id = UUID().uuidString.lowercased(), journal = try safe(root, ".orbit/migrations/" + id + ".json")
+            let id = newUUID(), journal = try safe(root, ".orbit/migrations/" + id + ".json")
             record.merge(["id": id, "kind": "migration", "status": "prepared", "created": now(), "plan_id": planID], uniquingKeysWith: { _, new in new })
             try atomic(journal, encode(record))
             return try migrationExecuteReplication(root, record: record, journal: journal)

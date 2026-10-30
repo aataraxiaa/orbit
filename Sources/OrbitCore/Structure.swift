@@ -28,25 +28,25 @@ func schemaInteger(_ value: Any?) -> Int? {
 
 func schemaTrim(_ text: String) -> String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
 func schemaFold(_ text: String) -> String { text.folding(options: [.caseInsensitive], locale: Locale(identifier: "en_US_POSIX")) }
-func schemaExists(_ url: URL) -> Bool { FileManager.default.fileExists(atPath: url.path) }
+func schemaExists(_ url: URL) throws -> Bool { try fileExists(atPath: url.path) }
 
 extension OrbitEngine {
     func schemaTemplates() throws -> [String: String] {
         guard let directory = Bundle.module.url(forResource: "Schemas", withExtension: nil, subdirectory: "Resources") else { throw OrbitError("Missing bundled note schemas") }
         var result: [String: String] = [:]
-        for path in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil).sorted(by: { $0.path < $1.path }) where path.pathExtension == "md" {
-            result["Schemas/" + path.lastPathComponent] = try String(contentsOf: path, encoding: .utf8)
+        for path in try directoryContents(at: directory, includingPropertiesForKeys: nil).sorted(by: { $0.path < $1.path }) where path.pathExtension == "md" {
+            result["Schemas/" + path.lastPathComponent] = try readString( path, encoding: .utf8)
         }
         return result
     }
 
     func schemaCustom(_ root: URL) throws -> [String: String] {
         let directory = try safe(root, "Schemas")
-        guard schemaExists(directory) else { return [:] }
+        guard try schemaExists(directory) else { return [:] }
         var result: [String: String] = [:]
-        for path in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil).sorted(by: { $0.path < $1.path }) where path.pathExtension == "md" {
+        for path in try directoryContents(at: directory, includingPropertiesForKeys: nil).sorted(by: { $0.path < $1.path }) where path.pathExtension == "md" {
             let relative = "Schemas/" + path.lastPathComponent
-            result[relative] = try String(contentsOf: safe(root, relative), encoding: .utf8).trimmingPrefixBOM()
+            result[relative] = try readString( safe(root, relative), encoding: .utf8).trimmingPrefixBOM()
         }
         return result
     }
@@ -55,7 +55,7 @@ extension OrbitEngine {
         let existing = Set(try schemaCustom(root).values.compactMap { metadata($0)["schema_for"] as? String })
         var result: [String: String] = [:]
         for (path, text) in try schemaTemplates() {
-            if !schemaExists(try safe(root, path)), let type = metadata(text)["schema_for"] as? String, !existing.contains(type) { result[path] = text }
+            if try !schemaExists(try safe(root, path)), let type = metadata(text)["schema_for"] as? String, !existing.contains(type) { result[path] = text }
         }
         return result
     }

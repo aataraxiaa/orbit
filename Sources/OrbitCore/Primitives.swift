@@ -24,10 +24,13 @@ public func encode(_ value: Any) throws -> Data {
     Data((try OrderedJSON.sorted(value).rendered(pretty: true) + "\n").utf8)
 }
 public func readJSON(_ url: URL) throws -> JSONObject {
-    guard let result = try OrderedJSON.parse(Data(contentsOf: url)).value as? JSONObject else { throw OrbitError("Expected JSON object") }
+    guard let result = try OrderedJSON.parse(readData(url)).value as? JSONObject else { throw OrbitError("Expected JSON object") }
     return result
 }
 public func atomic(_ url: URL, _ data: Data) throws {
+    try coordinatedFile(url, mode: .write) { try atomicCoordinated($0, data) }
+}
+private func atomicCoordinated(_ url: URL, _ data: Data) throws {
     let fm = FileManager.default
     try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     var name = Array(url.deletingLastPathComponent().appendingPathComponent(".orbit-XXXXXX").path.utf8CString)
@@ -46,7 +49,10 @@ public func atomic(_ url: URL, _ data: Data) throws {
     guard fsync(fd) == 0, rename(temp, url.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
 }
 public func syncParent(_ url: URL) throws {
-    let fd = open(url.deletingLastPathComponent().path, O_RDONLY)
+    try coordinatedFile(url.deletingLastPathComponent(), mode: .write) { try syncParentCoordinated($0) }
+}
+private func syncParentCoordinated(_ url: URL) throws {
+    let fd = open(url.path, O_RDONLY)
     guard fd >= 0 else { throw POSIXError(.EIO) }; defer { close(fd) }
     guard fsync(fd) == 0 else { throw POSIXError(.EIO) }
 }
@@ -60,7 +66,7 @@ public func safe(_ root: URL, _ relative: String) throws -> URL {
     var cursor = root
     for part in components {
         cursor.appendPathComponent(part)
-        if (try? cursor.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) == true { throw OrbitError("Symlink paths are not supported") }
+        if try fileIsSymbolicLink(cursor) { throw OrbitError("Symlink paths are not supported") }
     }
     return candidate
 }
@@ -142,18 +148,18 @@ public func scan(_ inputRoot: URL) throws -> [JSONObject] {
     let fm = FileManager.default
     var notes: [JSONObject] = []
     func walk(_ directory: URL) throws {
-        let entries = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted { $0.lastPathComponent.unicodeScalars.lexicographicallyPrecedes($1.lastPathComponent.unicodeScalars) }
-        let files = try entries.filter { try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory != true }
-        let directories = try entries.filter { try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true }
+        let entries = try directoryContents(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).sorted { $0.lastPathComponent.unicodeScalars.lexicographicallyPrecedes($1.lastPathComponent.unicodeScalars) }
+        let files = try entries.filter { try fileResourceValues($0, forKeys: [.isDirectoryKey]).isDirectory != true }
+        let directories = try entries.filter { try fileResourceValues($0, forKeys: [.isDirectoryKey]).isDirectory == true }
         for p in files + directories {
-            let values = try p.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+            let values = try fileResourceValues(p, forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
             if values.isSymbolicLink == true { continue }
             if values.isDirectory == true {
                 if !p.lastPathComponent.hasPrefix(".") { try walk(p) }; continue
             }
             let relative = String(p.path.dropFirst(root.path.count + 1))
             guard p.pathExtension.lowercased() == "md", !relative.hasPrefix("Sources/assets/") else { continue }
-            let raw = try Data(contentsOf: p)
+            let raw = try readData( p)
             guard var text = String(data: raw, encoding: .utf8) else { throw OrbitError("Cannot index \(relative): invalid UTF-8") }
             if text.hasPrefix("\u{feff}") { text.removeFirst() }
             let meta = metadata(text)

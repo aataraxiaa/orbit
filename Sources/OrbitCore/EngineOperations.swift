@@ -5,7 +5,7 @@ func eString(_ value: Any?) -> String { value as? String ?? "" }
 func eObjects(_ value: Any?) -> [JSONObject] { value as? [JSONObject] ?? [] }
 func eInt(_ value: Any?, _ fallback: Int = 0) -> Int { value as? Int ?? fallback }
 func eBool(_ value: Any?) -> Bool { value as? Bool ?? false }
-func eExists(_ url: URL) -> Bool { FileManager.default.fileExists(atPath: url.path) }
+func eExists(_ url: URL) throws -> Bool { try fileExists(atPath: url.path) }
 func eRelative(_ url: URL, root: URL) throws -> String {
   let base = realURL(root).path
   let path = realURL(url).path
@@ -15,7 +15,7 @@ func eRelative(_ url: URL, root: URL) throws -> String {
   return String(path.dropFirst(base.count + 1))
 }
 func eText(_ url: URL) throws -> String {
-  let data = try Data(contentsOf: url)
+  let data = try readData(url)
   guard let text = String(data: data, encoding: .utf8) else {
     throw OrbitError("Invalid UTF-8: " + url.path)
   }
@@ -59,8 +59,8 @@ func eJSON(_ value: Any) -> String {
   String(data: (try? encode(value)) ?? Data(), encoding: .utf8) ?? ""
 }
 func eChildren(_ url: URL, suffix: String) throws -> [URL] {
-  guard eExists(url) else { return [] }
-  return try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+  guard try eExists(url) else { return [] }
+  return try directoryContents(at: url, includingPropertiesForKeys: nil)
     .filter { $0.lastPathComponent.hasSuffix(suffix) }.sorted { $0.path < $1.path }
 }
 
@@ -68,7 +68,7 @@ extension OrbitEngine {
   func withLock<T>(_ root: URL, body: () throws -> T) throws -> T {
     if replicationEnabled(root) { return try withLocalLock(root, body: body) }
     let path = try safe(root, ".orbit/write.lock")
-    let fd = Darwin.open(path.path, O_CREAT | O_EXCL | O_WRONLY, 0o600)
+    let fd = try openFile(path, flags: O_CREAT | O_EXCL | O_WRONLY)
     guard fd >= 0 else {
       throw OrbitError(
         "Vault has a write lock. Check active writers; see recovery instructions before removing a stale lock."
@@ -76,10 +76,10 @@ extension OrbitEngine {
     }
     defer {
       Darwin.close(fd)
-      try? FileManager.default.removeItem(at: path)
+      try? removeFile(at: path)
     }
     let bytes = try encode(["pid": Int(getpid()), "created": now()])
-    try bytes.write(to: path)
+    try writeData(bytes, to: path)
     return try body()
   }
   func coherent<T>(_ root: URL, body: (JSONObject) throws -> T) throws -> T {
@@ -95,6 +95,15 @@ extension OrbitEngine {
     return try scan(root).filter { !blocked.contains(eString($0["path"])) }
   }
   public func read(_ root: URL, path: String, start: Int = 1, count: Int = 160) throws -> JSONObject
+  {
+    try withOrbitRuntime(runtime) {
+      try withOrbitFileAccess(fileAccess) {
+        try readCoordinated(root, path: path, start: start, count: count)
+      }
+    }
+  }
+  private func readCoordinated(_ root: URL, path: String, start: Int = 1, count: Int = 160) throws
+    -> JSONObject
   {
     let canonicalPath = try safe(root, path).path.replacingOccurrences(
       of: root.path + "/", with: "")
@@ -117,7 +126,7 @@ extension OrbitEngine {
     guard url.pathExtension.lowercased() == "md", ePublic(path) else {
       throw OrbitError("Read accepts public Markdown notes only")
     }
-    let raw = try Data(contentsOf: url)
+    let raw = try readData(url)
     guard var text = String(data: raw, encoding: .utf8) else { throw OrbitError("Invalid UTF-8") }
     if text.hasPrefix("\u{feff}") { text.removeFirst() }
     let lines = eLines(text)
@@ -132,6 +141,17 @@ extension OrbitEngine {
     ]
   }
   public func search(
+    _ root: URL, query: String, limit: Int = 8, scope: String? = nil, noteType: String? = nil,
+    status: String? = nil
+  ) throws -> JSONObject {
+    try withOrbitRuntime(runtime) {
+      try withOrbitFileAccess(fileAccess) {
+        try searchCoordinated(
+          root, query: query, limit: limit, scope: scope, noteType: noteType, status: status)
+      }
+    }
+  }
+  private func searchCoordinated(
     _ root: URL, query: String, limit: Int = 8, scope: String? = nil, noteType: String? = nil,
     status: String? = nil
   ) throws -> JSONObject {
@@ -283,7 +303,7 @@ extension OrbitEngine {
         let candidates = resolve(link, table: table)
         if candidates.isEmpty {
           let exists =
-            (try? safe(root, link)).map { FileManager.default.fileExists(atPath: $0.path) } ?? false
+            try (try? safe(root, link)).map { try fileExists(atPath: $0.path) } ?? false
           if !exists && !plannedAssets.contains(link) {
             result.append(["path": path, "kind": "unresolved-link", "target": link])
           }
@@ -341,9 +361,9 @@ extension OrbitEngine {
       : ["status": "legacy", "hint": "Migrate to format 3 for cross-device revision handling."]
     return [
       "vault": root.path, "notes": notes.count, "readable": true,
-      "writable": FileManager.default.isWritableFile(atPath: root.path), "sync": sync,
+      "writable": try writableFile(atPath: root.path), "sync": sync,
       "issues": try issues(notes, root: root), "pending_operations": pending,
-      "locked": eExists(try safe(root, ".orbit/write.lock")), "state_directory": ".orbit",
+      "locked": try eExists(try safe(root, ".orbit/write.lock")), "state_directory": ".orbit",
       "rules": "ORBIT.md", "migration": try migrationStatus(root),
       "search":
         "incremental local FTS5 passages with live lexical fallback; semantic expansion is performed by the agent",
@@ -375,7 +395,7 @@ extension OrbitEngine {
       else { throw OrbitError("Changes must target public .md notes, not configuration") }
       guard !seen.contains(path) else { throw OrbitError("Duplicate target in operation") }
       seen.insert(path)
-      let raw = eExists(url) ? try Data(contentsOf: url) : nil
+      let raw = try eExists(url) ? try readData(url) : nil
       let expected = change["expected_sha256"] as? String
       if raw == nil && expected != nil {
         throw OrbitError(path + ": expected existing note is missing")
@@ -466,6 +486,15 @@ extension OrbitEngine {
   public func apply(
     _ root: URL, plan: JSONObject, dryRun: Bool = false, formatMetadata: Bool = false
   ) throws -> JSONObject {
+    try withOrbitRuntime(runtime) {
+      try withOrbitFileAccess(fileAccess) {
+        try applyCoordinated(root, plan: plan, dryRun: dryRun, formatMetadata: formatMetadata)
+      }
+    }
+  }
+  private func applyCoordinated(
+    _ root: URL, plan: JSONObject, dryRun: Bool = false, formatMetadata: Bool = false
+  ) throws -> JSONObject {
     try withLock(root) {
       try migrationEnsureWritable(root)
       let replicated = replicationEnabled(root)
@@ -482,7 +511,7 @@ extension OrbitEngine {
       }
       let ops = try safe(root, ".orbit/operations")
       if !replicated {
-        try FileManager.default.createDirectory(at: ops, withIntermediateDirectories: true)
+        try createDirectory(at: ops, withIntermediateDirectories: true)
         if try eChildren(ops, suffix: ".json").contains(where: {
           eString(try readJSON($0)["status"]) == "prepared"
         }) {
@@ -556,7 +585,7 @@ extension OrbitEngine {
         result["warnings"] = warnings
         return result.merging(extra, uniquingKeysWith: { $1 })
       }
-      let id = UUID().uuidString.lowercased()
+      let id = newUUID()
       let journal = try safe(root, ".orbit/operations/" + id + ".json")
       var record: JSONObject = [
         "id": id, "created": now(), "status": "prepared", "summary": effectivePlan["summary"] ?? "",
@@ -565,7 +594,7 @@ extension OrbitEngine {
       try atomic(journal, encode(record))
       for write in changed {
         let target = try safe(root, eString(write["path"]))
-        let current: Any = eExists(target) ? try eText(target) : NSNull()
+        let current: Any = try eExists(target) ? try eText(target) : NSNull()
         guard eEqual(current, write["before"]) else {
           throw OrbitError(
             "Write conflict: " + eString(write["path"])
@@ -576,7 +605,7 @@ extension OrbitEngine {
       record["status"] = "committed"
       try atomic(journal, encode(record))
       let verified = try changed.allSatisfy {
-        try Data(contentsOf: safe(root, eString($0["path"]))) == Data(eString($0["after"]).utf8)
+        try readData(safe(root, eString($0["path"]))) == Data(eString($0["after"]).utf8)
       }
       return [
         "status": "committed", "operation": id, "changes": report, "warnings": warnings,
@@ -622,7 +651,7 @@ extension OrbitEngine {
         for write in writes {
           let url = try safe(root, eString(write["path"]))
           observed[eString(write["path"])] =
-            eExists(url) ? digest(try Data(contentsOf: url)) : NSNull()
+            try eExists(url) ? digest(try readData(url)) : NSNull()
         }
         record["observed"] = observed
         try atomic(journal, encode(record))
@@ -633,7 +662,7 @@ extension OrbitEngine {
       }
       func check(_ write: JSONObject, _ during: Bool) throws {
         let url = try safe(root, eString(write["path"]))
-        let current: Any = eExists(url) ? try eText(url) : NSNull()
+        let current: Any = try eExists(url) ? try eText(url) : NSNull()
         if !eEqual(current, write["before"]) && !eEqual(current, write["after"]) {
           throw OrbitError(
             "Recovery conflict: " + eString(write["path"])
@@ -646,7 +675,7 @@ extension OrbitEngine {
         let url = try safe(root, eString(write["path"]))
         let value = write[rollback ? "before" : "after"]
         if value == nil || value is NSNull {
-          if eExists(url) { try FileManager.default.removeItem(at: url) }
+          if try eExists(url) { try removeFile(at: url) }
         } else {
           try atomic(url, Data(eString(value).utf8))
         }
@@ -660,23 +689,23 @@ extension OrbitEngine {
     let sourceURL = URL(fileURLWithPath: (source as NSString).expandingTildeInPath)
       .resolvingSymlinksInPath()
     var directory: ObjCBool = false
-    guard FileManager.default.fileExists(atPath: sourceURL.path, isDirectory: &directory),
+    guard try fileExists(atPath: sourceURL.path, isDirectory: &directory),
       !directory.boolValue
     else { throw OrbitError("Source must be an accessible local file") }
-    let raw = try Data(contentsOf: sourceURL)
+    let raw = try readData(sourceURL)
     let hash = digest(raw)
     let suffix = sourceURL.pathExtension
     let ext = !eMatches("^[a-zA-Z0-9]{1,10}$", suffix).isEmpty ? "." + suffix.lowercased() : ".bin"
     let pair: (URL, Bool) = try withLock(root) {
       try migrationEnsureWritable(root)
       let folder = try safe(root, "Sources/assets")
-      try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-      let previous = try FileManager.default.contentsOfDirectory(
+      try createDirectory(at: folder, withIntermediateDirectories: true)
+      let previous = try directoryContents(
         at: folder, includingPropertiesForKeys: nil
       ).filter { $0.lastPathComponent.hasPrefix(hash + ".") }.sorted { $0.path < $1.path }
       let dest = previous.first ?? folder.appendingPathComponent(hash + ext)
-      let duplicate = eExists(dest)
-      if duplicate, try digest(Data(contentsOf: dest)) != hash {
+      let duplicate = try eExists(dest)
+      if duplicate, try digest(readData(dest)) != hash {
         throw OrbitError("Captured asset was modified; refusing to overwrite")
       }
       if !duplicate { try atomic(dest, raw) }
@@ -694,6 +723,15 @@ extension OrbitEngine {
     return receipt
   }
   public func dispatchTarget(_ action: String, arguments: JSONObject, root: URL) throws
+    -> JSONObject
+  {
+    try withOrbitRuntime(runtime) {
+      try withOrbitFileAccess(fileAccess) {
+        try dispatchTargetCoordinated(action, arguments: arguments, root: root)
+      }
+    }
+  }
+  private func dispatchTargetCoordinated(_ action: String, arguments: JSONObject, root: URL) throws
     -> JSONObject
   {
     if action == "sync" {

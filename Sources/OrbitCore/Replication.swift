@@ -90,8 +90,8 @@ extension OrbitEngine {
             defer { entry.depth -= 1 }
             return try body()
         }
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let fd = open(directory.appendingPathComponent("write.lock").path, O_CREAT | O_RDWR, 0o600)
+        try createDirectory(at: directory, withIntermediateDirectories: true)
+        let fd = try openFile(directory.appendingPathComponent("write.lock"), flags: O_CREAT | O_RDWR)
         guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { close(fd) }
         guard flock(fd, LOCK_EX) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
@@ -121,9 +121,9 @@ extension OrbitEngine {
 
     private func replicaText(_ root: URL, _ path: String) throws -> String? {
         let url = try replicaPath(root, path)
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        guard try fileExists(atPath: url.path) else { return nil }
         do {
-            let data = try Data(contentsOf: url)
+            let data = try readData(url)
             guard String(data: data, encoding: .utf8) != nil else { throw OrbitError("Invalid UTF-8") }
             return String(decoding:data,as:UTF8.self)
         } catch { throw OrbitError("Cannot read snapshot target " + path) }
@@ -138,12 +138,12 @@ extension OrbitEngine {
         let path = try safe(root, ".orbit/" + directory + "/" + name + ".json")
         let raw = try canonical(record)
         guard raw.count <= replicationLimit else { throw OrbitError("Snapshot exceeds 64 MiB limit") }
-        if FileManager.default.fileExists(atPath: path.path) {
-            guard try Data(contentsOf: path) == raw else { throw OrbitError("Immutable snapshot identity collision: " + name) }
+        if try fileExists(atPath: path.path) {
+            guard try readData( path) == raw else { throw OrbitError("Immutable snapshot identity collision: " + name) }
             return
         }
         try atomic(path, raw)
-        let fd = open(path.deletingLastPathComponent().path, O_RDONLY)
+        let fd = try openFile(path.deletingLastPathComponent(), flags: O_RDONLY)
         guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { close(fd) }
         guard fsync(fd) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
@@ -212,8 +212,8 @@ extension OrbitEngine {
 
     private func replicaFiles(_ root: URL, _ directory: String) throws -> [URL] {
         let folder = try safe(root, directory)
-        guard FileManager.default.fileExists(atPath: folder.path) else { return [] }
-        return try FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil).filter { $0.pathExtension == "json" }.sorted { $0.path < $1.path }
+        guard try fileExists(atPath: folder.path) else { return [] }
+        return try directoryContents(at: folder, includingPropertiesForKeys: nil).filter { $0.pathExtension == "json" }.sorted { $0.path < $1.path }
     }
 
     private func replicaLoad(_ root: URL) throws -> ReplicaState {
@@ -222,7 +222,7 @@ extension OrbitEngine {
             let relative = ".orbit/commits/" + path.lastPathComponent
             do {
                 _ = try safe(root, relative)
-                let raw = try Data(contentsOf: path)
+                let raw = try readData( path)
                 guard raw.count <= replicationLimit else { throw OrbitError("Snapshot exceeds size limit") }
                 let record = try replicaValidate(root, readJSON(path), path.lastPathComponent)
                 state.records[rString(record["id"])] = record
@@ -233,7 +233,7 @@ extension OrbitEngine {
             let relative = ".orbit/observations/" + path.lastPathComponent
             do {
                 _ = try safe(root, relative)
-                guard try Data(contentsOf: path).count <= replicationLimit else { throw OrbitError("Observation exceeds size limit") }
+                guard try readData( path).count <= replicationLimit else { throw OrbitError("Observation exceeds size limit") }
                 let record = try readJSON(path)
                 guard rString(record["vault_id"]) == (try replicaIdentity(root)), record["protocol"] as? Int == 1 else { throw OrbitError("Invalid observation identity/protocol") }
                 _ = try replicaPath(root, record["path"])
@@ -251,8 +251,8 @@ extension OrbitEngine {
         let fm = FileManager.default
         var paths = Set<String>()
         func walk(_ directory: URL, _ prefix: String) throws {
-            for path in try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]) {
-                let values = try path.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+            for path in try directoryContents(at: directory, includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]) {
+                let values = try fileResourceValues(path, forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
                 if values.isSymbolicLink == true { continue }
                 if values.isDirectory == true {
                     if !path.lastPathComponent.hasPrefix(".") { try walk(path, prefix + path.lastPathComponent + "/") }
@@ -321,8 +321,8 @@ extension OrbitEngine {
                 for asset in rObjects(record["assets"]) {
                     let path = rString(asset["path"]), url = try safe(root, rString(asset["path"]))
                     var directory: ObjCBool = false
-                    if !FileManager.default.fileExists(atPath: url.path, isDirectory: &directory) || directory.boolValue { reasons.append("missing asset " + path) }
-                    else if digest(try Data(contentsOf: url)) != rString(asset["sha256"]) { reasons.append("asset hash mismatch " + path) }
+                    if try !fileExists(atPath: url.path, isDirectory: &directory) || directory.boolValue { reasons.append("missing asset " + path) }
+                    else if digest(try readData( url)) != rString(asset["sha256"]) { reasons.append("asset hash mismatch " + path) }
                 }
                 if !reasons.isEmpty { state.pending[id] = Array(Set(reasons)).sorted() }
                 else {
@@ -446,9 +446,9 @@ extension OrbitEngine {
                     if try !rTextEqual(replicaText(root, path), before) { try replicaCapture(root, state); return result(replicaReport(try replicaFold(root))) }
                     let target = try replicaPath(root, path)
                     if let after { try atomic(target, Data(after.utf8)) }
-                    else if FileManager.default.fileExists(atPath: target.path) { try FileManager.default.removeItem(at: target) }
+                    else if try fileExists(atPath: target.path) { try removeFile(at: target) }
                     materialized.append(path)
-                    if FileManager.default.fileExists(atPath: intent.path) { try FileManager.default.removeItem(at: intent) }
+                    if try fileExists(atPath: intent.path) { try removeFile(at: intent) }
                 }
             }
             return result(replicaReport(try replicaFold(root)))
@@ -500,7 +500,7 @@ extension OrbitEngine {
 
     private func replicaPrevious(_ root: URL, _ requestID: String, _ requestDigest: String) throws -> JSONObject? {
         let path = try safe(root, ".orbit/commits/" + requestID + ".json")
-        guard FileManager.default.fileExists(atPath: path.path) else { return nil }
+        guard try fileExists(atPath: path.path) else { return nil }
         let record = try replicaValidate(root, readJSON(path), path.lastPathComponent)
         guard rString(record["request_digest"]) == requestDigest else { throw OrbitError("request_id was already used for different content") }
         return record
@@ -515,7 +515,7 @@ extension OrbitEngine {
     }
 
     public func replicationCommit(_ root: URL, writes: [JSONObject], requestID: String? = nil, requestDigest: String? = nil, dryRun: Bool = false) throws -> JSONObject {
-        let operation = try requestID.map { try replicaUUID($0) } ?? UUID().uuidString.lowercased()
+        let operation = try requestID.map { try replicaUUID($0) } ?? newUUID()
         guard !writes.isEmpty, writes.count <= 50 else { throw OrbitError("Commit requires 1 to 50 writes") }
         let requestDigest = try requestDigest ?? rHash(writes)
         return try withLocalLock(root) {

@@ -196,7 +196,7 @@ final class EngineOperationsTests: XCTestCase {
     let scoped = try badCacheEngine.search(root, query: "lavender", scope: "Knowledge")
     XCTAssertEqual(scoped["mode"] as? String, "unavailable")
     XCTAssertTrue(eObjects(scoped["results"]).isEmpty)
-    XCTAssertFalse(eExists(root.appendingPathComponent(".orbit/cache")))
+    XCTAssertFalse(try eExists(root.appendingPathComponent(".orbit/cache")))
   }
   func testCorruptDerivedCacheRebuildDoesNotChangeNotes() throws {
     let text = note(body: "Lavender survives here.\n")

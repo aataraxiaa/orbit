@@ -8,11 +8,15 @@ public final class OrbitEngine {
     public let configURL: URL
     public let cacheURL: URL
     public let stateURL: URL
+    public let fileAccess: any OrbitFileAccess
+    public let runtime: OrbitRuntime
 
-    public init(configURL: URL, cacheURL: URL, stateURL: URL) {
+    public init(configURL: URL, cacheURL: URL, stateURL: URL, fileAccess: any OrbitFileAccess = LocalOrbitFileAccess(), runtime: OrbitRuntime = OrbitRuntime()) {
         self.configURL = configURL
         self.cacheURL = cacheURL
         self.stateURL = stateURL
+        self.fileAccess = fileAccess
+        self.runtime = runtime
     }
     public convenience init(environment: [String:String] = ProcessInfo.processInfo.environment) {
         let home = FileManager.default.homeDirectoryForCurrentUser
@@ -23,6 +27,9 @@ public final class OrbitEngine {
         self.init(configURL: location("ORBIT_CONFIG", ".config/orbit/config.json"), cacheURL: location("ORBIT_CACHE", ".cache/orbit"), stateURL: location("ORBIT_STATE", ".local/state/orbit"))
     }
     public func execute(_ action: String, arguments: JSONObject = [:]) throws -> JSONObject {
+        try withOrbitRuntime(runtime) { try withOrbitFileAccess(fileAccess) { try executeCoordinated(action, arguments: arguments) } }
+    }
+    private func executeCoordinated(_ action: String, arguments: JSONObject) throws -> JSONObject {
         try OrbitContract.validate(action: action, arguments: arguments)
         if action == "list" { return try listOrbits() }
         if action == "setup" { return try setup(path: arguments["path"] as! String, name: arguments["name"] as! String, create: arguments["create"] as? Bool ?? false) }
@@ -55,7 +62,7 @@ extension OrbitEngine {
     }
     func readConfig() throws -> JSONObject {
         let data: JSONObject
-        if FileManager.default.fileExists(atPath: configURL.path) {
+        if try fileExists(atPath: configURL.path) {
             do { data = try readJSON(configURL) } catch { throw OrbitError("Invalid Orbit config JSON") }
         } else { data = ["schema": 2, "orbits": JSONObject()] }
         try validateRegistry(data); return data
@@ -113,9 +120,9 @@ extension OrbitEngine {
         return ["schema":2,"orbits":results]
     }
     func configLock<T>(_ body: () throws -> T) throws -> T {
-        try FileManager.default.createDirectory(at: configURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try createDirectory(at: configURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let path = configURL.path + ".lock"
-        let fd = open(path,O_CREAT|O_RDWR,0o600)
+        let fd = try openFile(URL(fileURLWithPath:path), flags:O_CREAT|O_RDWR)
         guard fd >= 0 else { throw POSIXError(.EIO) }; defer { close(fd) }
         guard flock(fd,LOCK_EX) == 0 else { throw POSIXError(.EIO) }; defer { flock(fd,LOCK_UN) }
         return try body()
@@ -140,12 +147,12 @@ extension OrbitEngine {
         let root = realURL(URL(fileURLWithPath:expanded))
         guard root.path != "/", root.path != FileManager.default.homeDirectoryForCurrentUser.path else { throw OrbitError("Choose a dedicated Orbit directory") }
         var isDir: ObjCBool = false
-        let exists = FileManager.default.fileExists(atPath:root.path,isDirectory:&isDir)
+        let exists = try fileExists(atPath:root.path,isDirectory:&isDir)
         if exists && !isDir.boolValue { throw OrbitError("Orbit folder must be a directory") }
         if !exists && !create { throw OrbitError("Directory does not exist; use create=true to create it") }
         return try configLock {
             let current = try readConfig(); let marker = try safe(root,".orbit/vault.json")
-            var id = FileManager.default.fileExists(atPath:marker.path) ? try identity(root) : nil
+            var id = try fileExists(atPath:marker.path) ? try identity(root) : nil
             _ = try registration(current, root:root,name:name,id:id)
             if id == nil || (try? readJSON(marker)["initializing"] as? Bool) == true {
                 try initialize(root,create:create); id = try identity(root)
@@ -173,13 +180,13 @@ extension OrbitEngine {
     }
     func initialize(_ root: URL, create: Bool = false) throws {
         let fm = FileManager.default
-        if !fm.fileExists(atPath:root.path) && !create { throw OrbitError("Directory does not exist; use create=true to create it") }
-        try fm.createDirectory(at:root,withIntermediateDirectories:true)
+        if try !fileExists(atPath:root.path) && !create { throw OrbitError("Directory does not exist; use create=true to create it") }
+        try createDirectory(at:root,withIntermediateDirectories:true)
         let marker = try safe(root,".orbit/vault.json")
-        if fm.fileExists(atPath:marker.path) { try migrationEnsureWritable(root) }
-        if !fm.fileExists(atPath:marker.path) {
+        if try fileExists(atPath:marker.path) { try migrationEnsureWritable(root) }
+        if try !fileExists(atPath:marker.path) {
             let hasNotes = (fm.enumerator(atPath:root.path)?.allObjects as? [String] ?? []).contains { $0.hasSuffix(".md") }
-            var identity: JSONObject = ["schema":1,"id":UUID().uuidString.lowercased(),"created":now(),"data_format":hasNotes ? 1:3,"orbit_version":"0.6.0"]
+            var identity: JSONObject = ["schema":1,"id":newUUID(),"created":now(),"data_format":hasNotes ? 1:3,"orbit_version":"0.6.0"]
             if !hasNotes { identity["initializing"] = true }
             try atomic(marker,encode(identity))
         }
@@ -187,15 +194,15 @@ extension OrbitEngine {
         if [2,3].contains(value["data_format"] as? Int ?? 1) {
             try withLock(root) {
                 try migrationEnsureWritable(root)
-                for directory in ["Projects","Knowledge","People","Sources","Schemas","Maps"] { try fm.createDirectory(at:safe(root,directory),withIntermediateDirectories:true) }
+                for directory in ["Projects","Knowledge","People","Sources","Schemas","Maps"] { try createDirectory(at:safe(root,directory),withIntermediateDirectories:true) }
                 for (relative,text) in try schemaBootstrap(root) { try atomic(safe(root,relative),Data(text.utf8)) }
             }
         }
         let rules = try safe(root,"ORBIT.md")
-        if !fm.fileExists(atPath:rules.path) { try atomic(rules,Data(Self.defaultRules.utf8)) }
+        if try !fileExists(atPath:rules.path) { try atomic(rules,Data(Self.defaultRules.utf8)) }
         if value["initializing"] as? Bool == true && value["data_format"] as? Int == 3 {
             try withLock(root) {
-                _ = try replicationSeed(root,files:Dictionary(uniqueKeysWithValues:try scan(root).map { ($0["path"] as! String,try String(contentsOf:safe(root,$0["path"] as! String),encoding:.utf8)) }))
+                _ = try replicationSeed(root,files:Dictionary(uniqueKeysWithValues:try scan(root).map { ($0["path"] as! String,try readString(safe(root,$0["path"] as! String),encoding:.utf8)) }))
                 if !(try replicationInspect(root)["invalid"] as? [Any] ?? []).isEmpty { throw OrbitError("Initialization history is invalid; preserve the folder for recovery") }
                 value.removeValue(forKey:"initializing"); try atomic(marker,encode(value))
             }

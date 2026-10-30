@@ -66,7 +66,7 @@ extension OrbitEngine {
   func knowledgeCheckSource(_ root: URL, record: JSONObject) throws {
     let path = eString(record["source_path"])
     guard path.hasPrefix("Sources/assets/"),
-      try digest(Data(contentsOf: safe(root, path))) == eString(record["source_sha256"])
+      try digest(readData(safe(root, path))) == eString(record["source_sha256"])
     else { throw OrbitError("Integration source is missing or changed") }
   }
   func knowledgeValidateRecord(_ root: URL, record: JSONObject, path: URL) throws -> JSONObject {
@@ -131,7 +131,7 @@ extension OrbitEngine {
       {
         throw OrbitError("Source integration has conflicting revisions; inspect orbit_sync history")
       }
-      if eExists(path) {
+      if try eExists(path) {
         let record = try knowledgeLoadRecord(root, path: path)
         try knowledgeCheckSource(root, record: record)
         return record
@@ -156,7 +156,7 @@ extension OrbitEngine {
     }
     var write: JSONObject = [
       "path": try eRelative(path, root: root),
-      "before": eExists(path) ? try eText(path) as Any : NSNull(),
+      "before": try eExists(path) ? try eText(path) as Any : NSNull(),
       "after": String(
         data: try knowledgeEncodeRecord(value, path: path, controls: controls), encoding: .utf8)!,
       "reason": "Update source integration evidence",
@@ -215,7 +215,7 @@ extension OrbitEngine {
         }
         _ = try replicationReconcile(root)
       }
-      guard eExists(path) else { throw OrbitError("Capture the source before integration") }
+      guard try eExists(path) else { throw OrbitError("Capture the source before integration") }
       let current = try knowledgeLoadRecord(root, path: path)
       try knowledgeCheckSource(root, record: current)
       let updates = record.filter {
@@ -271,11 +271,11 @@ extension OrbitEngine {
         var committed: [String: String] = [:]
         for operation in operations {
           var journalPath = try safe(root, ".orbit/operations/" + operation + ".json")
-          if !eExists(journalPath) {
+          if try !eExists(journalPath) {
             journalPath = try safe(root, ".orbit/migrations/" + operation + ".json")
           }
           let journal =
-            eExists(journalPath)
+            try eExists(journalPath)
             ? try readJSON(journalPath) : try replicationOperation(root, id: operation)
           guard eString(journal["status"]) == "committed" else {
             throw OrbitError("Integration operation is not committed")
@@ -425,7 +425,7 @@ extension OrbitEngine {
 private func knowledgeEncodeRecord(_ value: JSONObject, path: URL, controls: JSONObject) throws
   -> Data
 {
-  let old: OrderedJSON? = eExists(path) ? try OrderedJSON.parse(Data(contentsOf: path)) : nil
+  let old: OrderedJSON? = try eExists(path) ? try OrderedJSON.parse(readData(path)) : nil
   let request = Thread.current.threadDictionary["orbit.orderedRequest"] as? OrderedJSON
   let initialKeys = [
     "schema", "source_sha256", "source_path", "version", "stage", "coverage", "extraction", "notes",

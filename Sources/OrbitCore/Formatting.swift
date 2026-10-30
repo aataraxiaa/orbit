@@ -82,8 +82,8 @@ extension OrbitEngine {
             guard path.split(separator: "/").joined(separator: "/") == path, !path.split(separator: "/").contains(where: { $0.hasPrefix(".") }), target.pathExtension == "md", path != "ORBIT.md", !path.hasPrefix("Sources/assets/") else { throw OrbitError("Format requires public .md note paths, not configuration or assets") }
             guard seen.insert(path).inserted else { throw OrbitError("Duplicate target in format plan") }
             var isDirectory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: target.path, isDirectory: &isDirectory), !isDirectory.boolValue else { throw OrbitError(path + ": formatting requires an existing note") }
-            let raw = try Data(contentsOf: target)
+            guard try fileExists(atPath: target.path, isDirectory: &isDirectory), !isDirectory.boolValue else { throw OrbitError(path + ": formatting requires an existing note") }
+            let raw = try readData( target)
             guard change["expected_sha256"] as? String == digest(raw) else { throw OrbitError(path + ": conflict; read the latest note and supply its SHA-256") }
             guard let supplied = change["metadata"] as? JSONObject, Set(supplied.keys).isSubset(of: ["title", "type", "summary"]) else { throw OrbitError("Format metadata accepts only title, type and summary") }
             for value in supplied.values {

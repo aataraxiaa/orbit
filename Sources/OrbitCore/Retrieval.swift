@@ -34,10 +34,12 @@ private final class SearchDB {
   }
   func execute(_ sql: String, _ values: [Any] = []) throws { _ = try query(sql, values) }
   func script(_ sql: String) throws {
+    try Task.checkCancellation()
     let code = sqlite3_exec(pointer, sql, nil, nil, nil)
     if code != SQLITE_OK { throw RetrievalError(String(cString: sqlite3_errmsg(pointer)), code) }
   }
   func query(_ sql: String, _ values: [Any] = []) throws -> [JSONObject] {
+    try Task.checkCancellation()
     var statement: OpaquePointer?
     let code = sqlite3_prepare_v2(pointer, sql, -1, &statement, nil)
     guard code == SQLITE_OK else {
@@ -61,6 +63,7 @@ private final class SearchDB {
     }
     var result: [JSONObject] = []
     while true {
+      try Task.checkCancellation()
       let step = sqlite3_step(statement)
       if step == SQLITE_DONE { break }
       guard step == SQLITE_ROW else {
@@ -155,10 +158,10 @@ extension OrbitEngine {
     if directory.path == realURL(root).path || directory.path.hasPrefix(realURL(root).path + "/") {
       throw RetrievalError("Search cache must be outside the vault")
     }
-    try FileManager.default.createDirectory(
+    try createDirectory(
       at: directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
     let url = directory.appendingPathComponent(key + ".sqlite3")
-    if (try? url.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) == true {
+    if try fileIsSymbolicLink(url) {
       throw RetrievalError("Search cache must not be a symlink")
     }
     return url
@@ -169,12 +172,12 @@ extension OrbitEngine {
     var result: [(String, String)] = []
     func walk(_ folder: URL, _ prefix: String) throws {
       if !prefix.isEmpty { _ = try safe(root, prefix) }
-      let children = try FileManager.default.contentsOfDirectory(
+      let children = try directoryContents(
         at: folder,
         includingPropertiesForKeys: [.isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey]
       ).sorted { $0.lastPathComponent < $1.lastPathComponent }
       let dirs = try children.filter {
-        try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true
+        try fileResourceValues($0, forKeys: [.isDirectoryKey]).isDirectory == true
       }
       let files = children.filter { !dirs.contains($0) }
       for child in files {
@@ -183,8 +186,9 @@ extension OrbitEngine {
         guard !blocked.contains(path), name.lowercased().hasSuffix(".md"),
           !path.hasPrefix("Sources/assets/")
         else { continue }
-        var info = stat()
-        guard lstat(child.path, &info) == 0 else { throw RetrievalError("Cannot inspect " + path) }
+        guard let info = try fileLStat(child) else {
+          throw RetrievalError("Cannot inspect " + path)
+        }
         if info.st_mode & S_IFMT != S_IFREG { continue }
         let signature: [Any] = [
           Int64(info.st_dev), Int64(info.st_ino), Int64(info.st_size),
@@ -197,7 +201,7 @@ extension OrbitEngine {
         result.append((path, value))
       }
       for child in dirs where !child.lastPathComponent.hasPrefix(".") {
-        if (try child.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) != true {
+        if (try fileResourceValues(child, forKeys: [.isSymbolicLinkKey]).isSymbolicLink) != true {
           try walk(
             child, prefix.isEmpty ? child.lastPathComponent : prefix + "/" + child.lastPathComponent
           )
@@ -224,7 +228,7 @@ extension OrbitEngine {
       if version != 0 && version != 4 { rebuild = true }
     } catch let error as RetrievalError {
       guard [SQLITE_CORRUPT, SQLITE_NOTADB].contains(error.code & 0xff) else { throw error }
-      if eExists(path) { try FileManager.default.removeItem(at: path) }
+      if try eExists(path) { try removeFile(at: path) }
       db = try SearchDB(path)
     }
     if rebuild {
@@ -257,7 +261,7 @@ extension OrbitEngine {
         try db.execute("DELETE FROM notes WHERE path=?", [path])
       }
       for path in changed {
-        let raw = try Data(contentsOf: safe(root, path))
+        let raw = try readData(safe(root, path))
         guard var text = String(data: raw, encoding: .utf8) else {
           throw OrbitError("Invalid UTF-8")
         }
@@ -439,7 +443,7 @@ extension OrbitEngine {
       }
       db.close()
       let stale = try selected.contains {
-        try digest(Data(contentsOf: safe(root, eString($0["path"])))) != eString($0["sha256"])
+        try digest(readData(safe(root, eString($0["path"])))) != eString($0["sha256"])
       }
       if !stale { break }
       if attempt == 1 {
