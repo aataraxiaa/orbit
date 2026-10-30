@@ -448,11 +448,12 @@ extension OrbitEngine {
         if eString(oldMeta["type"]) == "schema" && eString(meta["type"]) == "schema" {
           known.formUnion(["schema_for", "required_fields", "required_sections", "validation"])
         }
-        let oldBlocks = metadataBlocks(previous)
-        let newBlocks = metadataBlocks(text)
-        for field in Set(oldBlocks.keys).subtracting(known)
-        where !eEqual(oldBlocks[field], newBlocks[field]) {
-          throw OrbitError(path + ": preserve unknown metadata block " + field + " verbatim")
+        let oldBlocks = metadataBlockPairs(previous)
+        let newBlocks = metadataBlockPairs(text)
+        for (field, block) in oldBlocks where !known.contains(field) {
+          guard let replacement = newBlocks.first(where:{ byteEqual($0.0,field) }), byteEqual(block,replacement.1) else {
+            throw OrbitError(path + ": preserve unknown metadata block " + field + " verbatim")
+          }
         }
       }
       projected[path] = [

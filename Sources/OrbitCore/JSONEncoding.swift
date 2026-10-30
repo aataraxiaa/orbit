@@ -17,12 +17,13 @@ indirect enum OrderedJSON {
         }
     }
     subscript(_ key: String) -> OrderedJSON? {
-        guard case let .object(pairs) = self else { return nil }; return pairs.first { $0.0 == key }?.1
+        guard case let .object(pairs) = self else { return nil }; return pairs.first { byteEqual($0.0, key) }?.1
     }
     func rendered(pretty: Bool, level: Int = 0) throws -> String {
         let padding = String(repeating:" ",count:level * 2), next = String(repeating:" ",count:(level + 1) * 2)
         switch self {
         case let .scalar(value):
+            if let number = pythonNumber(value) { return number }
             let data = try JSONSerialization.data(withJSONObject:value,options:[.fragmentsAllowed,.withoutEscapingSlashes])
             return String(decoding:data,as:UTF8.self)
         case let .array(values):
@@ -53,7 +54,7 @@ indirect enum OrderedJSON {
                     guard let key = try atom() as? String else { throw OrbitError("Invalid JSON key") }
                     space(); guard index < bytes.count && bytes[index] == 58 else { throw OrbitError("Invalid JSON") }; index += 1
                     let v = try value(depth:depth+1)
-                    if let i = pairs.firstIndex(where:{$0.0 == key}) { pairs[i].1 = v } else { pairs.append((key,v)) }
+                    if let i = pairs.firstIndex(where:{byteEqual($0.0, key)}) { pairs[i].1 = v } else { pairs.append((key,v)) }
                     space(); guard index < bytes.count else { throw OrbitError("Invalid JSON") }
                     let c = bytes[index]; index += 1
                     if c == 125 { return .object(pairs) }; guard c == 44 else { throw OrbitError("Invalid JSON") }; space()
@@ -125,7 +126,13 @@ indirect enum OrderedJSON {
             }
             guard index > start else { throw OrbitError("Invalid JSON") }
             if bytes[start] == 34 { return try decodeString(Array(bytes[start..<index])) }
-            return try JSONSerialization.jsonObject(with:Data(bytes[start..<index]),options:.fragmentsAllowed)
+            let token = String(decoding:bytes[start..<index],as:UTF8.self)
+            switch token {
+            case "true": return true
+            case "false": return false
+            case "null": return NSNull()
+            default: return try parsedJSONNumber(token)
+            }
         }
     }
 }
@@ -163,4 +170,23 @@ extension OrbitMCPServer {
         let value = try OrderedJSON.parse(data).value
         return try withOrderedPlan(data,planPath:["params","arguments","plan"]) { handle(value) }
     }
+}
+
+
+extension OrderedJSON {
+    func setting(_ key: String, _ value: OrderedJSON) -> OrderedJSON {
+        guard case .object(var pairs) = self else { return self }
+        if let i = pairs.firstIndex(where:{ byteEqual($0.0,key) }) { pairs[i].1 = value }
+        else { pairs.append((key,value)) }
+        return .object(pairs)
+    }
+    func removing(_ key: String) -> OrderedJSON {
+        guard case .object(let pairs) = self else { return self }
+        return .object(pairs.filter { !byteEqual($0.0,key) })
+    }
+    func renamed(_ key: String, to newKey: String) -> OrderedJSON {
+        guard case .object(let pairs) = self else { return self }
+        return .object(pairs.map { (byteEqual($0.0,key) ? newKey : $0.0, $0.1) })
+    }
+    func encoded() throws -> Data { Data((try rendered(pretty:true) + "\n").utf8) }
 }

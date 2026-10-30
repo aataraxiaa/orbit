@@ -395,7 +395,7 @@ private func migrationOrderedWrites(_ writes: [JSONObject]) -> OrderedJSON {
 private extension OrderedJSON {
     func migrationSetting(_ key: String, _ value: OrderedJSON) -> OrderedJSON {
         guard case .object(var pairs) = self else { return self }
-        if let index = pairs.firstIndex(where: { $0.0 == key }) { pairs[index].1 = value }
+        if let index = pairs.firstIndex(where: { byteEqual($0.0, key) }) { pairs[index].1 = value }
         else { pairs.append((key, value)) }
         return .object(pairs)
     }

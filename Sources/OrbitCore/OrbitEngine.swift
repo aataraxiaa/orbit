@@ -60,6 +60,10 @@ extension OrbitEngine {
             return id
         } catch { throw OrbitError("Orbit folder is unavailable or has an invalid identity: " + root.path) }
     }
+    func orderedConfig() throws -> OrderedJSON {
+        if try fileExists(atPath:configURL.path) { return try OrderedJSON.parse(readData(configURL)) }
+        return .object([("schema",.scalar(2)),("orbits",.object([]))])
+    }
     func readConfig() throws -> JSONObject {
         let data: JSONObject
         if try fileExists(atPath: configURL.path) {
@@ -159,7 +163,12 @@ extension OrbitEngine {
             }
             let updated = try registration(current,root:root,name:name,id:id); try validateRegistry(updated)
             let changed = !NSDictionary(dictionary:updated).isEqual(to:current)
-            if changed { try atomic(configURL,encode(updated)); try syncParent(configURL) }
+            if changed {
+                let original = try orderedConfig()
+                let entry = OrderedJSON.object([("path",.scalar(root.path)),("vault_id",.scalar(id!))])
+                let entries = (original["orbits"] ?? .object([])).setting(name,entry)
+                try atomic(configURL,original.setting("orbits",entries).encoded()); try syncParent(configURL)
+            }
             return ["status": changed ? "registered":"unchanged", "vault":root.path,"vault_id":id!,"config":configURL.path,"target":OrbitTarget(name:name,root:root,vaultID:id!,source:"setup").receipt]
         }
     }
@@ -173,7 +182,10 @@ extension OrbitEngine {
             let changed = display != name
             if changed {
                 var updated = current; var renamed = entries; renamed[name] = renamed.removeValue(forKey:display); updated["orbits"] = renamed
-                try validateRegistry(updated); try atomic(configURL,encode(updated)); try syncParent(configURL)
+                try validateRegistry(updated)
+                let original = try orderedConfig()
+                let entries = (original["orbits"] ?? .object([])).renamed(display,to:name)
+                try atomic(configURL,original.setting("orbits",entries).encoded()); try syncParent(configURL)
             }
             return ["status":changed ? "renamed":"unchanged","previous_name":display,"target":OrbitTarget(name:name,root:target.root,vaultID:target.vaultID,source:"rename").receipt]
         }
@@ -188,7 +200,9 @@ extension OrbitEngine {
             let hasNotes = (fm.enumerator(atPath:root.path)?.allObjects as? [String] ?? []).contains { $0.hasSuffix(".md") }
             var identity: JSONObject = ["schema":1,"id":newUUID(),"created":now(),"data_format":hasNotes ? 1:3,"orbit_version":"0.6.0"]
             if !hasNotes { identity["initializing"] = true }
-            try atomic(marker,encode(identity))
+            var ordered: [(String,OrderedJSON)] = [("schema",.scalar(1)),("id",.scalar(identity["id"]!)),("created",.scalar(identity["created"]!)),("data_format",.scalar(identity["data_format"]!)),("orbit_version",.scalar("0.6.0"))]
+            if !hasNotes { ordered.append(("initializing",.scalar(true))) }
+            try atomic(marker,OrderedJSON.object(ordered).encoded())
         }
         var value = try readJSON(marker)
         if [2,3].contains(value["data_format"] as? Int ?? 1) {
@@ -202,9 +216,12 @@ extension OrbitEngine {
         if try !fileExists(atPath:rules.path) { try atomic(rules,Data(Self.defaultRules.utf8)) }
         if value["initializing"] as? Bool == true && value["data_format"] as? Int == 3 {
             try withLock(root) {
-                _ = try replicationSeed(root,files:Dictionary(uniqueKeysWithValues:try scan(root).map { ($0["path"] as! String,try readString(safe(root,$0["path"] as! String),encoding:.utf8)) }))
+                let genesis = formattingUUID5(UUID(uuidString:value["id"] as! String)!,"orbit-format-3-genesis")
+                if try !fileExists(atPath:safe(root,".orbit/commits/" + genesis + ".json").path) {
+                    _ = try replicationSeed(root,files:Dictionary(uniqueKeysWithValues:try scan(root).map { ($0["path"] as! String,try readString(safe(root,$0["path"] as! String),encoding:.utf8)) }))
+                }
                 if !(try replicationInspect(root)["invalid"] as? [Any] ?? []).isEmpty { throw OrbitError("Initialization history is invalid; preserve the folder for recovery") }
-                value.removeValue(forKey:"initializing"); try atomic(marker,encode(value))
+                value.removeValue(forKey:"initializing"); try atomic(marker,OrderedJSON.parse(readData(marker)).removing("initializing").encoded())
             }
         }
     }

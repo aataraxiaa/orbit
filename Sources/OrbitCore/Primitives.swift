@@ -117,18 +117,24 @@ public func metadata(_ text: String) -> JSONObject {
     }
     return result
 }
-public func metadataBlocks(_ text: String) -> [String:String] {
+public func metadataBlockPairs(_ text: String) -> [(String,String)] {
     let clean = text.hasPrefix("\u{feff}") ? String(text.dropFirst()) : text
     let lines = matchGroups("[^\\n]*\\n|[^\\n]+$", clean).map { $0[0] }
-    guard lines.first?.trimmingCharacters(in: .whitespacesAndNewlines) == "---" else { return [:] }
-    var result: [String:String] = [:]; var key: String?
+    guard lines.first?.trimmingCharacters(in: .whitespacesAndNewlines) == "---" else { return [] }
+    var result: [(String,String)] = []; var index: Int?
     for line in lines.dropFirst() {
         if line.trimmingCharacters(in: .whitespacesAndNewlines) == "---" { break }
-        if let m = matchGroups("^([^\\s#][^:]*):", line).first { key = m[1]; result[m[1]] = line }
-        else if let key { result[key, default: ""] += line }
+        if let m = matchGroups("^([^\\s#][^:]*):", line).first {
+            if let existing = result.firstIndex(where:{ byteEqual($0.0,m[1]) }) { result[existing].1 = line; index = existing }
+            else { result.append((m[1],line)); index = result.count - 1 }
+        } else if let index { result[index].1 += line }
     }
     return result
 }
+public func metadataBlocks(_ text: String) -> [String:String] {
+    Dictionary(metadataBlockPairs(text),uniquingKeysWith:{ _,new in new })
+}
+
 public func strings(_ value: Any?) -> [String] {
     if let a = value as? [Any] { return a.map(pyString) }
     return truthy(value) ? [pyString(value!)] : []
