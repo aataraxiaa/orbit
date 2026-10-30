@@ -29,7 +29,14 @@ def normalize(value, prefix):
         return {k: normalize(v, prefix) for k, v in value.items()}
     if isinstance(value, list):
         return [normalize(v, prefix) for v in value]
-    return value.replace(str(prefix), '$LOCAL') if isinstance(value, str) else value
+    if isinstance(value, str):
+        identity = json.loads((prefix / 'folder/.orbit/vault.json').read_text())['id']
+        expected_key = hashlib.sha256((str((prefix / 'folder').resolve()) + '\0' + identity).encode()).hexdigest()
+        expected_cache = str(prefix / 'cache' / (expected_key + '.sqlite3'))
+        if value == expected_cache:
+            return '$LOCAL_CACHE'
+        return value.replace(str(prefix), '$LOCAL')
+    return value
 
 
 def expand(value, root):

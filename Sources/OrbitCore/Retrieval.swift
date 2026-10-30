@@ -150,8 +150,8 @@ func notePassages(_ text: String) -> [OrbitPassage] {
 extension OrbitEngine {
   func retrievalCachePath(_ root: URL) throws -> URL {
     let identity = eString(try readJSON(safe(root, ".orbit/vault.json"))["id"])
-    let key = digest(Data((root.resolvingSymlinksInPath().path + "\0" + identity).utf8))
-    let directory = cacheURL.resolvingSymlinksInPath()
+    let key = digest(Data((realURL(root).path + "\0" + identity).utf8))
+    let directory = realURL(cacheURL)
     if directory.path == root.path || directory.path.hasPrefix(root.path + "/") {
       throw RetrievalError("Search cache must be outside the vault")
     }
