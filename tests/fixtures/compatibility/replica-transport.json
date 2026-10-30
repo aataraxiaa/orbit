@@ -1,0 +1,1114 @@
+{
+  "schema": 1,
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "description": "Each scenario runs against a Python/Python reference and mixed replicas with Swift on each side in turn. Fixed IDs and byte-identical seed permit exact stored hashes and history comparison. Permission receipt comparison maps only recognized platform-specific denied-access error wording.",
+  "files": {
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"d070a43d-ffb6-4af5-a8c7-f62bd812e581\", \"data_format\": 3, \"orbit_version\": \"0.6.0\"}\n",
+    "ORBIT.md": "# Disposable Orbit\nFixture only.\n",
+    "A.md": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal A\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "B.md": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal B\n\n## User appendix\nPreserve all unrelated prose.\n"
+  },
+  "scenarios": [
+    {
+      "name": "independent-offline-writes",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "left",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000001-0000-4000-8000-000000000001",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nleft update\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "left",
+          "request": "left"
+        },
+        {
+          "kind": "call",
+          "name": "right",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000002-0000-4000-8000-000000000002",
+              "changes": [
+                {
+                  "path": "B.md",
+                  "content": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nright update\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:B.md"
+                }
+              ]
+            }
+          },
+          "save": "right",
+          "request": "right"
+        },
+        {
+          "kind": "deliver",
+          "name": "left-to-right",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "deliver",
+          "name": "right-to-left",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "left-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "left-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "right-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "right-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "left-history",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "left-history",
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        },
+        {
+          "kind": "call",
+          "name": "right-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "right-history",
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        },
+        {
+          "kind": "restart",
+          "name": "restart-native-or-peer",
+          "replica": "b"
+        },
+        {
+          "kind": "call",
+          "name": "fresh-process-read",
+          "replica": "b",
+          "action": "read",
+          "arguments": {
+            "orbit": "Test",
+            "path": "A.md"
+          }
+        },
+        {
+          "kind": "retry",
+          "name": "fresh-process-retry",
+          "replica": "b",
+          "request": "left"
+        },
+        {
+          "kind": "call",
+          "name": "no-duplicate-history-after-retry",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "same-note-resolution-late-branch",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "left",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000010-0000-4000-8000-000000000010",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nleft branch\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "left",
+          "request": "left"
+        },
+        {
+          "kind": "call",
+          "name": "right",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000011-0000-4000-8000-000000000011",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nright branch\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "right",
+          "request": "right"
+        },
+        {
+          "kind": "call",
+          "name": "late",
+          "replica": "c",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000012-0000-4000-8000-000000000012",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nlate branch\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "late",
+          "request": "late"
+        },
+        {
+          "kind": "deliver",
+          "name": "receive-right",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "conflict",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "conflict"
+        },
+        {
+          "kind": "call",
+          "name": "refuse-unreviewed",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "request_id": "00000013-0000-4000-8000-000000000013",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nunreviewed\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "resolution",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000014-0000-4000-8000-000000000014",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nreviewed full resolution\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md",
+                  "expected_heads": "$REF:conflict#/heads/A.md"
+                }
+              ]
+            }
+          },
+          "save": "resolution",
+          "request": "resolution"
+        },
+        {
+          "kind": "deliver",
+          "name": "resolution-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "right-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "right-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "late-after-resolution",
+          "from": "c",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "new-conflict",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "new-conflict",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "conflicted"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "all-alternatives",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "all-alternatives",
+          "expect_count": {
+            "/value/revisions": 5
+          }
+        }
+      ]
+    },
+    {
+      "name": "out-of-order-parent-delivery",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "first",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000020-0000-4000-8000-000000000020",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nfirst\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "first",
+          "request": "first"
+        },
+        {
+          "kind": "call",
+          "name": "second",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000021-0000-4000-8000-000000000021",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nsecond\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "second",
+          "request": "second"
+        },
+        {
+          "kind": "deliver",
+          "name": "child-first",
+          "from": "a",
+          "to": "b",
+          "operation": "$REF:second#/operation"
+        },
+        {
+          "kind": "call",
+          "name": "missing-parent",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "missing-parent",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "pending"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "unavailable-operation",
+          "replica": "b",
+          "action": "recover",
+          "arguments": {
+            "orbit": "Test",
+            "operation": "$REF:second#/operation"
+          },
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "parent-later",
+          "from": "a",
+          "to": "b",
+          "operation": "$REF:first#/operation"
+        },
+        {
+          "kind": "call",
+          "name": "ready-after-parent",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "ready-after-parent",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "both-parents",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "both-parents",
+          "expect_count": {
+            "/value/revisions": 3
+          }
+        },
+        {
+          "kind": "retry",
+          "name": "remote-retry",
+          "replica": "b",
+          "request": "second"
+        }
+      ]
+    },
+    {
+      "name": "projection-before-envelope-and-external-edits",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "remote",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000030-0000-4000-8000-000000000030",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nremote content\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "remote",
+          "request": "remote"
+        },
+        {
+          "kind": "project",
+          "name": "markdown-first",
+          "from": "a",
+          "to": "b",
+          "path": "A.md"
+        },
+        {
+          "kind": "call",
+          "name": "unexplained-projection",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "unexplained-projection",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "conflicted"
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "envelope-later",
+          "from": "a",
+          "to": "b",
+          "operation": "$REF:remote#/operation"
+        },
+        {
+          "kind": "call",
+          "name": "projection-explained",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "projection-explained",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "external",
+          "name": "external-edit",
+          "replica": "b",
+          "path": "A.md",
+          "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\neditor wrote é\r\nexact bytes\n\n## User appendix\nPreserve all unrelated prose.\n"
+        },
+        {
+          "kind": "call",
+          "name": "observed-edit",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "observed-edit"
+        },
+        {
+          "kind": "call",
+          "name": "adopt",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000031-0000-4000-8000-000000000031",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\neditor wrote é\r\nexact bytes\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md",
+                  "expected_heads": "$REF:observed-edit#/heads/A.md",
+                  "observations": "$REF:observed-edit#/conflicts/0/observations"
+                }
+              ]
+            }
+          },
+          "save": "adopt",
+          "request": "adopt"
+        },
+        {
+          "kind": "deliver",
+          "name": "adoption-to-origin",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "origin-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "origin-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "preserved-editor-evidence",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "preserved-editor-evidence",
+          "expect_count": {
+            "/value/revisions": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "path-collision-retirement",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "left-new",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000040-0000-4000-8000-000000000040",
+              "changes": [
+                {
+                  "path": "Same.md",
+                  "content": "---\nid: left\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nleft identity\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": null
+                }
+              ]
+            }
+          },
+          "save": "left-new",
+          "request": "left-new"
+        },
+        {
+          "kind": "call",
+          "name": "right-new",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000041-0000-4000-8000-000000000041",
+              "changes": [
+                {
+                  "path": "Same.md",
+                  "content": "---\nid: right\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nright identity\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": null
+                }
+              ]
+            }
+          },
+          "save": "right-new",
+          "request": "right-new"
+        },
+        {
+          "kind": "deliver",
+          "name": "exchange-to-a",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "deliver",
+          "name": "exchange-to-b",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "path-collision",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "path-collision"
+        },
+        {
+          "kind": "call",
+          "name": "resolve",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "request_id": "00000042-0000-4000-8000-000000000042",
+              "changes": [
+                {
+                  "path": "Same.md",
+                  "content": "---\nid: right\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nchosen right identity\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "fixture resolution",
+                  "expected_sha256": "$HASH:Same.md",
+                  "expected_heads": "$REF:path-collision#/heads/Same.md"
+                }
+              ]
+            }
+          },
+          "request": "resolution"
+        },
+        {
+          "kind": "deliver",
+          "name": "retirement-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "retired-loser",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "retired-loser",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "preserved-retired-identity",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "Same.md"
+          },
+          "save": "preserved-retired-identity",
+          "expect_count": {
+            "/value/revisions": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "asset-dependency-holds-entire-batch",
+      "steps": [
+        {
+          "kind": "external",
+          "name": "asset-on-origin",
+          "replica": "a",
+          "path": "Sources/assets/4646e62c324a37f63305fca68764633e5f5f8ff9ebf4698a57235fd18d346212.bin",
+          "content": "source bytes\u0000with original binary content"
+        },
+        {
+          "kind": "call",
+          "name": "asset-batch",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000050-0000-4000-8000-000000000050",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\n[[Sources/assets/4646e62c324a37f63305fca68764633e5f5f8ff9ebf4698a57235fd18d346212.bin]]\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "fixture source",
+                  "expected_sha256": "$HASH:A.md"
+                },
+                {
+                  "path": "B.md",
+                  "content": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nsame accepted group\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "fixture group",
+                  "expected_sha256": "$HASH:B.md"
+                }
+              ]
+            }
+          },
+          "save": "asset-batch",
+          "request": "asset-batch"
+        },
+        {
+          "kind": "deliver",
+          "name": "history-without-asset",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "asset-pending",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "asset-pending",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "pending"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "grouped-note-not-readable",
+          "replica": "b",
+          "action": "read",
+          "arguments": {
+            "orbit": "Test",
+            "path": "B.md"
+          },
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "external",
+          "name": "asset-arrives",
+          "replica": "b",
+          "path": "Sources/assets/4646e62c324a37f63305fca68764633e5f5f8ff9ebf4698a57235fd18d346212.bin",
+          "content": "source bytes\u0000with original binary content"
+        },
+        {
+          "kind": "call",
+          "name": "batch-materializes",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "batch-materializes",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "batch-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "B.md"
+          },
+          "save": "batch-history",
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "denied-projection-and-restart-recovery",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "accepted",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000060-0000-4000-8000-000000000060",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\ndurably accepted before projection\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "accepted",
+          "request": "accepted"
+        },
+        {
+          "kind": "deliver",
+          "name": "acceptance-only",
+          "from": "a",
+          "to": "b",
+          "operation": "$REF:accepted#/operation"
+        },
+        {
+          "kind": "permissions",
+          "name": "deny-projection",
+          "replica": "b",
+          "mode": "0555"
+        },
+        {
+          "kind": "retry",
+          "name": "durable-interrupted-receipt",
+          "replica": "b",
+          "request": "accepted",
+          "comparison": "permission-receipt"
+        },
+        {
+          "kind": "restart",
+          "name": "kill-and-restart-with-pending-checkout",
+          "replica": "b"
+        },
+        {
+          "kind": "permissions",
+          "name": "restore-write-access",
+          "replica": "b",
+          "mode": "0755"
+        },
+        {
+          "kind": "retry",
+          "name": "same-request-recovers",
+          "replica": "b",
+          "request": "accepted",
+          "expect": {
+            "/kind": "success",
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "call",
+          "name": "history-after-recovery",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "history-after-recovery",
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        },
+        {
+          "kind": "call",
+          "name": "recovered-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "recovered-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        }
+      ]
+    },
+    {
+      "name": "corrupt-evidence-blocks-all-paths",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "accepted",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000070-0000-4000-8000-000000000070",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\naccepted\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "accepted",
+          "request": "accepted"
+        },
+        {
+          "kind": "deliver",
+          "name": "accepted-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "ready-before-corruption",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "ready-before-corruption",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "external",
+          "name": "invalid-commit",
+          "replica": "b",
+          "path": ".orbit/commits/bad.json",
+          "content": "{}"
+        },
+        {
+          "kind": "call",
+          "name": "invalid-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "invalid-history",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "invalid"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "refuse-canonical-read",
+          "replica": "b",
+          "action": "read",
+          "arguments": {
+            "orbit": "Test",
+            "path": "A.md"
+          },
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "refuse-write",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "transport fixture",
+              "request_id": "00000071-0000-4000-8000-000000000071",
+              "changes": [
+                {
+                  "path": "B.md",
+                  "content": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nmust refuse\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "transport fixture",
+                  "expected_sha256": "$HASH:B.md"
+                }
+              ]
+            }
+          },
+          "save": "refuse-write",
+          "request": "refuse-write",
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "retained-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "A.md"
+          },
+          "save": "retained-history",
+          "expect_count": {
+            "/value/revisions": 2
+          }
+        }
+      ]
+    }
+  ]
+}
