@@ -179,4 +179,24 @@ final class FormattingMigrationTests: XCTestCase {
         let seedHistory = fixture["seed_history"] as! [String: String]
         for (path, hash) in seedHistory { XCTAssertEqual(digest(try Data(contentsOf: safe(root, path))), hash) }
     }
+
+    func testFormatOneMigrationMatchesPythonLinkRewritingAndExactBackups() throws {
+        let fixtureURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/compatibility/migration-format1.json")
+        let fixture = try readJSON(fixtureURL)
+        let (root, engine) = try workspace()
+        for (path, text) in fixture["inputs"] as! [String: String] { try put(root, path, text) }
+        let snapshot = try engine.migrationSnapshot(root)
+        let expected = fixture["plan"] as! JSONObject
+        let plan = try engine.migrate(root, targetVersion: "0.5.0")
+        XCTAssertEqual(plan["plan_id"] as? String, expected["plan_id"] as? String)
+        XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
+        let result = try engine.migrate(root, action: "apply", targetVersion: "0.5.0", planID: plan["plan_id"] as? String)
+        for write in fixture["writes"] as! [JSONObject] {
+            let url = try safe(root, write["path"] as! String)
+            if let text = write["after"] as? String { XCTAssertEqual(try Data(contentsOf: url), Data(text.utf8)) }
+            else { XCTAssertFalse(FileManager.default.fileExists(atPath: url.path)) }
+        }
+        _ = try engine.migrate(root, action: "rollback", targetVersion: "0.5.0", operation: result["operation"] as? String)
+        XCTAssertEqual(try engine.migrationSnapshot(root), snapshot)
+    }
 }
