@@ -13,7 +13,7 @@ public struct OrbitError: Error, LocalizedError, CustomStringConvertible {
 }
 
 public func digest(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
-public func now() -> String {
+public func systemNow() -> String {
     let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     return f.string(from: Date()).replacingOccurrences(of: "Z", with: "+00:00")
 }
