@@ -1,6 +1,6 @@
 # Verification status, 31 October 2026
 
-The user authorized publishing 0.7.0-beta.1 for normal app/MCP testing on 31 October 2026, superseding the strict pre-cutover acceptance gate. Shipping manifests and production packages now use native Swift; Python is retained only as the development compatibility reference. This is not a fully accepted migration: native desktop-host/fresh-conversation, physical iCloud, actual model and comparative performance remain unverified.
+The user authorized publishing 0.7.0-beta.1 for normal app/MCP testing on 31 October 2026, superseding the strict pre-cutover acceptance gate. Shipping manifests and production packages now use native Swift; Python is retained only as the development compatibility reference. This is not a fully accepted migration: fresh desktop conversations, other hosts, broader native-provider failures, actual model and comparative performance remain unverified. Installed Codex MCP and the bounded physical iCloud checks below now pass.
 
 ## 0.7.0-beta.2 provider inspection fix
 
@@ -8,7 +8,19 @@ The native access API distinguishes metadata inspection (`.inspect`) from readin
 
 Release checks: 101 Swift tests through MobileBuildMCP, 192 reference/regression/package tests, isolated smoke, native packaging and eight grouped MCP SDK checks passed. The new executable is universal arm64/x86_64 with macOS 13 minimum; initialization matches manifest version 0.7.0-beta.2. `beta2-sdk-results.json` records the binary hash.
 
-User-authorized read-only checks against an existing format-2 folder passed catalog/read/search through a file-access guard allowing writes only to isolated local cache/state. Other iCloud files remain pending; no full native-provider acceptance is claimed. No original folder content, metadata or note identifiers are included in these public receipts. The app follow-up also corrects iOS canonical registry paths, retains pending selections, shows per-attempt errors and enforces read-only original-folder mode. Physical phone read verification is still blocked by device lock/automation failures.
+User-authorized read-only checks against an existing format-2 folder passed catalog/read/search through a file-access guard allowing writes only to isolated local cache/state. Other iCloud files remain pending; no full native-provider acceptance is claimed. No original folder content, metadata or note identifiers are included in these public receipts. The app follow-up also corrects iOS canonical registry paths, retains pending selections, shows per-attempt errors and enforces read-only original-folder mode. The later physical follow-up below resolves this earlier phone-read blocker.
+
+## Physical follow-up
+
+Installed Codex tools reached the native beta2 executable in the plugin cache. Discovery, schema inspection, disposable-folder registration, project creation, exact readback, project-scoped search, alias search, mutual-link context and project catalog passed. An identical request retry retained the original heads. A stale content hash was refused. An unrelated project scope returned no results.
+
+The normal iPhone app read Mac-created notes in a disposable iCloud Orbit. A phone-created session arrived on the Mac with the exact approved preview hash. The phone then read a Mac-created project and concept, previewed a requested append, applied it and reopened the updated note. Native MCP readback on the Mac matched the approved hash. Full bytes equal the original Markdown plus only the requested append, including unchanged IDs, project reference, tags, aliases, links and unknown metadata. History retains the original version and the update with the correct parent. Search finds the updated text within the exact project scope.
+
+The app also opened existing format-2 notes through enforced read-only folder bindings, including legacy notes without stored IDs. The app uses a separate read-only presentation for these notes. It does not create IDs, migrate folders or grant writes. A normal stop/relaunch without reinstalling restored the folders, counts and read-only modes. No duplicate operation appeared.
+
+App source `4d538a4` consumes OrbitCore `5a4d5835b648a369ffac127f47623c0fa312f355`. All 38 existing app tests passed, and two new format-2 tests passed separately after fixture correction. The initial simulator startup timed out before running tests. Signed device build, installation and launch passed. [App PR3](https://github.com/aataraxiaa/orbit-app/pull/3) records the app changes and remains open.
+
+The app preserves raw project/tag metadata but does not expose project/tag controls. The update used the normal explicit-update flow without model weights. These checks do not establish model quality, comparative performance, fresh desktop-conversation persistence, Claude/Cowork acceptance, Intel/Gatekeeper acceptance, offline use, revoked access, concurrent native edits, suspension, a second Mac or the complete mixed Python/Swift provider matrix. The public [receipt](physical-icloud-results.json) contains only disposable-fixture evidence. Private note bodies and original-folder identifiers are omitted.
 
 ## 0.7.0-beta.1 release checks
 

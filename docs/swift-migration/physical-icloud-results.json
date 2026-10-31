@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "date": "2026-10-31",
+  "core_revision": "5a4d5835b648a369ffac127f47623c0fa312f355",
+  "app_source": "4d538a4",
+  "phone_create": {
+    "operation": "de7df949-5f5c-44c8-9b20-bd22e134494e",
+    "approved_and_mac_sha256": "9de7f304715bc0cbabcba8c84069f94cc235f80f69c825835a47453d9fbcf89b"
+  },
+  "phone_update": {
+    "operation": "97db5727-114f-48a4-a7df-4c68a8a2617c",
+    "approved_and_mac_sha256": "94aa5d53ad6476ccf0ba82dbbb133f41dc53876e893f57381bf2bd8db2778977",
+    "original_plus_append_exact": true,
+    "old_revision_retained": true,
+    "correct_parent": true,
+    "revisions": 2
+  },
+  "physical_reads": [
+    "disposable Mac-created project and concept",
+    "existing format-2 identified note read-only",
+    "existing format-2 ID-less note read-only"
+  ],
+  "restart_restored_bookmarks_and_modes": true,
+  "model_weights_used": false,
+  "full_acceptance": false
+}
