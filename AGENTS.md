@@ -4,7 +4,7 @@ Read HANDOFF.md and LOCAL_TEST.md first. This is the Orbit plugin.
 The target is marketplace-plugin installation in the ChatGPT/Codex desktop app and
 the Claude desktop app, including Cowork. CLI support is not an acceptance target.
 The user authorized MCP-backed plugins on 2026-10-07, superseding the earlier no-MCP rule.
-The user authorized a complete Swift replacement on 2026-10-30. Preserve the Markdown folder contract. Keep the Python engine as the temporary compatibility reference and shipping runtime until Swift parity and native acceptance pass; then retire superseded Python production code. Read docs/swift-migration/architecture.md and transition.md. Prove native
+The user authorized a complete Swift replacement on 2026-10-30. Preserve the Markdown folder contract. On 2026-10-31 the user authorized a Swift prerelease for in-app testing before formal native acceptance. Shipping manifests and packages now use native Swift; Python remains only as a development compatibility reference and in the previous release for rollback. Native-host/iCloud/model acceptance remains unverified and must be reported honestly. Read docs/swift-migration/architecture.md and transition.md. Prove native
 plugin connection, save/read across apps, and fresh-conversation persistence before
 claiming desktop support. CLI and mechanical tests are separate evidence.
 Publication is authorized to public aataraxiaa/orbit for this release.

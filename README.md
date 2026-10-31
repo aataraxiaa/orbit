@@ -5,16 +5,11 @@
 A plugin for saving, connecting, and recalling knowledge in named folders on disk.
 Each Orbit holds Markdown notes and source files. Obsidian is an optional editor.
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
-MCP tools; the Python engine handles storage, hashes, indexing and recovery.
+MCP tools; the shared Swift OrbitCore engine handles storage, hashes, indexing and recovery.
 
-Version 0.6.0 is a testing prerelease for preserving concurrent writes across
-computers that share an Orbit folder. It adds immutable revisions and explicit conflict
-resolution while retaining editable Markdown and a derived local SQLite index. Native two-Mac iCloud and cross-app acceptance have not been established.
-Published 0.5.0 passed named-folder setup, save, search and read in one Codex desktop
-conversation on October 24, 2026; that evidence does not validate this release.
+Version 0.7.0-beta.1 moves the desktop MCP runtime to native Swift and shares OrbitCore with Orbit App. All 19 tools and six skills remain available. Disk format stays 3, with existing identities, metadata, assets, histories and legacy migration routes preserved. This is a prerelease for testing in the real apps: native desktop-host, physical iCloud and actual local-model acceptance are not yet established. See [verification](docs/swift-migration/verification.md).
 
-Python 3.10+ must be installed. The launcher checks PATH and standard Homebrew bin
-directories when `python3` is older; neither the plugin nor MCPB installs Python.
+Requires macOS 13 or later on Apple Silicon or Intel. The plugin includes a universal native executable and its resources; Python is not a production dependency.
 There is no cloud service or background synchronization process. Your folder provider
 transports files; a local save receipt does not prove upload or delivery to another computer.
 
@@ -23,12 +18,12 @@ transports files; a local save receipt does not prove upload or delivery to anot
 Orbit keeps your knowledge in Markdown files that you can read and edit with any text
 editor. You can also open an Orbit folder as an Obsidian vault.
 The agent decides what to save and how it connects to existing notes. Orbit's local
-Python engine checks and writes those changes. On retrieval, it refreshes a local SQLite index.
+Swift engine checks and writes those changes. On retrieval, it refreshes a local SQLite index.
 
 ```mermaid
 flowchart LR
     You["You"] --> Agent["Agent and Orbit skills"]
-    Agent <-->|"Local MCP tools"| Engine["Python storage engine"]
+    Agent <-->|"Local MCP tools"| Engine["Swift OrbitCore"]
     Engine <-->|"Read and checked writes"| OrbitFolder["Named folder: Markdown and source files"]
     Editor["Text editor or Obsidian (optional)"] <-->|"Read and edit"| OrbitFolder
     OrbitFolder -->|"Derived note text and metadata"| Index["Local SQLite search cache"]
@@ -56,7 +51,7 @@ MCP tools, register the name and folder, save a labeled receipt and read it back
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.6.0](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
+same engine. Download it from [v0.7.0-beta.1](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
@@ -270,9 +265,9 @@ is included. Actual iCloud delivery and native two-Mac behavior remain unverifie
 
 ## How SQLite supports retrieval
 
-SQLite is an embedded database accessed through Python's standard `sqlite3` module.
+SQLite is an embedded database linked by the native Swift engine.
 Orbit stores the index in a local `.sqlite3` file. There is no database server to run
-or separate SQL service to install. The Python installation must support SQLite FTS5,
+or separate SQL service to install. The native executable uses system SQLite FTS5,
 the full-text search extension that indexes words in your notes.
 
 ### What the database stores
@@ -423,7 +418,7 @@ active selection between chats and no automatic search across Orbits.
 The registry uses config schema 2 independently of note data formats. New empty folders
 in 0.6.0 use format 3; existing format-1/2 folders migrate explicitly.
 Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
-Get the [0.6.0 testing prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0).
+Get the [0.7.0-beta.1 Swift prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1).
 
 ### Rename and select an Orbit
 
@@ -447,4 +442,4 @@ Orbit name explicitly, and must use its new name after a rename.
 
 ## Swift migration development
 
-A shared `OrbitCore` Swift package and native `orbit-mcp` executable are under validation. See [architecture](docs/swift-migration/architecture.md) and [transition gates](docs/swift-migration/transition.md). The shipping manifests remain on Python until parity, app integration and native acceptance pass. `scripts/package_swift.py` stages a separate native candidate without Python runtime files. Building that candidate does not install or publish it.
+The shipping plugin now uses the shared `OrbitCore` Swift package and native `orbit-mcp` executable. Orbit App consumes the same core through a pinned Swift package dependency. The plugin contains no Python runtime files; the source checkout retains Python only as the development compatibility reference. See [architecture](docs/swift-migration/architecture.md), [verification](docs/swift-migration/verification.md) and [rollback](docs/swift-migration/transition.md). This beta is published for in-app testing before native host, physical iCloud and real-model acceptance is complete.

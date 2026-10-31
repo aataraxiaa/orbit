@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "orbit": {
-      "command": "python3",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/scripts/mcp_server.py"
-      ]
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/orbit-mcp",
+      "args": []
     }
   }
 }

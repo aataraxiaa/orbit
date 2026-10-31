@@ -207,7 +207,7 @@ class MCPTest(unittest.TestCase):
                     archive.extractall(extracted)
                 if archive_name.endswith('.mcpb'):
                     manifest = json.loads((extracted / 'manifest.json').read_text())
-                    self.assertEqual(manifest['version'], '0.6.0')
+                    self.assertEqual(manifest['version'], json.loads((ROOT / 'manifest.json').read_text())['version'])
                     transport = manifest['server']['mcp_config']
                     configurations = [(transport, '${__dirname}', None)]
                 else:
@@ -219,11 +219,19 @@ class MCPTest(unittest.TestCase):
                             self.assertEqual(transport['cwd'], '.')
                             self.assertFalse(any('${' in arg for arg in transport['args']))
                         configurations.append((transport, variable, extracted / transport['cwd'] if 'cwd' in transport else None))
+                (extracted / 'bin/orbit-mcp').chmod(0o755)
+                self.env['PATH'] = '/usr/bin:/bin'
                 for transport, variable, cwd in configurations:
-                    self.assertEqual(transport['command'], 'python3')
-                    args = [arg.replace(variable, str(extracted)) if variable else arg for arg in transport['args']]
-                    responses = self.run_server([request(1, 'tools/list')], [sys.executable, *args], cwd)
-                    self.assertEqual(len(responses[0]['result']['tools']), 19)
+                    launch = [transport['command'], *transport['args']]
+                    self.assertFalse(any('python' in value.lower() for value in launch))
+                    self.assertTrue(any('bin/orbit-mcp' in value for value in launch))
+                    command = [value.replace(variable, str(extracted)) if variable else value for value in launch]
+                    responses = self.run_server([
+                        request(1, 'initialize', {'protocolVersion': '2025-06-18', 'capabilities': {},
+                                                  'clientInfo': {'name': 'package-regression', 'version': '1'}}),
+                        request(2, 'tools/list')], command, cwd)
+                    self.assertEqual(responses[0]['result']['serverInfo']['version'], manifest['version'])
+                    self.assertEqual(len(responses[1]['result']['tools']), 19)
 
 
 if __name__ == '__main__':

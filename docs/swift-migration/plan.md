@@ -1,5 +1,7 @@
 # Swift migration execution
 
+31 October update: the user authorized a unified 0.7.0-beta.1 Swift prerelease for normal in-app testing, superseding the strict pre-cutover acceptance sequence. Native-host/iCloud/model checks remain unverified. Shipping artifacts use Swift, Python remains development-only, and the app follow-up enables explicitly selected folders with the same core validation. See HANDOFF.md and transition.md for the current release decision.
+
 Reference: companion main 94ffc6ad9be082ceceb2daebb45296ebd53f3863 and app plan 5024146. The precise companion reference is also recorded by the fixture generator.
 
 Completion requires equivalent results and durable bytes for every supported operation, passing regression and differential fixtures, packaged native MCP installation in desktop hosts, a pinned app integration, and disposable native folder/iCloud round trips. A build or direct executable invocation cannot satisfy host acceptance. No production cutover or Python removal precedes these gates.

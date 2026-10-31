@@ -9,7 +9,7 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-BINARY = Path(os.environ.get('ORBIT_SWIFT_BINARY', str(ROOT / '.build/out/Products/Debug/orbit-mcp')))
+BINARY = Path(os.environ.get('ORBIT_SWIFT_BINARY', str(ROOT / 'bin/orbit-mcp')))
 BUNDLE = BINARY.parent / 'OrbitCore_OrbitCore.bundle'
 
 
@@ -26,7 +26,7 @@ class SwiftPackageTest(unittest.TestCase):
                 self.assertFalse(any(name.endswith('.py') for name in archive.namelist()))
                 archive.extractall(base / 'relocated')
             relocated = base / 'relocated'
-            self.assertIn('does not require or bundle Python', (relocated / 'references/setup.md').read_text())
+            self.assertEqual((relocated / 'references/setup.md').read_bytes(), (ROOT / 'references/setup.md').read_bytes())
             self.assertIn('New Orbits use format 3', (relocated / 'skills/orbit-setup/SKILL.md').read_text())
             (relocated / 'bin/orbit-mcp').chmod(0o755)
             manifests = [json.loads((relocated / name).read_text())['mcpServers']['orbit']
@@ -64,7 +64,7 @@ class SwiftPackageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='orbit-native-isolation-') as temp:
             base = Path(temp).resolve()
             candidate = base / 'candidate'
-            isolation = base / 'isolation'
+            isolation = base / 'isolation-python-reference'
             built = subprocess.run([sys.executable, str(ROOT / 'scripts/package_swift.py'),
                                     '--binary', str(BINARY), '--resources', str(BUNDLE),
                                     '--output', str(candidate), '--acceptance-root', str(isolation),

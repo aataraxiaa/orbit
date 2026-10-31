@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 
 public final class OrbitEngine {
-  public static let packageVersion = "0.7.0-dev"
+  public static let packageVersion = "0.7.0-beta.1"
   public static let contractVersion = "1"
   public static let dataFormat = 3
   public let configURL: URL

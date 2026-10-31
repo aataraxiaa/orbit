@@ -1,12 +1,8 @@
 # Install and test Orbit
 
-The working source is the 0.6.0 testing prerelease. Use the marketplace or the
-[v0.6.0 release packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.6.0)
-for testing. Upgrade every participating installation before migrating a shared folder.
+Orbit 0.7.0-beta.1 uses the native universal Swift executable on macOS 13 or later. Download the [Swift prerelease packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1) or update Orbit through the existing marketplace. Neither the plugin nor MCPB requires Python.
 
-Orbit requires an installed Python 3.10+ and access to
-the selected vault. SQLite FTS5 enables indexed search. There are no third-party
-Python dependencies. The plugin and MCPB do not install a Python runtime.
+Python 3.10+ is a development dependency for the reference regression suite, fixture generators and package assembly. Python engine files remain in the source checkout and are excluded from production packages. This prerelease is authorized for in-app testing before formal native-host/iCloud/model acceptance; do not report those checks as passed.
 
 ## Install and verify in the apps
 
@@ -77,9 +73,9 @@ See [acceptance](references/acceptance.md) and [tool contracts](references/tools
 
 ## Manifest launch regression
 
-Codex reads `.codex.mcp.json` with `cwd: "."` and a plugin-relative script argument.
+Codex reads `.codex.mcp.json` with `/usr/bin/env`, `cwd: "."` and the plugin-relative `./bin/orbit-mcp` argument.
 Claude reads `.mcp.json` with `${CLAUDE_PLUGIN_ROOT}`. The MCPB uses `${__dirname}`.
-Do not reuse the Claude placeholder in Codex: it previously reached Python literally
+Do not reuse the Claude placeholder in Codex: it previously reached the launcher literally
 and failed before initialization. Package tests launch all extracted configurations,
 but native host variable resolution remains a separate check.
 
@@ -160,4 +156,4 @@ The synthetic retrieval evaluation creates an existing format-1 corpus before se
 
 ## Swift compatibility checks
 
-Build and test the root Swift package through MobileBuildMCP. Run `scripts/swift_compatibility.py --swift <built-orbit-mcp> --output <report.json>` using supported Python. The runner creates all folders/config/cache/state in a disposable temporary directory and compares responses plus stored file hashes. Frozen fixtures also cover exact legacy migration plans, seed histories, schema conflicts and interrupted recovery. These are mechanical checks. Follow [native transition acceptance](docs/swift-migration/transition.md) before switching the shipping runtime.
+Build and test the root Swift package through MobileBuildMCP. Run `scripts/swift_compatibility.py --swift <built-orbit-mcp> --output <report.json>` using supported Python. The runner creates all folders/config/cache/state in a disposable temporary directory and compares responses plus stored file hashes. Frozen fixtures also cover exact legacy migration plans, seed histories, schema conflicts and interrupted recovery. These are mechanical checks. Follow [native transition acceptance](docs/swift-migration/transition.md) for the remaining in-app checks and rollback guidance.

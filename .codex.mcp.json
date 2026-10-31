@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "orbit": {
-      "command": "python3",
+      "command": "/usr/bin/env",
       "args": [
-        "./scripts/mcp_server.py"
+        "./bin/orbit-mcp"
       ],
       "cwd": "."
     }

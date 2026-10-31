@@ -1,6 +1,6 @@
 # Shared Swift implementation
 
-`Package.swift` exposes the `OrbitCore` library and `orbit-mcp` executable. Package revision, command contract version 1, and on-disk format 3 are separate. The development package identifies itself as `0.7.0-dev`. It retains existing `0.6.0` format metadata and explicit legacy migrations. No release or personal-folder migration is authorized by this work.
+`Package.swift` exposes the `OrbitCore` library and `orbit-mcp` executable. Package revision, command contract version 1, and on-disk format 3 are separate. The development package identifies itself as `0.7.0-beta.1`. It retains existing `0.6.0` format metadata and explicit legacy migrations. No release or personal-folder migration is authorized by this work.
 
 `OrbitEngine` receives registry, cache and state URLs. `execute(action, argumentsJSON:)` validates the complete public contract and binds the original ordered request bytes for retry hashing. A persisted approved request must retain its action, arguments bytes, UUID and immutable target identity. Dictionary callers receive stable sorted encoding for requests they originate. They must not reconstruct another host's ordered request during an ambiguous retry.
 
@@ -12,6 +12,6 @@
 
 `EngineOperations.swift` validates complete writes, stable identities, unknown metadata, graph findings and expected versions. `Structure.swift`, `Formatting.swift` and `Migration.swift` implement schemas, byte-preserving formatting, both legacy migration routes, backup journals, resume and rollback. `Retrieval.swift` provides incremental FTS5 passages with current-byte checks and bounded lexical fallback. `Knowledge.swift` retains source originals, integration evidence, relationships and maintenance diagnostics.
 
-The Python implementation remains the shipping reference until the native acceptance gates in [transition](transition.md) pass. A compiled port, passing fixtures or an app package pin does not establish iCloud or desktop-host support.
+On 31 October 2026 the user authorized this native Swift prerelease for in-app testing before formal acceptance. Production packages and shipping manifests now use Swift; Python remains a source-only development reference and v0.6.0 is the rollback release. See [transition](transition.md). A compiled port, passing fixtures or an app package pin does not establish iCloud or desktop-host support.
 
 Stable names, note identities, schema types and graph lookup keys use byte-distinct identity wrappers. Ordered JSON provenance preserves opaque fields that Swift dictionaries would otherwise combine. Serialize public engine results with `canonical(_:)`. Use `decodeJSON(_:)` for command-field inspection and retain original command bytes for validation/retry. Use `decodeEvidenceObject(_:)` when inspecting opaque result objects without losing unknown fields. The app and native executable use these same decoding rules.

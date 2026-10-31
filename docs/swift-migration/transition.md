@@ -1,6 +1,6 @@
 # Validate and switch the native runtime
 
-The default desktop manifests still launch Python. The separate Swift candidate contains the native executable and matching resource bundle, without Python runtime modules. No release has been published.
+The user authorized 0.7.0-beta.1 on 31 October 2026 for normal app/MCP testing before formal native acceptance. Default desktop manifests and plugin/MCPB packages now launch native Swift and include no Python runtime modules. Python remains a development reference in the source checkout. The earlier strict pre-cutover acceptance requirement below is superseded for this beta; its unverified checks remain the test backlog, not claims of success.
 
 1. Run the frozen Python regression suite with a supported interpreter, the smoke workflow, and the existing package build.
 2. Build and test OrbitCore through MobileBuildMCP. Run `scripts/swift_compatibility.py` against the built executable. Run the mixed-replica runner and all frozen migration/recovery fixtures. Investigate every discrepancy.
@@ -8,7 +8,7 @@ The default desktop manifests still launch Python. The separate Swift candidate 
 4. Install the exact candidate through each supported desktop host's plugin controls. Use isolated disposable config/cache/state locations and dedicated test folders. Verify tool discovery, registration, save, search, full read, exact retry, process restart and fresh-conversation persistence. Repeat across Codex and Claude/Cowork. Shell invocation does not satisfy this step.
 5. Pin the app to the tested repository revision. Validate exact preview approval, cancellation and suspension retries, distinct search scope and save destination, citations and actual receipts through the production store.
 6. With disposable Orbits, verify native folder bookmarks, provider downloads and missing ancestors, revoked access, offline reads/writes, concurrent edits, suspension, restart and Mac/mobile round trips. Test mixed Python/Swift replicas during overlap. Do not infer deletion from unavailable files or upload from local acceptance.
-7. Only after all required acceptance receipts pass, switch the shipping manifests and package builder to native Swift. Remove superseded Python production runtime files, retaining the frozen reference only in development fixtures or an explicitly separated compatibility archive. Update installation documentation and migration compatibility instructions. Open the release PR; do not merge or publish without authorization.
+7. Shipping manifests and package assembly have switched to Swift under the user’s explicit prerelease authorization. Complete the remaining native-host/provider/model checks through normal use, investigate failures and publish follow-up fixes. Do not describe the beta as fully accepted. Python is excluded from installed runtime artifacts; retain its source as the temporary development reference until compatibility work is finished.
 
 ## Roll back without losing accepted data
 
