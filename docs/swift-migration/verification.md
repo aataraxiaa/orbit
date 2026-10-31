@@ -2,6 +2,14 @@
 
 The user authorized publishing 0.7.0-beta.1 for normal app/MCP testing on 31 October 2026, superseding the strict pre-cutover acceptance gate. Shipping manifests and production packages now use native Swift; Python is retained only as the development compatibility reference. This is not a fully accepted migration: native desktop-host/fresh-conversation, physical iCloud, actual model and comparative performance remain unverified.
 
+## 0.7.0-beta.2 provider inspection fix
+
+The native access API distinguishes metadata inspection (`.inspect`) from reading contents (`.read`). A disposable pending-image regression failed before the change and passes after it; actual pending data reads still refuse. Metadata helpers preserve missing-file and symlink semantics. App adapters must update their exhaustive switch and retain containment/security scope for inspection without requiring leaf hydration.
+
+Release checks: 101 Swift tests through MobileBuildMCP, 192 reference/regression/package tests, isolated smoke, native packaging and eight grouped MCP SDK checks passed. The new executable is universal arm64/x86_64 with macOS 13 minimum; initialization matches manifest version 0.7.0-beta.2. `beta2-sdk-results.json` records the binary hash.
+
+User-authorized read-only checks against an existing format-2 folder passed catalog/read/search through a file-access guard allowing writes only to isolated local cache/state. Other iCloud files remain pending; no full native-provider acceptance is claimed. No original folder content, metadata or note identifiers are included in these public receipts. The app follow-up also corrects iOS canonical registry paths, retains pending selections, shows per-attempt errors and enforces read-only original-folder mode. Physical phone read verification is still blocked by device lock/automation failures.
+
 ## 0.7.0-beta.1 release checks
 
 - MobileBuildMCP universal Release build passed; both arm64/x86_64 slices declare macOS 13 minimum. `initialize` reports `orbit` version `0.7.0-beta.1`, matching all shipping manifests.

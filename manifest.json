@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "orbit",
   "display_name": "Orbit",
-  "version": "0.7.0-beta.1",
+  "version": "0.7.0-beta.2",
   "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "author": {
     "name": "Orbit"

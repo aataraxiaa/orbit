@@ -1,6 +1,6 @@
 # Install and test Orbit
 
-Orbit 0.7.0-beta.1 uses the native universal Swift executable on macOS 13 or later. Download the [Swift prerelease packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1) or update Orbit through the existing marketplace. Neither the plugin nor MCPB requires Python.
+Orbit 0.7.0-beta.2 uses the native universal Swift executable on macOS 13 or later. Download the [Swift prerelease packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.2) or update Orbit through the existing marketplace. Neither the plugin nor MCPB requires Python.
 
 Python 3.10+ is a development dependency for the reference regression suite, fixture generators and package assembly. Python engine files remain in the source checkout and are excluded from production packages. This prerelease is authorized for in-app testing before formal native-host/iCloud/model acceptance; do not report those checks as passed.
 

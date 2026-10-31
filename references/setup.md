@@ -5,7 +5,7 @@ and Orbit's bookkeeping. You can create a folder or link an existing one. Obsidi
 optional; open the folder as an Obsidian vault or use another editor. Orbit does not
 require an Obsidian account, installation or community plugin.
 
-The plugin provides local MCP tools through the native Swift `bin/orbit-mcp` executable and shared OrbitCore package. It supports macOS 13 or later on Apple Silicon and Intel. It does not require or bundle Python. Configuration, search caches and recovery state remain outside the installed plugin. Version 0.7.0-beta.1 is a prerelease for in-app testing; native host and iCloud acceptance remain unverified.
+The plugin provides local MCP tools through the native Swift `bin/orbit-mcp` executable and shared OrbitCore package. It supports macOS 13 or later on Apple Silicon and Intel. It does not require or bundle Python. Configuration, search caches and recovery state remain outside the installed plugin. Version 0.7.0-beta.2 is a prerelease for in-app testing; native host and iCloud acceptance remain unverified.
 
 ## Check the connection first
 

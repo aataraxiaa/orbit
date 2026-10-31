@@ -62,7 +62,7 @@ final class FileAccessTests: XCTestCase {
     XCTAssertTrue(
       access.calls.contains { $0.url.path.contains(".orbit/commits/") && $0.mode == .write })
     XCTAssertTrue(
-      access.calls.contains { $0.url.path.hasSuffix("/.orbit/commits") && $0.mode == .read })
+      access.calls.contains { $0.url.path.hasSuffix("/.orbit/commits") && $0.mode == .inspect })
     XCTAssertTrue(
       access.calls.contains { $0.url.path.hasSuffix(".orbit/vault.json") && $0.mode == .read })
     XCTAssertTrue(
