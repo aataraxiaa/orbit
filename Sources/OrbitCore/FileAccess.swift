@@ -1,7 +1,14 @@
 import Darwin
 import Foundation
 
-public enum OrbitFileAccessMode: Sendable, Equatable { case read, write, delete }
+public enum OrbitFileAccessMode: Sendable, Equatable {
+  /// Inspect names, existence, permissions or attributes without reading file contents.
+  case inspect
+  /// Read file contents. The native host must verify content availability first.
+  case read
+  case write
+  case delete
+}
 
 /// The native host holds its folder bookmark lease around engine execution and
 /// coordinates each accessor. The URL passed to the body is the provider's URL.
@@ -67,17 +74,17 @@ func readString(_ url: URL, encoding: String.Encoding = .utf8) throws -> String 
 func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>? = nil) throws
   -> Bool
 {
-  try coordinatedFile(URL(fileURLWithPath: path), mode: .read) {
+  try coordinatedFile(URL(fileURLWithPath: path), mode: .inspect) {
     FileManager.default.fileExists(atPath: $0.path, isDirectory: isDirectory)
   }
 }
 
 func fileResourceValues(_ url: URL, forKeys keys: Set<URLResourceKey>) throws -> URLResourceValues {
-  try coordinatedFile(url, mode: .read) { try $0.resourceValues(forKeys: keys) }
+  try coordinatedFile(url, mode: .inspect) { try $0.resourceValues(forKeys: keys) }
 }
 
 func fileAttributes(atPath path: String) throws -> [FileAttributeKey: Any] {
-  try coordinatedFile(URL(fileURLWithPath: path), mode: .read) {
+  try coordinatedFile(URL(fileURLWithPath: path), mode: .inspect) {
     try FileManager.default.attributesOfItem(atPath: $0.path)
   }
 }
@@ -85,7 +92,7 @@ func fileAttributes(atPath path: String) throws -> [FileAttributeKey: Any] {
 func directoryContents(at url: URL, includingPropertiesForKeys keys: [URLResourceKey]?) throws
   -> [URL]
 {
-  try coordinatedFile(url, mode: .read) {
+  try coordinatedFile(url, mode: .inspect) {
     try FileManager.default.contentsOfDirectory(at: $0, includingPropertiesForKeys: keys)
   }
 }
@@ -109,7 +116,7 @@ func writeData(_ value: Data, to url: URL) throws {
 }
 
 func writableFile(atPath path: String) throws -> Bool {
-  try coordinatedFile(URL(fileURLWithPath: path), mode: .read) {
+  try coordinatedFile(URL(fileURLWithPath: path), mode: .inspect) {
     FileManager.default.isWritableFile(atPath: $0.path)
   }
 }
@@ -122,7 +129,7 @@ func openFile(_ url: URL, flags: Int32, permissions: mode_t = 0o600) throws -> I
 }
 
 func fileLStat(_ url: URL) throws -> stat? {
-  try coordinatedFile(url, mode: .read) {
+  try coordinatedFile(url, mode: .inspect) {
     var info = stat()
     if Darwin.lstat($0.path, &info) == 0 { return info }
     if errno == ENOENT || errno == ENOTDIR { return nil }

@@ -7,7 +7,7 @@ Each Orbit holds Markdown notes and source files. Obsidian is an optional editor
 Say “Save that to Orbit” or “Check our deployment decisions”. The agent uses local
 MCP tools; the shared Swift OrbitCore engine handles storage, hashes, indexing and recovery.
 
-Version 0.7.0-beta.1 moves the desktop MCP runtime to native Swift and shares OrbitCore with Orbit App. All 19 tools and six skills remain available. Disk format stays 3, with existing identities, metadata, assets, histories and legacy migration routes preserved. This is a prerelease for testing in the real apps: native desktop-host, physical iCloud and actual local-model acceptance are not yet established. See [verification](docs/swift-migration/verification.md).
+Version 0.7.0-beta.2 moves the desktop MCP runtime to native Swift and shares OrbitCore with Orbit App. All 19 tools and six skills remain available. Disk format stays 3, with existing identities, metadata, assets, histories and legacy migration routes preserved. This is a prerelease for testing in the real apps: native desktop-host, physical iCloud and actual local-model acceptance are not yet established. See [verification](docs/swift-migration/verification.md).
 
 Requires macOS 13 or later on Apple Silicon or Intel. The plugin includes a universal native executable and its resources; Python is not a production dependency.
 There is no cloud service or background synchronization process. Your folder provider
@@ -51,7 +51,7 @@ MCP tools, register the name and folder, save a labeled receipt and read it back
 alone does not establish connection, access or persistence.
 
 Claude Desktop Chat has a separate `orbit.mcpb` desktop extension package using the
-same engine. Download it from [v0.7.0-beta.1](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1)
+same engine. Download it from [v0.7.0-beta.2](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.2)
 and open it in Claude Desktop to install. Download and install a new MCPB for updates;
 the GitHub marketplace does not update this separate extension. Its native acceptance and extension-directory publication are pending.
 It is not the same distribution channel as the Cowork marketplace plugin. Ordinary
@@ -418,7 +418,7 @@ active selection between chats and no automatic search across Orbits.
 The registry uses config schema 2 independently of note data formats. New empty folders
 in 0.6.0 use format 3; existing format-1/2 folders migrate explicitly.
 Workflow hooks pass an explicit destination such as `orbit: "Work"` on every call.
-Get the [0.7.0-beta.1 Swift prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.1).
+Get the [0.7.0-beta.2 Swift prerelease](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.2).
 
 ### Rename and select an Orbit
 

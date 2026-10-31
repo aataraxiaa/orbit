@@ -1,5 +1,7 @@
 # Orbit handoff
 
+31 October 2026: latest prerelease 0.7.0-beta.2 adds typed metadata inspection (`OrbitFileAccessMode.inspect`), preventing pending excluded assets from blocking native catalogs. Actual data reads still use `.read` and require availability. The app must consume the matching core revision and handle `.inspect` with containment but without leaf hydration. Core suite: 101 passed.
+
 31 October 2026: the user explicitly authorized publishing a unified Swift prerelease and testing normal app/MCP flows in the wild, superseding the earlier requirement to keep Python shipping until formal native acceptance. Version `0.7.0-beta.1` ships the universal native `bin/orbit-mcp`, shared OrbitCore, all 19 tools and six skills. `scripts/package.py` now produces native-only plugin/MCPB packages. Python stays in the source checkout only as the development compatibility reference; v0.6.0 remains available for rollback. Disk format stays 3 and the default format-3 migration is a compatibility check.
 
 The app integration PR2 was merged into app main at `dbfa56a`; a follow-up enables normal explicitly selected folders and pins the published core. Temporary provider acceptance UI is not part of the normal release flow. Existing identity, format, containment, pending-download, approval, citation and retry protections remain required.
