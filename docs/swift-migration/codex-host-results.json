@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-30T17:28:58.027561+00:00",
+  "host": "Codex desktop",
+  "candidate_version": "0.7.0-dev",
+  "installed": true,
+  "installed_native_binary_sha256": "e3157c99a55aa5844d578dd2a2e87df65460b770afd8617da6d982ce23ca998b",
+  "mcp_server_key": "orbit",
+  "callable_namespace": "mcp__orbit__",
+  "native_process_observed": false,
+  "call_result": "Callable list tool resolved to existing shipping registry, not isolated acceptance registry",
+  "personal_content_read": false,
+  "test_write_performed": false,
+  "verdict": "NOT VERIFIED",
+  "next_candidate_version": "0.7.0-dev.1",
+  "next_mcp_server_key": "orbit-swift-acceptance",
+  "next_codex_launcher": "/usr/bin/env ./bin/orbit-mcp"
+}

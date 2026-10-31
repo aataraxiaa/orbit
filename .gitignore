@@ -5,3 +5,6 @@ dist/
 .DS_Store
 .claude/
 *.env
+.build/
+.swiftpm/
+work/

@@ -1,0 +1,520 @@
+{
+  "schema": 1,
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "description": "Controlled clock and UUID adapters required. Mixed source integration conflicts preserve all extraction alternatives, exact version/head validation, late branches, real committed notes and verified retrieval. Every history result and stored byte compares against Python.",
+  "files": {
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"d070a43d-ffb6-4af5-a8c7-f62bd812e581\", \"data_format\": 3, \"orbit_version\": \"0.6.0\"}\n",
+    "ORBIT.md": "# Disposable Orbit\nFixture only.\n",
+    "A.md": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal A\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "B.md": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal B\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "Sources/assets/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.bin": "original source\u0000all bytes preserved",
+    "Extract.md": "---\nid: extract\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nExact extraction from original source.\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "Alternative.md": "---\nid: alternative\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nAdditional extraction evidence from original source.\n\n## User appendix\nPreserve all unrelated prose.\n",
+    ".orbit/integrations/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.json": "{\n  \"schema\": 1,\n  \"source_sha256\": \"2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52\",\n  \"source_path\": \"Sources/assets/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.bin\",\n  \"version\": 1,\n  \"stage\": \"captured\",\n  \"coverage\": {\n    \"status\": \"unknown\",\n    \"description\": \"\"\n  },\n  \"extraction\": [],\n  \"notes\": [],\n  \"operation\": null,\n  \"operations\": [],\n  \"verification\": [],\n  \"deferred\": [],\n  \"errors\": [],\n  \"updated\": \"2026-10-30T12:00:00.000000+00:00\",\n  \"custom\": {\n    \"untouched\": {\n      \"z\": \"value\",\n      \"a\": true\n    },\n    \"owner\": \"User\"\n  }\n}\n"
+  },
+  "scenarios": [
+    {
+      "name": "source-integration-concurrent-evidence",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "initial-integration",
+          "replica": "a",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test"
+          },
+          "expect": {
+            "/value/total": 1,
+            "/value/records/0/version": 1
+          }
+        },
+        {
+          "kind": "call",
+          "name": "left-extraction",
+          "replica": "a",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 1,
+              "request_id": "00000101-0000-4000-8000-000000000101",
+              "stage": "extracted",
+              "coverage": {
+                "status": "full",
+                "description": "Left extraction"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                }
+              ]
+            }
+          },
+          "save": "left-extraction",
+          "request": "left-extraction",
+          "expect": {
+            "/value/version": 2
+          }
+        },
+        {
+          "kind": "call",
+          "name": "right-extraction",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 1,
+              "request_id": "00000102-0000-4000-8000-000000000102",
+              "stage": "extracted",
+              "coverage": {
+                "status": "full",
+                "description": "Right extraction"
+              },
+              "extraction": [
+                {
+                  "path": "Alternative.md",
+                  "sha256": "$HASH:Alternative.md"
+                }
+              ]
+            }
+          },
+          "save": "right-extraction",
+          "request": "right-extraction",
+          "expect": {
+            "/value/version": 2
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "left-to-right",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "integration-conflict",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "integration-conflict",
+          "expect": {
+            "/value/status": "conflicted"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "no-canonical-conflicted-record",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test"
+          },
+          "expect": {
+            "/value/total": 0
+          },
+          "expect_count": {
+            "/value/errors": 1
+          }
+        },
+        {
+          "kind": "call",
+          "name": "both-extraction-alternatives",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": ".orbit/integrations/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.json"
+          },
+          "save": "both-extraction-alternatives",
+          "expect_count": {
+            "/value/revisions": 3
+          }
+        },
+        {
+          "kind": "call",
+          "name": "reviewed-resolution",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 2,
+              "request_id": "00000103-0000-4000-8000-000000000103",
+              "stage": "extracted",
+              "coverage": {
+                "status": "full",
+                "description": "Reviewed both evidence sets"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                },
+                {
+                  "path": "Alternative.md",
+                  "sha256": "$HASH:Alternative.md"
+                }
+              ],
+              "expected_heads": "$REF:integration-conflict#/heads/.orbit~1integrations~12dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.json"
+            }
+          },
+          "save": "reviewed-resolution",
+          "request": "reviewed-resolution",
+          "expect": {
+            "/value/version": 3
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "resolution-to-left",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "left-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "left-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "late-extraction",
+          "replica": "c",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 1,
+              "request_id": "00000104-0000-4000-8000-000000000104",
+              "stage": "extracted",
+              "coverage": {
+                "status": "full",
+                "description": "Late offline extraction"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                }
+              ]
+            }
+          },
+          "save": "late-extraction",
+          "request": "late-extraction",
+          "expect": {
+            "/value/version": 2
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "late-branch-arrives",
+          "from": "c",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "new-integration-conflict",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "new-integration-conflict",
+          "expect": {
+            "/value/status": "conflicted"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "resolution-with-late-evidence",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 3,
+              "request_id": "00000105-0000-4000-8000-000000000105",
+              "stage": "extracted",
+              "coverage": {
+                "status": "full",
+                "description": "Reviewed including late evidence"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                },
+                {
+                  "path": "Alternative.md",
+                  "sha256": "$HASH:Alternative.md"
+                }
+              ],
+              "expected_heads": "$REF:new-integration-conflict#/heads/.orbit~1integrations~12dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.json"
+            }
+          },
+          "save": "resolution-with-late-evidence",
+          "request": "resolution-with-late-evidence",
+          "expect": {
+            "/value/version": 4
+          }
+        },
+        {
+          "kind": "call",
+          "name": "write-derived-note",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "supported source integration",
+              "request_id": "00000106-0000-4000-8000-000000000106",
+              "changes": [
+                {
+                  "path": "A.md",
+                  "content": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\nSupported decision from [[Sources/assets/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.bin]]\n\n## User appendix\nPreserve all unrelated prose.\n",
+                  "reason": "Source-backed knowledge",
+                  "expected_sha256": "$HASH:A.md"
+                }
+              ]
+            }
+          },
+          "save": "write-derived-note",
+          "request": "derived-note",
+          "expect": {
+            "/value/status": "committed",
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "call",
+          "name": "integrated",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 4,
+              "request_id": "00000107-0000-4000-8000-000000000107",
+              "stage": "integrated",
+              "coverage": {
+                "status": "full",
+                "description": "Reviewed complete source"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                },
+                {
+                  "path": "Alternative.md",
+                  "sha256": "$HASH:Alternative.md"
+                }
+              ],
+              "notes": [
+                {
+                  "path": "A.md",
+                  "sha256": "$HASH:A.md"
+                }
+              ],
+              "operations": [
+                "$REF:write-derived-note#/operation"
+              ]
+            }
+          },
+          "save": "integrated",
+          "request": "integrated",
+          "expect": {
+            "/value/version": 5
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "integrated-evidence-to-left",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "integrated-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "integrated-ready",
+          "expect": {
+            "/kind": "success",
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "verified",
+          "replica": "a",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test",
+            "record": {
+              "source_sha256": "2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52",
+              "expected_version": 5,
+              "request_id": "00000108-0000-4000-8000-000000000108",
+              "stage": "verified",
+              "coverage": {
+                "status": "full",
+                "description": "Reviewed complete source"
+              },
+              "extraction": [
+                {
+                  "path": "Extract.md",
+                  "sha256": "$HASH:Extract.md"
+                },
+                {
+                  "path": "Alternative.md",
+                  "sha256": "$HASH:Alternative.md"
+                }
+              ],
+              "verification": [
+                {
+                  "query": "supported",
+                  "paths": [
+                    "A.md"
+                  ]
+                }
+              ]
+            }
+          },
+          "save": "verified",
+          "request": "verified",
+          "expect": {
+            "/value/version": 6
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "verified-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "restart",
+          "name": "restart-integration-peer",
+          "replica": "b"
+        },
+        {
+          "kind": "retry",
+          "name": "exact-integration-retry-after-restart",
+          "replica": "b",
+          "request": "verified",
+          "expect": {
+            "/value/status": "committed",
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "call",
+          "name": "verified-record",
+          "replica": "b",
+          "action": "integration",
+          "arguments": {
+            "orbit": "Test"
+          },
+          "expect": {
+            "/value/total": 1,
+            "/value/records/0/version": 6,
+            "/value/records/0/stage": "verified",
+            "/value/records/0/custom/owner": "User",
+            "/value/records/0/custom/untouched/z": "value"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "complete-source-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": ".orbit/integrations/2dc23c2bb5d606a1406ab1c74a66c686bb2888af0ac6e72cb48b2613e47f8a52.json"
+          },
+          "save": "complete-source-history",
+          "expect_count": {
+            "/value/revisions": 8
+          },
+          "expect_history_versions": [
+            1,
+            2,
+            2,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "expect_history_descriptions": [
+            "",
+            "Left extraction",
+            "Right extraction",
+            "Late offline extraction",
+            "Reviewed both evidence sets",
+            "Reviewed including late evidence",
+            "Reviewed complete source",
+            "Reviewed complete source"
+          ]
+        },
+        {
+          "kind": "call",
+          "name": "real-note-readback",
+          "replica": "b",
+          "action": "read",
+          "arguments": {
+            "orbit": "Test",
+            "path": "A.md"
+          },
+          "expect": {
+            "/value/sha256": "21049265f0adbc613366d3cfea3dea483832734d01549037b0b462caecd2991b"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "real-note-recall",
+          "replica": "b",
+          "action": "search",
+          "arguments": {
+            "orbit": "Test",
+            "query": "supported"
+          },
+          "expect_count": {
+            "/value/results": 1
+          },
+          "expect": {
+            "/value/results/0/path": "A.md"
+          }
+        }
+      ]
+    }
+  ]
+}

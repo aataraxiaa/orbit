@@ -1,0 +1,186 @@
+{
+  "reference": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "inputs": {
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 1, \"orbit_version\": \"0.3.0\"}\n",
+    "DecisionA.md": "---\nid: \"decision-a\"\ntitle: First Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# First Decision\n[[café]]\n",
+    "DecisionB.md": "---\nid: \"decision-b\"\ntitle: Second Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# Second Decision\n[[café]]\n",
+    "ProjectA.md": "---\nid: \"café\"\ntitle: First Project\ntype: project\nsummary: Unicode identity fixture\n---\n# First Project\n",
+    "ProjectB.md": "---\nid: \"café\"\ntitle: Second Project\ntype: project\nsummary: Unicode identity fixture\n---\n# Second Project\n"
+  },
+  "plan": {
+    "status": "preview",
+    "data_format": 1,
+    "source_version": "0.3.0",
+    "target_version": "0.5.0",
+    "pending": [],
+    "target_format": 2,
+    "plan_id": "8d2f19d3f7152e7b085866b3f1f3c5c437c6bd4d4b4c71b5555f1576ba30f9ed",
+    "moves": [
+      {
+        "from": "DecisionA.md",
+        "to": "Projects/First Project/Decisions/DecisionA.md"
+      },
+      {
+        "from": "DecisionB.md",
+        "to": "Projects/Second Project/Decisions/DecisionB.md"
+      },
+      {
+        "from": "ProjectA.md",
+        "to": "Projects/First Project/Overview.md"
+      },
+      {
+        "from": "ProjectB.md",
+        "to": "Projects/Second Project/Overview.md"
+      }
+    ],
+    "warnings": [],
+    "changes": [
+      {
+        "path": "Projects/First Project/Decisions/DecisionA.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/First Project/Overview.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/Second Project/Decisions/DecisionB.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/Second Project/Overview.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Concept.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Decision.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Map.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Person.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Project.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Session.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Source.md",
+        "action": "create"
+      },
+      {
+        "path": "DecisionA.md",
+        "action": "delete"
+      },
+      {
+        "path": "DecisionB.md",
+        "action": "delete"
+      },
+      {
+        "path": "ProjectA.md",
+        "action": "delete"
+      },
+      {
+        "path": "ProjectB.md",
+        "action": "delete"
+      },
+      {
+        "path": ".orbit/vault.json",
+        "action": "update"
+      }
+    ]
+  },
+  "writes": [
+    {
+      "path": "Projects/First Project/Decisions/DecisionA.md",
+      "before": null,
+      "after": "---\nid: \"decision-a\"\ntitle: First Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# First Decision\n[[Projects/First Project/Overview]]\n"
+    },
+    {
+      "path": "Projects/First Project/Overview.md",
+      "before": null,
+      "after": "---\nid: \"café\"\ntitle: First Project\ntype: project\nsummary: Unicode identity fixture\n---\n# First Project\n"
+    },
+    {
+      "path": "Projects/Second Project/Decisions/DecisionB.md",
+      "before": null,
+      "after": "---\nid: \"decision-b\"\ntitle: Second Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# Second Decision\n[[Projects/Second Project/Overview]]\n"
+    },
+    {
+      "path": "Projects/Second Project/Overview.md",
+      "before": null,
+      "after": "---\nid: \"café\"\ntitle: Second Project\ntype: project\nsummary: Unicode identity fixture\n---\n# Second Project\n"
+    },
+    {
+      "path": "Schemas/Concept.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-concept-v1\"\ntitle: \"Concept schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit concept notes.\"\nschema_for: \"concept\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Concept schema\n\nStore reusable knowledge in Knowledge/. Maintain one coherent note for a concept. Project and session notes link here when the knowledge is reusable. Preserve evidence and qualifications when updating it.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Decision.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-decision-v1\"\ntitle: \"Decision schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit decision notes.\"\nschema_for: \"decision\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\"]\nrequired_sections: [\"Rationale\", \"Alternatives\"]\nvalidation: \"warn\"\n---\n# Decision schema\n\nStore project decisions in Projects/<project>/Decisions/. Record the chosen action, its rationale, alternatives, and the evidence behind it. Keep one canonical decision and link to it from sessions and project overviews.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Map.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-map-v1\"\ntitle: \"Map schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit map notes.\"\nschema_for: \"map\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Map schema\n\nStore navigation in Maps/. Explain useful starting points and link to canonical notes. Do not duplicate the catalog or copy the linked knowledge.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Person.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-person-v1\"\ntitle: \"Person schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit person notes.\"\nschema_for: \"person\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Person schema\n\nStore people in People/. Save only relevant user-requested information and retain its source. Link to projects instead of duplicating project details.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Project.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-project-v1\"\ntitle: \"Project schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit project notes.\"\nschema_for: \"project\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"status\"]\nrequired_sections: [\"Purpose\", \"Current state\"]\nvalidation: \"warn\"\n---\n# Project schema\n\nKeep the project overview in Projects/<project>/Overview.md. Summarize the current state and link to canonical decisions, knowledge, sources, and sessions. Do not copy their full contents here.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Session.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-session-v1\"\ntitle: \"Session schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit session notes.\"\nschema_for: \"session\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\", \"observed\"]\nrequired_sections: [\"Objective\", \"Outcomes\", \"Open questions\", \"Next actions\", \"Connections\"]\nvalidation: \"warn\"\n---\n# Session schema\n\nStore a requested session summary in Projects/<project>/Sessions/. Use observed for the verified session date. Capture outcomes and enough context to resume. Link to canonical decisions and knowledge instead of copying their facts. Sessions describe what happened at a point in time; read linked notes for current knowledge. Do not capture a transcript or unrelated conversation unless requested. A non-project session may use a dedicated personal project.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Source.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-source-v1\"\ntitle: \"Source schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit source notes.\"\nschema_for: \"source\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Source schema\n\nStore source notes in Sources/ and originals in Sources/assets/. Preserve original bytes and separate source statements from synthesis. Record the source location, capture scope, extraction gaps, and verified dates or hashes when available.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "DecisionA.md",
+      "before": "---\nid: \"decision-a\"\ntitle: First Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# First Decision\n[[café]]\n",
+      "after": null
+    },
+    {
+      "path": "DecisionB.md",
+      "before": "---\nid: \"decision-b\"\ntitle: Second Decision\ntype: decision\nsummary: Unicode identity fixture\nproject: \"café\"\n---\n# Second Decision\n[[café]]\n",
+      "after": null
+    },
+    {
+      "path": "ProjectA.md",
+      "before": "---\nid: \"café\"\ntitle: First Project\ntype: project\nsummary: Unicode identity fixture\n---\n# First Project\n",
+      "after": null
+    },
+    {
+      "path": "ProjectB.md",
+      "before": "---\nid: \"café\"\ntitle: Second Project\ntype: project\nsummary: Unicode identity fixture\n---\n# Second Project\n",
+      "after": null
+    },
+    {
+      "path": ".orbit/vault.json",
+      "before": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 1, \"orbit_version\": \"0.3.0\"}\n",
+      "after": "{\n  \"schema\": 1,\n  \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\",\n  \"data_format\": 2,\n  \"orbit_version\": \"0.5.0\"\n}\n"
+    }
+  ]
+}

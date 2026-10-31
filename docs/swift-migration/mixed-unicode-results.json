@@ -1,0 +1,889 @@
+{
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "fixture": "tests/fixtures/compatibility/replica-unicode-identities.json",
+  "native_binary_sha256": "e3157c99a55aa5844d578dd2a2e87df65460b770afd8617da6d982ce23ca998b",
+  "cases": [
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "python-created-history-remains-ready",
+      "result_sha256": [
+        "b6601f04177cda6fcb2dba8262ff5709a204875c0d9ec50ba640e48f13b431de",
+        "b6601f04177cda6fcb2dba8262ff5709a204875c0d9ec50ba640e48f13b431de"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "original-composed-history",
+      "result_sha256": [
+        "7cf7bb9fa61883a64ad3db588bc61eb60c58551ce39cf215cb42700812ddbe1b",
+        "7cf7bb9fa61883a64ad3db588bc61eb60c58551ce39cf215cb42700812ddbe1b"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "original-decomposed-history",
+      "result_sha256": [
+        "2c15b4fa31945af94366d30b629315643889beaf6b4cc19d8ee3606dc30dfd7e",
+        "2c15b4fa31945af94366d30b629315643889beaf6b4cc19d8ee3606dc30dfd7e"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "update-composed",
+      "result_sha256": [
+        "b21478f79440ba5f1943d80e1e8efc321e512ccd09e2f94bf2ff099d452967c5",
+        "b21478f79440ba5f1943d80e1e8efc321e512ccd09e2f94bf2ff099d452967c5"
+      ],
+      "storage_manifest_sha256": [
+        "3b024fe088a3cc4e3b7e1d0764e95206db1b994ed7a7d5f0a2c20b3dd31d3993",
+        "3b024fe088a3cc4e3b7e1d0764e95206db1b994ed7a7d5f0a2c20b3dd31d3993"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "update-decomposed",
+      "result_sha256": [
+        "3a123f2923298d82cc23c07f7f61c28e822e24054e2fe62da16d475c960f3a69",
+        "3a123f2923298d82cc23c07f7f61c28e822e24054e2fe62da16d475c960f3a69"
+      ],
+      "storage_manifest_sha256": [
+        "6422e8e8a82db901f40259ac9e6c038653577aac21dc55f3687835ed238307d1",
+        "6422e8e8a82db901f40259ac9e6c038653577aac21dc55f3687835ed238307d1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "composed-to-peer",
+      "result_sha256": [
+        "47347395c1582341e260db77991a3e4335e043d8b7dbf4d402b36409edd43f6e",
+        "47347395c1582341e260db77991a3e4335e043d8b7dbf4d402b36409edd43f6e"
+      ],
+      "storage_manifest_sha256": [
+        "bac6d35f4e7f12ddf0449f0632db762cd6764eee7f786c8d69b6bb7ed4f5bb63",
+        "bac6d35f4e7f12ddf0449f0632db762cd6764eee7f786c8d69b6bb7ed4f5bb63"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "decomposed-to-peer",
+      "result_sha256": [
+        "7192b0440a7f61448c7c8d384105457efb443d3435fd62385a840df8bc811734",
+        "7192b0440a7f61448c7c8d384105457efb443d3435fd62385a840df8bc811734"
+      ],
+      "storage_manifest_sha256": [
+        "8b5d182f0a6552fe862bb05cc0d0ea6ef086f0dfec99fb606351402b4a5b6d06",
+        "8b5d182f0a6552fe862bb05cc0d0ea6ef086f0dfec99fb606351402b4a5b6d06"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "both-independent-ready",
+      "result_sha256": [
+        "42675cc432251abe7bf671bd29b246aba5ac086a3f3bf4af693945fef9937fe5",
+        "42675cc432251abe7bf671bd29b246aba5ac086a3f3bf4af693945fef9937fe5"
+      ],
+      "storage_manifest_sha256": [
+        "ae150bd76943e58866ec319f46d7de085aebf458ee7e10f5db3ea6cfcad13db9",
+        "ae150bd76943e58866ec319f46d7de085aebf458ee7e10f5db3ea6cfcad13db9"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "peer-independent-ready",
+      "result_sha256": [
+        "1ec67d76c3482adc8e0de994e3ac29f0499a3953c54ae7be2dec64b6c4298c86",
+        "1ec67d76c3482adc8e0de994e3ac29f0499a3953c54ae7be2dec64b6c4298c86"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "composed-own-ancestry",
+      "result_sha256": [
+        "f5626319ab06a33cd825b99470f9cbd9070768bb6eaa7747b6435a81d448001d",
+        "f5626319ab06a33cd825b99470f9cbd9070768bb6eaa7747b6435a81d448001d"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "decomposed-own-ancestry",
+      "result_sha256": [
+        "b976178aeacc4e62ca53f8e9cf629289924a997402d88bbb53cc5f43871fa0a3",
+        "b976178aeacc4e62ca53f8e9cf629289924a997402d88bbb53cc5f43871fa0a3"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "same-operation-distinct-ids",
+      "result_sha256": [
+        "e35321b9b79f581d007cfcd371b3c5405cb66645de6999523722661d90223e33",
+        "e35321b9b79f581d007cfcd371b3c5405cb66645de6999523722661d90223e33"
+      ],
+      "storage_manifest_sha256": [
+        "98e5e357272e6afc8ab74dd0869fc2060607a0e45c5cd71ab3c0e71a3b544276",
+        "98e5e357272e6afc8ab74dd0869fc2060607a0e45c5cd71ab3c0e71a3b544276"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "same-operation-to-peer",
+      "result_sha256": [
+        "9d4fb76b66746659e7143c2bfcb65da2e2e28e215898102ed844e62cf5e2ff6a",
+        "9d4fb76b66746659e7143c2bfcb65da2e2e28e215898102ed844e62cf5e2ff6a"
+      ],
+      "storage_manifest_sha256": [
+        "93811c46171781804057115ce655a46790d7a48ea05a5158e36a5b0e476540f5",
+        "93811c46171781804057115ce655a46790d7a48ea05a5158e36a5b0e476540f5"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "same-operation-ready",
+      "result_sha256": [
+        "ed4ae3baea1bb21720b5cfe7f8b2dda2d3cafa7f6b2414a19958e1a5df191da5",
+        "ed4ae3baea1bb21720b5cfe7f8b2dda2d3cafa7f6b2414a19958e1a5df191da5"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "new-composed-history",
+      "result_sha256": [
+        "19a3b654ea855a491334d5eae45e5525b32f88ee36da0bc14efefcfb00a2b1c0",
+        "19a3b654ea855a491334d5eae45e5525b32f88ee36da0bc14efefcfb00a2b1c0"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "new-decomposed-history",
+      "result_sha256": [
+        "2f2227d1a948e89a321cbe9546b9609a108e54410e39f80d4f63bd91f9b76a62",
+        "2f2227d1a948e89a321cbe9546b9609a108e54410e39f80d4f63bd91f9b76a62"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "refuse-normalized-identity-swap",
+      "result_sha256": [
+        "ee90c1f9aef0cb25a85d4490f91d65b805ba930a9a8f353251c87d5f371a7c4f",
+        "ee90c1f9aef0cb25a85d4490f91d65b805ba930a9a8f353251c87d5f371a7c4f"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "composed-editor-bytes",
+      "result_sha256": [
+        "49cfc1ea712941b89b61dca5a3328d35985cb7109118d2e02d00dcd37d97b8ca",
+        "49cfc1ea712941b89b61dca5a3328d35985cb7109118d2e02d00dcd37d97b8ca"
+      ],
+      "storage_manifest_sha256": [
+        "14fb6f8269d9bb718ef491a8b28b4a668e4707a63597909caec3073550948202",
+        "14fb6f8269d9bb718ef491a8b28b4a668e4707a63597909caec3073550948202"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "decomposed-editor-bytes",
+      "result_sha256": [
+        "d0802b8c5572486143338ad55d0955a228b6e26219101fb6d829bc058a4f9751",
+        "d0802b8c5572486143338ad55d0955a228b6e26219101fb6d829bc058a4f9751"
+      ],
+      "storage_manifest_sha256": [
+        "bc952e2f3c5ba60cc6d06f6e9ffc78d2d1935a2444beb9d57f06e5e150b481a0",
+        "bc952e2f3c5ba60cc6d06f6e9ffc78d2d1935a2444beb9d57f06e5e150b481a0"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "separate-observations",
+      "result_sha256": [
+        "d472205b894ec0c2f29245d2f2f75639c6c6678ec165c7a5f4002d9290b6b778",
+        "d472205b894ec0c2f29245d2f2f75639c6c6678ec165c7a5f4002d9290b6b778"
+      ],
+      "storage_manifest_sha256": [
+        "eb1583fc57d6a871a4a0cc0fd907f92b457bedfef9282a25466d9f8d514b1f83",
+        "eb1583fc57d6a871a4a0cc0fd907f92b457bedfef9282a25466d9f8d514b1f83"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "adopt-composed-only",
+      "result_sha256": [
+        "1b82a89f53b32abaccbe96331dd7570f9eaec642a537fa8e7128c150dfb13d52",
+        "1b82a89f53b32abaccbe96331dd7570f9eaec642a537fa8e7128c150dfb13d52"
+      ],
+      "storage_manifest_sha256": [
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694",
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "decomposed-still-unresolved",
+      "result_sha256": [
+        "afcf058627b4f89a91e077082541b35af17c7cb3658bca9a9f12dd7a0f9d1aa0",
+        "afcf058627b4f89a91e077082541b35af17c7cb3658bca9a9f12dd7a0f9d1aa0"
+      ],
+      "storage_manifest_sha256": [
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694",
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "adopt-decomposed",
+      "result_sha256": [
+        "12cee513b866a6f4ae301319756d7733cd36ce37a83cde92b4b402341c652c42",
+        "12cee513b866a6f4ae301319756d7733cd36ce37a83cde92b4b402341c652c42"
+      ],
+      "storage_manifest_sha256": [
+        "70c070246bc6a3ebe015e0c76eb73a94f8276d51033f818855c3ede6e06c72c1",
+        "70c070246bc6a3ebe015e0c76eb73a94f8276d51033f818855c3ede6e06c72c1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "adoptions-to-peer",
+      "result_sha256": [
+        "ecbad393af2d6976c142787be61c7a99fa461f7cdf9fcfce2c75da24ba08f68a",
+        "ecbad393af2d6976c142787be61c7a99fa461f7cdf9fcfce2c75da24ba08f68a"
+      ],
+      "storage_manifest_sha256": [
+        "6d17fd51d4b880f99d6ab77b914dd82907c1a062616ed549ea861c5c7aacfc59",
+        "6d17fd51d4b880f99d6ab77b914dd82907c1a062616ed549ea861c5c7aacfc59"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "both-adopted-ready",
+      "result_sha256": [
+        "b8df4d003e91ce088ec3e59fccbfb829944c8a93e18928c03bebf7fe973e3d8b",
+        "b8df4d003e91ce088ec3e59fccbfb829944c8a93e18928c03bebf7fe973e3d8b"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "composed-final-history",
+      "result_sha256": [
+        "664dd93c061b2ca217b4538e6b9e7bb5b99f389a6459ea3297c1c9f045a4c518",
+        "664dd93c061b2ca217b4538e6b9e7bb5b99f389a6459ea3297c1c9f045a4c518"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "a",
+      "step": "decomposed-final-history",
+      "result_sha256": [
+        "ec0b24985c0a446c9fa05e2189b4026606f34a1a0e11ffc878b940cb3d82754c",
+        "ec0b24985c0a446c9fa05e2189b4026606f34a1a0e11ffc878b940cb3d82754c"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "python-created-history-remains-ready",
+      "result_sha256": [
+        "b6601f04177cda6fcb2dba8262ff5709a204875c0d9ec50ba640e48f13b431de",
+        "b6601f04177cda6fcb2dba8262ff5709a204875c0d9ec50ba640e48f13b431de"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "original-composed-history",
+      "result_sha256": [
+        "7cf7bb9fa61883a64ad3db588bc61eb60c58551ce39cf215cb42700812ddbe1b",
+        "7cf7bb9fa61883a64ad3db588bc61eb60c58551ce39cf215cb42700812ddbe1b"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "original-decomposed-history",
+      "result_sha256": [
+        "2c15b4fa31945af94366d30b629315643889beaf6b4cc19d8ee3606dc30dfd7e",
+        "2c15b4fa31945af94366d30b629315643889beaf6b4cc19d8ee3606dc30dfd7e"
+      ],
+      "storage_manifest_sha256": [
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906",
+        "6049aa0d364b510e5f46054a8876a66def1db4228db282d62a94eec195f8b906"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "update-composed",
+      "result_sha256": [
+        "b21478f79440ba5f1943d80e1e8efc321e512ccd09e2f94bf2ff099d452967c5",
+        "b21478f79440ba5f1943d80e1e8efc321e512ccd09e2f94bf2ff099d452967c5"
+      ],
+      "storage_manifest_sha256": [
+        "3b024fe088a3cc4e3b7e1d0764e95206db1b994ed7a7d5f0a2c20b3dd31d3993",
+        "3b024fe088a3cc4e3b7e1d0764e95206db1b994ed7a7d5f0a2c20b3dd31d3993"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "update-decomposed",
+      "result_sha256": [
+        "3a123f2923298d82cc23c07f7f61c28e822e24054e2fe62da16d475c960f3a69",
+        "3a123f2923298d82cc23c07f7f61c28e822e24054e2fe62da16d475c960f3a69"
+      ],
+      "storage_manifest_sha256": [
+        "6422e8e8a82db901f40259ac9e6c038653577aac21dc55f3687835ed238307d1",
+        "6422e8e8a82db901f40259ac9e6c038653577aac21dc55f3687835ed238307d1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "composed-to-peer",
+      "result_sha256": [
+        "47347395c1582341e260db77991a3e4335e043d8b7dbf4d402b36409edd43f6e",
+        "47347395c1582341e260db77991a3e4335e043d8b7dbf4d402b36409edd43f6e"
+      ],
+      "storage_manifest_sha256": [
+        "bac6d35f4e7f12ddf0449f0632db762cd6764eee7f786c8d69b6bb7ed4f5bb63",
+        "bac6d35f4e7f12ddf0449f0632db762cd6764eee7f786c8d69b6bb7ed4f5bb63"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "decomposed-to-peer",
+      "result_sha256": [
+        "7192b0440a7f61448c7c8d384105457efb443d3435fd62385a840df8bc811734",
+        "7192b0440a7f61448c7c8d384105457efb443d3435fd62385a840df8bc811734"
+      ],
+      "storage_manifest_sha256": [
+        "8b5d182f0a6552fe862bb05cc0d0ea6ef086f0dfec99fb606351402b4a5b6d06",
+        "8b5d182f0a6552fe862bb05cc0d0ea6ef086f0dfec99fb606351402b4a5b6d06"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "both-independent-ready",
+      "result_sha256": [
+        "42675cc432251abe7bf671bd29b246aba5ac086a3f3bf4af693945fef9937fe5",
+        "42675cc432251abe7bf671bd29b246aba5ac086a3f3bf4af693945fef9937fe5"
+      ],
+      "storage_manifest_sha256": [
+        "ae150bd76943e58866ec319f46d7de085aebf458ee7e10f5db3ea6cfcad13db9",
+        "ae150bd76943e58866ec319f46d7de085aebf458ee7e10f5db3ea6cfcad13db9"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "peer-independent-ready",
+      "result_sha256": [
+        "1ec67d76c3482adc8e0de994e3ac29f0499a3953c54ae7be2dec64b6c4298c86",
+        "1ec67d76c3482adc8e0de994e3ac29f0499a3953c54ae7be2dec64b6c4298c86"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "composed-own-ancestry",
+      "result_sha256": [
+        "f5626319ab06a33cd825b99470f9cbd9070768bb6eaa7747b6435a81d448001d",
+        "f5626319ab06a33cd825b99470f9cbd9070768bb6eaa7747b6435a81d448001d"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "decomposed-own-ancestry",
+      "result_sha256": [
+        "b976178aeacc4e62ca53f8e9cf629289924a997402d88bbb53cc5f43871fa0a3",
+        "b976178aeacc4e62ca53f8e9cf629289924a997402d88bbb53cc5f43871fa0a3"
+      ],
+      "storage_manifest_sha256": [
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719",
+        "925ba8d62aea37bcbcd183060435e02583d163f92a14039ceb517e0807c1e719"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "same-operation-distinct-ids",
+      "result_sha256": [
+        "e35321b9b79f581d007cfcd371b3c5405cb66645de6999523722661d90223e33",
+        "e35321b9b79f581d007cfcd371b3c5405cb66645de6999523722661d90223e33"
+      ],
+      "storage_manifest_sha256": [
+        "98e5e357272e6afc8ab74dd0869fc2060607a0e45c5cd71ab3c0e71a3b544276",
+        "98e5e357272e6afc8ab74dd0869fc2060607a0e45c5cd71ab3c0e71a3b544276"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "same-operation-to-peer",
+      "result_sha256": [
+        "9d4fb76b66746659e7143c2bfcb65da2e2e28e215898102ed844e62cf5e2ff6a",
+        "9d4fb76b66746659e7143c2bfcb65da2e2e28e215898102ed844e62cf5e2ff6a"
+      ],
+      "storage_manifest_sha256": [
+        "93811c46171781804057115ce655a46790d7a48ea05a5158e36a5b0e476540f5",
+        "93811c46171781804057115ce655a46790d7a48ea05a5158e36a5b0e476540f5"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "same-operation-ready",
+      "result_sha256": [
+        "ed4ae3baea1bb21720b5cfe7f8b2dda2d3cafa7f6b2414a19958e1a5df191da5",
+        "ed4ae3baea1bb21720b5cfe7f8b2dda2d3cafa7f6b2414a19958e1a5df191da5"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "new-composed-history",
+      "result_sha256": [
+        "19a3b654ea855a491334d5eae45e5525b32f88ee36da0bc14efefcfb00a2b1c0",
+        "19a3b654ea855a491334d5eae45e5525b32f88ee36da0bc14efefcfb00a2b1c0"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "new-decomposed-history",
+      "result_sha256": [
+        "2f2227d1a948e89a321cbe9546b9609a108e54410e39f80d4f63bd91f9b76a62",
+        "2f2227d1a948e89a321cbe9546b9609a108e54410e39f80d4f63bd91f9b76a62"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "refuse-normalized-identity-swap",
+      "result_sha256": [
+        "ee90c1f9aef0cb25a85d4490f91d65b805ba930a9a8f353251c87d5f371a7c4f",
+        "ee90c1f9aef0cb25a85d4490f91d65b805ba930a9a8f353251c87d5f371a7c4f"
+      ],
+      "storage_manifest_sha256": [
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1",
+        "c4529eceb4889ebb619245b2a9cbb48d63f91f05ce96271129627a94211af3a1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "composed-editor-bytes",
+      "result_sha256": [
+        "49cfc1ea712941b89b61dca5a3328d35985cb7109118d2e02d00dcd37d97b8ca",
+        "49cfc1ea712941b89b61dca5a3328d35985cb7109118d2e02d00dcd37d97b8ca"
+      ],
+      "storage_manifest_sha256": [
+        "14fb6f8269d9bb718ef491a8b28b4a668e4707a63597909caec3073550948202",
+        "14fb6f8269d9bb718ef491a8b28b4a668e4707a63597909caec3073550948202"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "decomposed-editor-bytes",
+      "result_sha256": [
+        "d0802b8c5572486143338ad55d0955a228b6e26219101fb6d829bc058a4f9751",
+        "d0802b8c5572486143338ad55d0955a228b6e26219101fb6d829bc058a4f9751"
+      ],
+      "storage_manifest_sha256": [
+        "bc952e2f3c5ba60cc6d06f6e9ffc78d2d1935a2444beb9d57f06e5e150b481a0",
+        "bc952e2f3c5ba60cc6d06f6e9ffc78d2d1935a2444beb9d57f06e5e150b481a0"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "separate-observations",
+      "result_sha256": [
+        "d472205b894ec0c2f29245d2f2f75639c6c6678ec165c7a5f4002d9290b6b778",
+        "d472205b894ec0c2f29245d2f2f75639c6c6678ec165c7a5f4002d9290b6b778"
+      ],
+      "storage_manifest_sha256": [
+        "eb1583fc57d6a871a4a0cc0fd907f92b457bedfef9282a25466d9f8d514b1f83",
+        "eb1583fc57d6a871a4a0cc0fd907f92b457bedfef9282a25466d9f8d514b1f83"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "adopt-composed-only",
+      "result_sha256": [
+        "1b82a89f53b32abaccbe96331dd7570f9eaec642a537fa8e7128c150dfb13d52",
+        "1b82a89f53b32abaccbe96331dd7570f9eaec642a537fa8e7128c150dfb13d52"
+      ],
+      "storage_manifest_sha256": [
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694",
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "decomposed-still-unresolved",
+      "result_sha256": [
+        "afcf058627b4f89a91e077082541b35af17c7cb3658bca9a9f12dd7a0f9d1aa0",
+        "afcf058627b4f89a91e077082541b35af17c7cb3658bca9a9f12dd7a0f9d1aa0"
+      ],
+      "storage_manifest_sha256": [
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694",
+        "66d93b8a662218e3554f2ac80f3b88b02765a139e2d8fd5a02e161496ec6a694"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "adopt-decomposed",
+      "result_sha256": [
+        "12cee513b866a6f4ae301319756d7733cd36ce37a83cde92b4b402341c652c42",
+        "12cee513b866a6f4ae301319756d7733cd36ce37a83cde92b4b402341c652c42"
+      ],
+      "storage_manifest_sha256": [
+        "70c070246bc6a3ebe015e0c76eb73a94f8276d51033f818855c3ede6e06c72c1",
+        "70c070246bc6a3ebe015e0c76eb73a94f8276d51033f818855c3ede6e06c72c1"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "adoptions-to-peer",
+      "result_sha256": [
+        "ecbad393af2d6976c142787be61c7a99fa461f7cdf9fcfce2c75da24ba08f68a",
+        "ecbad393af2d6976c142787be61c7a99fa461f7cdf9fcfce2c75da24ba08f68a"
+      ],
+      "storage_manifest_sha256": [
+        "6d17fd51d4b880f99d6ab77b914dd82907c1a062616ed549ea861c5c7aacfc59",
+        "6d17fd51d4b880f99d6ab77b914dd82907c1a062616ed549ea861c5c7aacfc59"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "both-adopted-ready",
+      "result_sha256": [
+        "b8df4d003e91ce088ec3e59fccbfb829944c8a93e18928c03bebf7fe973e3d8b",
+        "b8df4d003e91ce088ec3e59fccbfb829944c8a93e18928c03bebf7fe973e3d8b"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "composed-final-history",
+      "result_sha256": [
+        "664dd93c061b2ca217b4538e6b9e7bb5b99f389a6459ea3297c1c9f045a4c518",
+        "664dd93c061b2ca217b4538e6b9e7bb5b99f389a6459ea3297c1c9f045a4c518"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "byte-distinct-unicode-identities",
+      "native_replica": "b",
+      "step": "decomposed-final-history",
+      "result_sha256": [
+        "ec0b24985c0a446c9fa05e2189b4026606f34a1a0e11ffc878b940cb3d82754c",
+        "ec0b24985c0a446c9fa05e2189b4026606f34a1a0e11ffc878b940cb3d82754c"
+      ],
+      "storage_manifest_sha256": [
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27",
+        "047d940c2f90fa85552df6b82eddeb9d4a5092749b4fee86593a464f1aebcb27"
+      ],
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    },
+    {
+      "scenario": "mixed-local-lock-exclusion",
+      "native_replica": "a",
+      "step": "native-process-waits-for-python-lock",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "status": "VERIFIED"
+    }
+  ],
+  "native_host_acceptance": "NOT VERIFIED",
+  "icloud_acceptance": "NOT VERIFIED",
+  "transport": "deterministic file delivery",
+  "comparison_policy": "Exact values after world path normalization and independently validated folder-specific cache identities",
+  "python_driver": "mcp_server.py",
+  "native_driver": "orbit-mcp",
+  "faults": "denied projection writes, stale physical checkout, killed and restarted MCP processes",
+  "passed": 55,
+  "total": 55,
+  "complete_fixture": true
+}

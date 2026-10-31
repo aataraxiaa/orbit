@@ -1,0 +1,851 @@
+{
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "fixture": "tests/fixtures/compatibility/retrieval-corpus.json",
+  "cases": [
+    {
+      "name": "Atlas-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Atlas-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Beacon-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Cedar-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Delta-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Ember-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Finch-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Grove-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Harbor-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Iris-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-development-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-symbol",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-paraphrase",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-scope",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-source",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "Juniper-heldout-multi",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    }
+  ],
+  "binary_sha256": "e3157c99a55aa5844d578dd2a2e87df65460b770afd8617da6d982ce23ca998b",
+  "native_host_acceptance": "NOT VERIFIED",
+  "icloud_acceptance": "NOT VERIFIED",
+  "passed": 120,
+  "total": 120
+}

@@ -1,0 +1,22 @@
+# Preserved engine behavior
+
+Reference source is `94ffc6a`. The shared command resource freezes all 19 public actions and MCP validation. The following inventory guided the port, including behavior beyond simple note CRUD.
+
+| Surface | Preserved responsibilities | Swift owner |
+|---|---|---|
+| list/setup/rename and target dispatch | Named registry, casefolded names with byte-distinct identities, overlapping-root refusal, stable folder identity checks, explicit destination failure, immutable operation target receipts, atomic registry locks and unknown config fields | `OrbitEngine.swift` |
+| initialization | Existing-folder linking, dedicated-root restrictions, format detection, default rules/schemas, interrupted format-3 genesis initialization | `OrbitEngine.swift` |
+| read | Public Markdown-only paths, symlink/traversal refusal, raw-byte SHA, Python-compatible line windows, partial-read status, received revision reconciliation and disputed-path refusal | `EngineOperations.swift` |
+| search/index/catalog | Device-local incremental SQLite FTS5 passage cache, identity/path isolation, metadata/type/status/project/path scope, ranking, aliases, freshness checks, bounded results/snippets/budgets, corruption rebuild, preservation of locked caches and honest scoped/unscoped fallback | `Retrieval.swift` |
+| context/relations/doctor/maintain | Identity/alias link resolution, bounded neighbors, unresolved/ambiguous links and anchors, duplicate IDs, typed relationship/provenance claims, pending operations, source freshness and incomplete-integration diagnostics | `EngineOperations.swift`, `Knowledge.swift` |
+| apply | Complete Markdown plans, new-versus-existing hash checks, stable IDs, exact unknown metadata blocks and unrelated content supplied by the caller, multi-note graph preflight, schema warnings/strict errors, previews/no-ops, exact retry UUID/digest, atomic per-file projections and journals | `EngineOperations.swift` |
+| capture/integration | Original asset byte hashing/deduplication, modified-asset refusal, original filename receipt, durable capture/extract/integrate/verify stages, coverage/deferred/errors, committed-operation evidence and actual recall verification | `Knowledge.swift` |
+| schema/format | Default/custom versioned schema definitions and conflicts, strict/warn validation, code-fence-aware headings, conservative frontmatter parsing, missing-field-only formatting, UUIDv5 IDs, BOM/newline/body and unknown-block preservation, link-warning-only exceptions | `Structure.swift`, `Formatting.swift` |
+| migrate | Format1→2 organization/link repair and format2→3 exact-byte seeding, version compatibility refusal, read-only plans, stale-plan detection, recoverable backups, interrupted/resumed/repeated runs and safe rollback refusal after changed bytes/later history | `Migration.swift` |
+| sync/recover | Immutable commits and observations, canonical hashes/UUIDs, parent/asset eligibility, out-of-order delivery, grouped pending/blocked paths, external-edit retention, explicit conflicts/resolution, identity/path collisions and retained losing identities, late branches, local locks and projection recovery, exact accepted receipts | `Replication.swift` |
+| MCP transport | Protocol negotiation, notifications, JSON-RPC IDs/errors, strict argument schemas, absolute-path validation, 8MiB request limit, malformed JSON handling and bounded parser nesting | `Contract.swift`, `JSONEncoding.swift`, `OrbitMCP` |
+| native host adapter | One shared validated command boundary, original approved/retry bytes, versioned instructions, per-file filesystem access hooks and cooperative cancellation; host owns bookmark leases, provider readiness and device-local locations | `FileAccess.swift`, app adapter |
+
+Markdown, original assets, accepted revisions, observations, integration records and migration backups remain authoritative durable data. Search caches and format-3 process locks/checkout recovery are device-local. Legacy journals/lock semantics remain compatible during the explicitly supported legacy routes. No automatic merge, deletion inference, timestamp winner, semantic embedding, peer acknowledgement or cloud uploader is introduced.
+
+Fixtures cover every command and exact durable behavior for representative paths. The original retrieval corpus adds 120 equivalent queries over 100 synthetic notes, including scoped, historical, source, same-title and multi-evidence cases. Native host/provider acceptance remains a separate gate in `verification.md`.

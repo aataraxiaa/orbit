@@ -40,7 +40,7 @@ A workflow hook targets its destination explicitly, for example `orbit: "Work"` 
 its `orbit_apply` call and on the search/read calls used to prepare and verify it.
 The hook does not depend on another conversation's choice.
 
-The optional `scripts/orbit.py` CLI remains available for engineering and recovery.
+The Python reference CLI remains in the source checkout for development compatibility checks; it is not shipped in the plugin.
 It is not the desktop skill's execution route or evidence of a working MCP connection.
 
 ## Save plan
@@ -97,7 +97,7 @@ not a secret-free log. Treat them like the vault in backups and access control.
 
 ## Indexed search and navigation
 
-`search` uses an incremental SQLite FTS5 passage index. Python must provide FTS5.
+`search` uses an incremental SQLite FTS5 passage index. The native executable links system SQLite with FTS5.
 The cache defaults to `cache/` beside the selected config file; ORBIT_CACHE can
 select another machine-local directory. Never put caches inside the synced vault.
 The cache is rebuildable. Notes, integration records and format-3 immutable evidence

@@ -1,0 +1,197 @@
+{
+  "reference": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "inputs": {
+    ".orbit/integrations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json": "{\"source_sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"stage\": \"integrated\", \"notes\": [{\"path\": \"Decision.md\", \"sha256\": \"869f5adf930d9133b57d2177cb4df2b2d69c2eb667d5f155efe12127011070f9\"}], \"errors\": [], \"custom\": {\"retain\": true}}\n",
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 1, \"orbit_version\": \"0.3.0\", \"custom\": {\"z\": \"é\", \"a\": true}}\n",
+    "Decision.md": "---\nid: decision\ntitle: Choose herbs\ntype: decision\nsummary: A decision note\nproject: garden-code\n---\n# Choose herbs\n[[Garden#Context|Project]]\n[Project](Garden.md#Context)\n[Source](Sources/assets/original.bin)\n`[[Garden]]`\n",
+    "Garden.md": "---\nid: garden\ntitle: Garden\ntype: project\nsummary: A project note\nproject: garden-code\ncustom:\n  nested: keep\n---\n# Garden\n## Context\n[[Decision]]\n",
+    "Idea.md": "---\nid: idea\ntitle: Growing ideas\ntype: concept\nsummary: A concept note\n---\n# Growing ideas\n[[Garden]]\n",
+    "Session.md": "---\nid: session\ntitle: Planning session\ntype: session\nsummary: A session note\nproject: garden-code\n---\n# Planning session\n[[Decision]]\n",
+    "Sources/assets/original.bin": "original\u0000bytes"
+  },
+  "plan": {
+    "status": "preview",
+    "data_format": 1,
+    "source_version": "0.3.0",
+    "target_version": "0.5.0",
+    "pending": [],
+    "target_format": 2,
+    "plan_id": "6da9a8a8ea4904ad0dc98bd9de286a93733d2f96f4f45b3249c875eafe5a7444",
+    "moves": [
+      {
+        "from": "Decision.md",
+        "to": "Projects/Garden/Decisions/Decision.md"
+      },
+      {
+        "from": "Garden.md",
+        "to": "Projects/Garden/Overview.md"
+      },
+      {
+        "from": "Idea.md",
+        "to": "Knowledge/Idea.md"
+      },
+      {
+        "from": "Session.md",
+        "to": "Projects/Garden/Sessions/Session.md"
+      }
+    ],
+    "warnings": [],
+    "changes": [
+      {
+        "path": ".orbit/integrations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json",
+        "action": "update"
+      },
+      {
+        "path": "Knowledge/Idea.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/Garden/Decisions/Decision.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/Garden/Overview.md",
+        "action": "create"
+      },
+      {
+        "path": "Projects/Garden/Sessions/Session.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Concept.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Decision.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Map.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Person.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Project.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Session.md",
+        "action": "create"
+      },
+      {
+        "path": "Schemas/Source.md",
+        "action": "create"
+      },
+      {
+        "path": "Decision.md",
+        "action": "delete"
+      },
+      {
+        "path": "Garden.md",
+        "action": "delete"
+      },
+      {
+        "path": "Idea.md",
+        "action": "delete"
+      },
+      {
+        "path": "Session.md",
+        "action": "delete"
+      },
+      {
+        "path": ".orbit/vault.json",
+        "action": "update"
+      }
+    ]
+  },
+  "writes": [
+    {
+      "path": ".orbit/integrations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json",
+      "before": "{\"source_sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"stage\": \"integrated\", \"notes\": [{\"path\": \"Decision.md\", \"sha256\": \"869f5adf930d9133b57d2177cb4df2b2d69c2eb667d5f155efe12127011070f9\"}], \"errors\": [], \"custom\": {\"retain\": true}}\n",
+      "after": "{\n  \"source_sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"stage\": \"integrated\",\n  \"notes\": [\n    {\n      \"path\": \"Decision.md\",\n      \"sha256\": \"869f5adf930d9133b57d2177cb4df2b2d69c2eb667d5f155efe12127011070f9\"\n    }\n  ],\n  \"errors\": [\n    \"Migration changed evidence paths/content; previous verification is historical and requires re-verification\"\n  ],\n  \"custom\": {\n    \"retain\": true\n  },\n  \"migration\": {\n    \"target_version\": \"0.5.0\",\n    \"mapping\": [\n      {\n        \"from\": \"Decision.md\",\n        \"to\": \"Projects/Garden/Decisions/Decision.md\"\n      },\n      {\n        \"from\": \"Garden.md\",\n        \"to\": \"Projects/Garden/Overview.md\"\n      },\n      {\n        \"from\": \"Idea.md\",\n        \"to\": \"Knowledge/Idea.md\"\n      },\n      {\n        \"from\": \"Session.md\",\n        \"to\": \"Projects/Garden/Sessions/Session.md\"\n      }\n    ],\n    \"previous_stage\": \"integrated\",\n    \"verification_stale\": true\n  }\n}\n"
+    },
+    {
+      "path": "Knowledge/Idea.md",
+      "before": null,
+      "after": "---\nid: idea\ntitle: Growing ideas\ntype: concept\nsummary: A concept note\n---\n# Growing ideas\n[[Projects/Garden/Overview]]\n"
+    },
+    {
+      "path": "Projects/Garden/Decisions/Decision.md",
+      "before": null,
+      "after": "---\nid: decision\ntitle: Choose herbs\ntype: decision\nsummary: A decision note\nproject: garden-code\n---\n# Choose herbs\n[[Projects/Garden/Overview#Context|Project]]\n[Project](../Overview.md#Context)\n[Source](../../../Sources/assets/original.bin)\n`[[Garden]]`\n"
+    },
+    {
+      "path": "Projects/Garden/Overview.md",
+      "before": null,
+      "after": "---\nid: garden\ntitle: Garden\ntype: project\nsummary: A project note\nproject: garden-code\ncustom:\n  nested: keep\n---\n# Garden\n## Context\n[[Projects/Garden/Decisions/Decision]]\n"
+    },
+    {
+      "path": "Projects/Garden/Sessions/Session.md",
+      "before": null,
+      "after": "---\nid: session\ntitle: Planning session\ntype: session\nsummary: A session note\nproject: garden-code\n---\n# Planning session\n[[Projects/Garden/Decisions/Decision]]\n"
+    },
+    {
+      "path": "Schemas/Concept.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-concept-v1\"\ntitle: \"Concept schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit concept notes.\"\nschema_for: \"concept\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Concept schema\n\nStore reusable knowledge in Knowledge/. Maintain one coherent note for a concept. Project and session notes link here when the knowledge is reusable. Preserve evidence and qualifications when updating it.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Decision.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-decision-v1\"\ntitle: \"Decision schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit decision notes.\"\nschema_for: \"decision\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\"]\nrequired_sections: [\"Rationale\", \"Alternatives\"]\nvalidation: \"warn\"\n---\n# Decision schema\n\nStore project decisions in Projects/<project>/Decisions/. Record the chosen action, its rationale, alternatives, and the evidence behind it. Keep one canonical decision and link to it from sessions and project overviews.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Map.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-map-v1\"\ntitle: \"Map schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit map notes.\"\nschema_for: \"map\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Map schema\n\nStore navigation in Maps/. Explain useful starting points and link to canonical notes. Do not duplicate the catalog or copy the linked knowledge.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Person.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-person-v1\"\ntitle: \"Person schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit person notes.\"\nschema_for: \"person\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Person schema\n\nStore people in People/. Save only relevant user-requested information and retain its source. Link to projects instead of duplicating project details.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Project.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-project-v1\"\ntitle: \"Project schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit project notes.\"\nschema_for: \"project\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"status\"]\nrequired_sections: [\"Purpose\", \"Current state\"]\nvalidation: \"warn\"\n---\n# Project schema\n\nKeep the project overview in Projects/<project>/Overview.md. Summarize the current state and link to canonical decisions, knowledge, sources, and sessions. Do not copy their full contents here.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Session.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-session-v1\"\ntitle: \"Session schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit session notes.\"\nschema_for: \"session\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\", \"project\", \"observed\"]\nrequired_sections: [\"Objective\", \"Outcomes\", \"Open questions\", \"Next actions\", \"Connections\"]\nvalidation: \"warn\"\n---\n# Session schema\n\nStore a requested session summary in Projects/<project>/Sessions/. Use observed for the verified session date. Capture outcomes and enough context to resume. Link to canonical decisions and knowledge instead of copying their facts. Sessions describe what happened at a point in time; read linked notes for current knowledge. Do not capture a transcript or unrelated conversation unless requested. A non-project session may use a dedicated personal project.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Schemas/Source.md",
+      "before": null,
+      "after": "---\nid: \"orbit-schema-source-v1\"\ntitle: \"Source schema\"\ntype: \"schema\"\nsummary: \"Version 1 requirements for Orbit source notes.\"\nschema_for: \"source\"\nschema_version: 1\nrequired_fields: [\"id\", \"title\", \"type\", \"summary\"]\nrequired_sections: []\nvalidation: \"warn\"\n---\n# Source schema\n\nStore source notes in Sources/ and originals in Sources/assets/. Preserve original bytes and separate source statements from synthesis. Record the source location, capture scope, extraction gaps, and verified dates or hashes when available.\n\nUnknown metadata and user-written content remain authoritative. Validation reports missing structure without inventing facts. Notes may declare schema_version: 1; an omitted version uses this schema.\n"
+    },
+    {
+      "path": "Decision.md",
+      "before": "---\nid: decision\ntitle: Choose herbs\ntype: decision\nsummary: A decision note\nproject: garden-code\n---\n# Choose herbs\n[[Garden#Context|Project]]\n[Project](Garden.md#Context)\n[Source](Sources/assets/original.bin)\n`[[Garden]]`\n",
+      "after": null
+    },
+    {
+      "path": "Garden.md",
+      "before": "---\nid: garden\ntitle: Garden\ntype: project\nsummary: A project note\nproject: garden-code\ncustom:\n  nested: keep\n---\n# Garden\n## Context\n[[Decision]]\n",
+      "after": null
+    },
+    {
+      "path": "Idea.md",
+      "before": "---\nid: idea\ntitle: Growing ideas\ntype: concept\nsummary: A concept note\n---\n# Growing ideas\n[[Garden]]\n",
+      "after": null
+    },
+    {
+      "path": "Session.md",
+      "before": "---\nid: session\ntitle: Planning session\ntype: session\nsummary: A session note\nproject: garden-code\n---\n# Planning session\n[[Decision]]\n",
+      "after": null
+    },
+    {
+      "path": ".orbit/vault.json",
+      "before": "{\"schema\": 1, \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\", \"data_format\": 1, \"orbit_version\": \"0.3.0\", \"custom\": {\"z\": \"é\", \"a\": true}}\n",
+      "after": "{\n  \"schema\": 1,\n  \"id\": \"e72e3fac-7ccf-4b0f-814f-7ddde9350b9a\",\n  \"data_format\": 2,\n  \"orbit_version\": \"0.5.0\",\n  \"custom\": {\n    \"z\": \"é\",\n    \"a\": true\n  }\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "fixture": "tests/fixtures/compatibility/all-tools.json",
+  "cases": [
+    {
+      "name": "empty-list",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "schema",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "initial-status",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "create",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "read",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "read-window",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "search",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "scoped-search",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "catalog",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "context",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "relations",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "history",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "same-request-retry",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "stale-hash",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "unknown-metadata-refusal",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "format-preview",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "migration-compatibility",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "unknown-name",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "traversal",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "invalid-limit",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "unknown-field",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "bom-create",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "bom-update",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "unicode-unknown-block-refusal",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "setup-existing",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "doctor",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "index",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "capture",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "capture-repeat",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "integration-list",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "integration-extracted",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "integration-integrated",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "integration-verified",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "maintain",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "recover-accepted",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "rename",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "read-renamed",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    },
+    {
+      "name": "old-name-refuses",
+      "result_equal": true,
+      "stored_hashes_equal": true,
+      "expected_behavior": true,
+      "status": "VERIFIED"
+    }
+  ],
+  "binary_sha256": "f1a742c343e759f6b30e66a190626f6714f2f75003055c4c8012799a6cb46fa5",
+  "native_host_acceptance": "NOT VERIFIED",
+  "icloud_acceptance": "NOT VERIFIED",
+  "passed": 38,
+  "total": 38
+}

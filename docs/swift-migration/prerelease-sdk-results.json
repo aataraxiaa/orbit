@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-31T10:53:23.570129+00:00",
+  "client": "official Python MCP SDK",
+  "sdk_version": "2.3.0",
+  "desktop_host_acceptance": "NOT VERIFIED",
+  "checks": [
+    {
+      "check": "initialize/discover/ping",
+      "manifest": 0,
+      "protocol": "2025-06-18",
+      "tools": 19
+    },
+    {
+      "check": "setup/save/search/read/hash/idempotent-retry/history/stale-and-path-refusal",
+      "passed": true
+    },
+    {
+      "check": "initialize/discover/ping",
+      "manifest": 1,
+      "protocol": "2025-06-18",
+      "tools": 19
+    },
+    {
+      "check": "fresh-process-cross-manifest-persistence",
+      "manifest": 1,
+      "passed": true
+    },
+    {
+      "check": "initialize/discover/ping",
+      "manifest": 2,
+      "protocol": "2025-06-18",
+      "tools": 19
+    },
+    {
+      "check": "fresh-process-cross-manifest-persistence",
+      "manifest": 2,
+      "passed": true
+    },
+    {
+      "check": "approved-update-and-history-survive-cache-loss",
+      "passed": true
+    },
+    {
+      "check": "native-package-has-no-python-runtime",
+      "passed": true
+    }
+  ],
+  "binary_sha256": "f8455695f7488ac3a0319277c876b0251366909d362f791d008e9169acae69fe",
+  "status": "passed"
+}

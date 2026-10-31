@@ -2,25 +2,23 @@
   "manifest_version": "0.3",
   "name": "orbit",
   "display_name": "Orbit",
-  "version": "0.6.0",
+  "version": "0.7.0-beta.1",
   "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "author": {
     "name": "Orbit"
   },
   "server": {
-    "type": "python",
-    "entry_point": "scripts/mcp_server.py",
+    "type": "binary",
+    "entry_point": "bin/orbit-mcp",
     "mcp_config": {
-      "command": "python3",
-      "args": [
-        "${__dirname}/scripts/mcp_server.py"
-      ]
+      "command": "${__dirname}/bin/orbit-mcp",
+      "args": []
     }
   },
   "compatibility": {
-    "runtimes": {
-      "python": ">=3.10"
-    }
+    "platforms": [
+      "darwin"
+    ]
   },
   "tools_generated": true
 }

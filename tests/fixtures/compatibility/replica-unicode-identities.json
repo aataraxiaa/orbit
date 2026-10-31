@@ -1,0 +1,465 @@
+{
+  "schema": 1,
+  "reference_revision": "94ffc6ad9be082ceceb2daebb45296ebd53f3863",
+  "description": "Python historically accepts distinct NFC and NFD note identities. Existing accepted history, one operation with both IDs, separate concurrent branches and observations must preserve byte identity without normalizing or invalidating the Orbit.",
+  "files": {
+    ".orbit/vault.json": "{\"schema\": 1, \"id\": \"d070a43d-ffb6-4af5-a8c7-f62bd812e581\", \"data_format\": 3, \"orbit_version\": \"0.6.0\"}\n",
+    "ORBIT.md": "# Disposable Orbit\nFixture only.\n",
+    "A.md": "---\nid: a\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal A\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "B.md": "---\nid: b\ntitle: Test\ntype: knowledge\nsummary: Fixture note\ncustom:\n  nested: preserve\n---\n# Test\noriginal B\n\n## User appendix\nPreserve all unrelated prose.\n",
+    "StableNFC.md": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nOriginal composed identity\n\n## User appendix\nUnrelated prose remains.\n",
+    "StableNFD.md": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nOriginal decomposed identity\n\n## User appendix\nUnrelated prose remains.\n"
+  },
+  "scenarios": [
+    {
+      "name": "byte-distinct-unicode-identities",
+      "steps": [
+        {
+          "kind": "call",
+          "name": "python-created-history-remains-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "python-created-history-remains-ready",
+          "expect": {
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "original-composed-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFC.md"
+          },
+          "save": "original-composed-history",
+          "expect_count": {
+            "/value/revisions": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "original-decomposed-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFD.md"
+          },
+          "save": "original-decomposed-history",
+          "expect_count": {
+            "/value/revisions": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "update-composed",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000201-0000-4000-8000-000000000201",
+              "changes": [
+                {
+                  "path": "StableNFC.md",
+                  "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nUpdated composed identity\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": "$HASH:StableNFC.md"
+                }
+              ]
+            }
+          },
+          "save": "update-composed",
+          "request": "update-composed",
+          "expect": {
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "call",
+          "name": "update-decomposed",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000202-0000-4000-8000-000000000202",
+              "changes": [
+                {
+                  "path": "StableNFD.md",
+                  "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nUpdated decomposed identity\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": "$HASH:StableNFD.md"
+                }
+              ]
+            }
+          },
+          "save": "update-decomposed",
+          "request": "update-decomposed",
+          "expect": {
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "composed-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "deliver",
+          "name": "decomposed-to-peer",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "both-independent-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "both-independent-ready",
+          "expect": {
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "peer-independent-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "peer-independent-ready",
+          "expect": {
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "composed-own-ancestry",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFC.md"
+          },
+          "save": "composed-own-ancestry",
+          "expect_count": {
+            "/value/revisions": 2
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "decomposed-own-ancestry",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFD.md"
+          },
+          "save": "decomposed-own-ancestry",
+          "expect_count": {
+            "/value/revisions": 2
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "same-operation-distinct-ids",
+          "replica": "a",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000203-0000-4000-8000-000000000203",
+              "changes": [
+                {
+                  "path": "NewNFC.md",
+                  "content": "---\nid: résumé\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nNew composed note\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": null
+                },
+                {
+                  "path": "NewNFD.md",
+                  "content": "---\nid: résumé\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nNew decomposed note\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": null
+                }
+              ]
+            }
+          },
+          "save": "same-operation-distinct-ids",
+          "request": "same-operation-distinct-ids",
+          "expect": {
+            "/value/verified": true
+          }
+        },
+        {
+          "kind": "deliver",
+          "name": "same-operation-to-peer",
+          "from": "a",
+          "to": "b"
+        },
+        {
+          "kind": "call",
+          "name": "same-operation-ready",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "same-operation-ready",
+          "expect": {
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "new-composed-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "NewNFC.md"
+          },
+          "save": "new-composed-history",
+          "expect_count": {
+            "/value/revisions": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:résumé"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "new-decomposed-history",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "NewNFD.md"
+          },
+          "save": "new-decomposed-history",
+          "expect_count": {
+            "/value/revisions": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:résumé"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "refuse-normalized-identity-swap",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000204-0000-4000-8000-000000000204",
+              "changes": [
+                {
+                  "path": "StableNFC.md",
+                  "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nIdentity replacement must refuse\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": "$HASH:StableNFC.md"
+                }
+              ]
+            }
+          },
+          "save": "refuse-normalized-identity-swap",
+          "request": "refuse-normalized-identity-swap",
+          "expect": {
+            "/kind": "tool-error"
+          }
+        },
+        {
+          "kind": "external",
+          "name": "composed-editor-bytes",
+          "replica": "b",
+          "path": "StableNFC.md",
+          "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nExternal composed editor\n\n## User appendix\nUnrelated prose remains.\n"
+        },
+        {
+          "kind": "external",
+          "name": "decomposed-editor-bytes",
+          "replica": "b",
+          "path": "StableNFD.md",
+          "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nExternal decomposed editor\n\n## User appendix\nUnrelated prose remains.\n"
+        },
+        {
+          "kind": "call",
+          "name": "separate-observations",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "separate-observations",
+          "expect_count": {
+            "/value/conflicts": 2
+          }
+        },
+        {
+          "kind": "call",
+          "name": "adopt-composed-only",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000205-0000-4000-8000-000000000205",
+              "changes": [
+                {
+                  "path": "StableNFC.md",
+                  "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nExternal composed editor\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": "$HASH:StableNFC.md",
+                  "expected_heads": "$REF:separate-observations#/heads/StableNFC.md",
+                  "observations": "$REF:separate-observations#/conflicts/1/observations"
+                }
+              ]
+            }
+          },
+          "save": "adopt-composed-only",
+          "request": "adopt-composed-only"
+        },
+        {
+          "kind": "call",
+          "name": "decomposed-still-unresolved",
+          "replica": "b",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "decomposed-still-unresolved",
+          "expect_count": {
+            "/value/conflicts": 1
+          },
+          "expect": {
+            "/value/conflicts/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "adopt-decomposed",
+          "replica": "b",
+          "action": "apply",
+          "arguments": {
+            "orbit": "Test",
+            "plan": {
+              "summary": "byte identity fixture",
+              "request_id": "00000206-0000-4000-8000-000000000206",
+              "changes": [
+                {
+                  "path": "StableNFD.md",
+                  "content": "---\nid: café\ntitle: Test\ntype: knowledge\nsummary: Byte identity fixture\ncustom:\n  nested: preserve\n---\n# Test\nExternal decomposed editor\n\n## User appendix\nUnrelated prose remains.\n",
+                  "reason": "byte identity fixture",
+                  "expected_sha256": "$HASH:StableNFD.md",
+                  "expected_heads": "$REF:decomposed-still-unresolved#/heads/StableNFD.md",
+                  "observations": "$REF:decomposed-still-unresolved#/conflicts/0/observations"
+                }
+              ]
+            }
+          },
+          "save": "adopt-decomposed",
+          "request": "adopt-decomposed"
+        },
+        {
+          "kind": "deliver",
+          "name": "adoptions-to-peer",
+          "from": "b",
+          "to": "a"
+        },
+        {
+          "kind": "call",
+          "name": "both-adopted-ready",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "reconcile"
+          },
+          "save": "both-adopted-ready",
+          "expect": {
+            "/value/status": "ready"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "composed-final-history",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFC.md"
+          },
+          "save": "composed-final-history",
+          "expect_count": {
+            "/value/revisions": 3,
+            "/value/observations": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        },
+        {
+          "kind": "call",
+          "name": "decomposed-final-history",
+          "replica": "a",
+          "action": "sync",
+          "arguments": {
+            "orbit": "Test",
+            "action": "history",
+            "path": "StableNFD.md"
+          },
+          "save": "decomposed-final-history",
+          "expect_count": {
+            "/value/revisions": 3,
+            "/value/observations": 1
+          },
+          "expect": {
+            "/value/revisions/0/entity": "note:café"
+          }
+        }
+      ]
+    }
+  ]
+}
