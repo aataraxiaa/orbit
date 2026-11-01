@@ -185,6 +185,60 @@ final class RetrievalSnapshotTests: XCTestCase {
     try verify(result, files: files)
   }
 
+  func testOverviewIncludesDatedDecisionAndLatestQualifiedStatus() throws {
+    let files = [
+      "Projects/Orchard.md": "---\nid: orchard\ntitle: Orchard rollout\ntype: project\nproject: Orchard rollout\n---\n# Orchard rollout\n\n## What it is\nDeliver pears to grocers.\n\n## Problems\nCrates bruise fruit.\n\n## Relations\n- [[Knowledge/Tracker]]\n- [[Knowledge/Updates]]\n- [[Knowledge/Old questions]]\n",
+      "Knowledge/Tracker.md": "---\nid: tracker\ntitle: Orchard rollout project map\ntype: note\nproject: Orchard rollout\nsummary: Current status and decisions\n---\n# Orchard rollout\n\n## Status 2026-09-01\nThe redesign was planned.\n\n## Decisions 2026-10-14\n- [decision] The redesign is parked; use padded crates instead.\n\n## Status 2026-10-16\nThe pilot remains limited to three shops.\n",
+      "Knowledge/Updates.md": "---\nid: updates\ntitle: Orchard rollout updates\ntype: reference\nproject: Orchard rollout\n---\n# Orchard rollout\n\n## Changes 2026-10-23\nCrate testing completed. Expansion is pending.\nThe shared plan was not updated; this is saved status, not live delivery.\n",
+      "Knowledge/Old questions.md": "---\nid: old\ntitle: Orchard rollout open questions\nproject: Orchard rollout\nstatus: historical\n---\n# Orchard rollout\n\n## Current status\nOrchard rollout orchard rollout orchard rollout is waiting for the redesign.\n",
+    ]
+    for (path, text) in files { try atomic(root.appendingPathComponent(path), Data(text.utf8)) }
+    _ = try engine.replicationSeed(root, files: files)
+    let snapshot = try engine.captureRetrievalSnapshot(root)
+    access.reset()
+    access.deny = true
+    let result = try snapshot.retrieve(query: "Tell me about Orchard rollout", limit: 3, maximumBytes: 6000)
+    let text = result.evidence.flatMap(\.lines).map(\.text).joined(separator: "\n")
+    XCTAssertTrue(text.contains("Deliver pears"))
+    XCTAssertTrue(text.contains("Crates bruise"))
+    XCTAssertTrue(text.contains("redesign is parked"))
+    XCTAssertTrue(text.contains("2026-10-23"))
+    XCTAssertTrue(text.contains("Expansion is pending"))
+    XCTAssertTrue(text.contains("not live delivery"))
+    XCTAssertFalse(result.evidence.contains { $0.noteID == "old" })
+    XCTAssertLessThanOrEqual(try JSONEncoder().encode(result).count, 6000)
+    XCTAssertEqual(access.calls, 0)
+    try verify(result, files: files)
+  }
+
+  func testOverviewBudgetCannotReturnHeadingsWithoutFacts() throws {
+    let text = "---\ntitle: Orchard overview\ntype: project\n---\n# Orchard overview\n\n## Problems\n" + String(repeating: "Long claim about pears. ", count: 500) + "\n\n## Status\n" + String(repeating: "Long claim about crates. ", count: 500) + "\n"
+    try atomic(root.appendingPathComponent("Projects/Orchard.md"), Data(text.utf8))
+    _ = try engine.replicationSeed(root, files: ["Projects/Orchard.md": text])
+    let result = try engine.captureRetrievalSnapshot(root).retrieve(query: "Tell me about Orchard overview", limit: 1, maximumBytes: 900)
+    XCTAssertTrue(result.evidence.isEmpty)
+    XCTAssertTrue(result.truncated)
+  }
+
+  func testScopedOverviewDatesIgnoreExcludedLinkedSources() throws {
+    let source: [String: String] = [
+      "Allowed/Orchard.md": "---\ntitle: Orchard rollout\ntype: project\n---\n# Orchard overview\n\n## Purpose\nDeliver pears.\n\n## Links\n- [[Allowed/Status]]\n- [[Elsewhere/Updates]]\n",
+      "Allowed/Status.md": "---\ntitle: Orchard rollout status\ntype: note\n---\n# Orchard overview\n\n## Changes 2026-10-01\nEarly orchard plan.\n\n## Changes 2026-10-23\nLatest orchard delivery is pending.\n",
+      "Elsewhere/Updates.md": "---\ntitle: Orchard rollout updates\ntype: note\n---\n# Updates\n\n## Changes 2026-10-30\nUnrelated excluded update.\n",
+    ]
+    let documents = source.map { OrbitRetrievalSnapshot.Document(path: $0.key, bytes: Data($0.value.utf8), sha256: digest(Data($0.value.utf8)), heads: []) }.sorted { $0.path < $1.path }
+    let id = UUID().uuidString
+    func snapshot(_ documents: [OrbitRetrievalSnapshot.Document]) throws -> OrbitRetrievalSnapshot {
+      try OrbitRetrievalSnapshot(archive: .init(schema: 1, orbitID: id, snapshotID: UUID().uuidString, capturedAt: "2026-11-01T00:00:00Z", coverage: "complete", excludedPaths: [], documents: documents))
+    }
+    let scoped = try snapshot(documents).retrieve(query: "Tell me about Orchard rollout", limit: 3, scope: "Allowed")
+    let isolated = try snapshot(documents.filter { $0.path.hasPrefix("Allowed/") }).retrieve(query: "Tell me about Orchard rollout", limit: 3, scope: "Allowed")
+    XCTAssertEqual(scoped.evidence.map(\.path), isolated.evidence.map(\.path))
+    XCTAssertEqual(scoped.evidence.map { $0.lines.map(\.number) }, isolated.evidence.map { $0.lines.map(\.number) })
+    XCTAssertTrue(scoped.evidence.flatMap(\.lines).contains { $0.text.contains("2026-10-23") })
+    XCTAssertFalse(scoped.evidence.flatMap(\.lines).contains { $0.text.contains("Unrelated") })
+  }
+
   func testSnapshotTiming() throws {
     guard ProcessInfo.processInfo.environment["ORBIT_BENCHMARK"] == "1" else {
       throw XCTSkip("Opt-in disposable snapshot comparison")

@@ -60,6 +60,8 @@ public final class OrbitRetrievalSnapshot: Sendable {
   private let types: [String]
   private let outgoing: [[String]]
   private let noteIDs: [String?]
+  private let statuses: [String]
+  private let summaries: [String]
   public var orbitID: String { archive.orbitID }
   public var snapshotID: String { archive.snapshotID }
   public var noteCount: Int { archive.documents.count }
@@ -75,6 +77,7 @@ public final class OrbitRetrievalSnapshot: Sendable {
     var titles: [String] = [], names: [[String]] = [], projects: [String] = []
     var noteIDs: [String?] = []
     var types: [String] = [], outgoing: [[String]] = []
+    var statuses: [String] = [], summaries: [String] = []
     for (index, document) in archive.documents.enumerated() {
       guard digest(document.bytes) == document.sha256,
         var text = String(data: document.bytes, encoding: .utf8),
@@ -92,6 +95,8 @@ public final class OrbitRetrievalSnapshot: Sendable {
       names.append(([title] + strings(meta["aliases"])).map(casefold))
       projects.append(eString(meta["project"]))
       types.append(casefold(eString(meta["type"])))
+      statuses.append(casefold(eString(meta["status"])))
+      summaries.append(casefold(eString(meta["summary"])))
       outgoing.append(links(text))
       noteIDs.append(meta["id"] as? String)
       let noteSections = notePassages(text)
@@ -139,6 +144,24 @@ public final class OrbitRetrievalSnapshot: Sendable {
     self.noteIDs = noteIDs
     self.types = types
     self.outgoing = outgoing
+    self.statuses = statuses
+    self.summaries = summaries
+  }
+
+  private func overviewFacet(_ index: Int) -> String {
+    if !eMatches("(?i)\\[(decision|done)\\].*\\b(parked|superseded|replaced|instead|no longer)\\b", passages[index].passage.body).isEmpty { return "supersession" }
+    let section = casefold(passages[index].passage.section.components(separatedBy: " / ").last ?? "")
+    for (facet, pattern) in [("purpose", "what it is|overview|summary|the picture"),
+      ("problem", "problem|failure|pain"), ("decision", "decision|settled"),
+      ("status", "status|refresh|changes"), ("measurement", "metric|measurement|sli|success"),
+      ("qualification", "caveat|confidence|limitation|uncertainty")] {
+      if !eMatches(pattern, section).isEmpty { return facet }
+    }
+    return "other"
+  }
+
+  private func passageDate(_ index: Int) -> String {
+    eMatches("\\b(20[0-9]{2}-[0-9]{2}-[0-9]{2})\\b", passages[index].passage.section).compactMap { $0.last }.max() ?? ""
   }
 
   private static func terms(_ text: String) -> [String] {
@@ -190,6 +213,24 @@ public final class OrbitRetrievalSnapshot: Sendable {
     { candidates.insert(index) }
     var winners: [Int: (Int, Double)] = [:]
     var scores: [Int: Double] = [:]
+    candidates = Set(candidates.filter { index in
+      let document = archive.documents[passages[index].document]
+      if let path, document.path != path { return false }
+      if let scope, document.path != scope, projects[passages[index].document] != scope,
+        !document.path.hasPrefix(scope.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/") { return false }
+      return true
+    })
+    var latestDates: [Int: String] = [:]
+    if overview {
+      for index in candidates where !passages[index].navigation {
+        let document = passages[index].document
+        latestDates[document] = max(latestDates[document] ?? "", passageDate(index))
+      }
+    }
+    let latestOverviewDate = latestDates.filter {
+      topicDocuments.contains($0.key) || linkedDocuments.contains($0.key)
+        || (!exact.isEmpty && Self.terms(projects[$0.key]).joined(separator: " ") == exact)
+    }.values.max() ?? ""
     for index in candidates.sorted() {
       try Task.checkCancellation()
       let passage = passages[index]
@@ -208,9 +249,17 @@ public final class OrbitRetrievalSnapshot: Sendable {
         if passage.sectionTerms.contains(term) { score += idf * 0.2 }
       }
       if exactDocuments.contains(passage.document) { score += 100 }
-      if topicDocuments.contains(passage.document) { score += types[passage.document] == "project" ? 60 : 35 }
+      if topicDocuments.contains(passage.document) { score += types[passage.document] == "project" ? 60 : 15 }
       if linkedDocuments.contains(passage.document) { score += 20 }
       if overview {
+        if !exact.isEmpty && Self.terms(projects[passage.document]).joined(separator: " ") == exact { score += 15 }
+        if ["historical", "superseded", "archived"].contains(statuses[passage.document]) { score -= 80 }
+        if !eMatches("\\b(status|decisions|dependencies|tracker)\\b", summaries[passage.document]).isEmpty { score += 10 }
+        if overviewFacet(index) == "decision" { score += 15 }
+        let date = passageDate(index)
+        if !date.isEmpty && date == latestDates[passage.document] { score += 20 }
+        if !date.isEmpty && date == latestOverviewDate { score += 25 }
+        if overviewFacet(index) == "supersession" { score += 40 }
         let leaf = casefold(passage.passage.section.components(separatedBy: " / ").last ?? "")
         if ["what it is", "overview", "summary", "problems", "current status", "status", "principles"].contains(leaf) {
           score += 15
@@ -247,32 +296,67 @@ public final class OrbitRetrievalSnapshot: Sendable {
       let entry = passages[index]
       let document = archive.documents[entry.document]
       var selectedPassages = [index]
-      if overview {
-        selectedPassages += passages.indices.filter {
+      if overview && !(overviewFacet(index) == "status" && !passageDate(index).isEmpty) {
+        let complementary = passages.indices.filter {
           $0 != index && passages[$0].document == entry.document && !passages[$0].navigation
-        }.sorted { (scores[$0] ?? 0) > (scores[$1] ?? 0) }.prefix(3)
+        }.sorted {
+          if (scores[$0] ?? 0) != (scores[$1] ?? 0) { return (scores[$0] ?? 0) > (scores[$1] ?? 0) }
+          return passages[$0].passage.start < passages[$1].passage.start
+        }
+        var facets: Set<String> = [overviewFacet(index)]
+        if !passageDate(index).isEmpty { facets.insert("status") }
+        for candidate in complementary where selectedPassages.count < 4 {
+          if overviewFacet(candidate) == "other" { continue }
+          if facets.insert(overviewFacet(candidate)).inserted { selectedPassages.append(candidate) }
+        }
+        for candidate in complementary where selectedPassages.count < 4 && !selectedPassages.contains(candidate) { selectedPassages.append(candidate) }
       }
-      let allLines = selectedPassages.flatMap { passageIndex in
+      let blocks = selectedPassages.map { passageIndex in
         let passage = passages[passageIndex].passage
-        return eLines(passage.body).enumerated().map {
+        let lines = eLines(passage.body).enumerated().map {
           Line(number: passage.start + $0.offset, text: $0.element)
         }
+        if overview && ["status", "decision", "supersession"].contains(overviewFacet(passageIndex)) {
+          func priority(_ line: Line) -> Int {
+            if !eMatches("^#{1,6}\\s", line.text).isEmpty { return 100 }
+            var value = 0
+            if !eMatches("(?i)\\[(decision|done|correction)\\]", line.text).isEmpty { value += 20 }
+            if !eMatches("(?i)\\b(parked|superseded|draft|proposed|no longer|not updated|not changed|not written)\\b", line.text).isEmpty { value += 30 }
+            if !eMatches("(?i)\\b(completed|pending|due today)\\b", line.text).isEmpty { value += 5 }
+            return value
+          }
+          return lines.sorted {
+            if priority($0) != priority($1) { return priority($0) > priority($1) }
+            return $0.number < $1.number
+          }
+        }
+        return lines
       }
+      let allLines: [Line]
+      if overview {
+        let lead = overviewFacet(index) == "status" && !passageDate(index).isEmpty ? Array(blocks[0].prefix(6)) : []
+        let remaining = blocks.enumerated().map { $0.offset == 0 ? Array($0.element.dropFirst(lead.count)) : $0.element }
+        allLines = lead + (0..<(remaining.map(\.count).max() ?? 0)).flatMap { offset in remaining.compactMap { offset < $0.count ? $0[offset] : nil } }
+      } else { allLines = blocks.flatMap { $0 } }
       let used = try JSONEncoder().encode(result(evidence, true)).count
       let itemBudget = used + (budget - used) / (selected.count - position)
       var lines: [Line] = []
       func item(_ lines: [Line], complete: Bool) -> Evidence {
         Evidence(path: document.path, noteID: noteIDs[entry.document], title: titles[entry.document],
           sha256: document.sha256, heads: document.heads, section: entry.passage.section,
-          lines: lines, passageComplete: complete)
+          lines: lines.sorted { $0.number < $1.number }, passageComplete: complete)
       }
       for line in allLines {
         try Task.checkCancellation()
         let candidate = item(lines + [line], complete: false)
-        if try JSONEncoder().encode(result(evidence + [candidate], true)).count > itemBudget { break }
+        if try JSONEncoder().encode(result(evidence + [candidate], true)).count > itemBudget {
+          if overview { continue }
+          break
+        }
         lines.append(line)
       }
-      guard lines.contains(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+      guard lines.contains(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        && eMatches("^#{1,6}\\s", $0.text).isEmpty })
       else { truncated = true; continue }
       let complete = selectedPassages.count == 1 && lines.count == allLines.count
       evidence.append(item(lines, complete: complete))
