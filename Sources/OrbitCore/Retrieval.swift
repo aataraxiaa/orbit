@@ -102,7 +102,7 @@ private final class SearchDB {
   }
   var rowID: Int { Int(sqlite3_last_insert_rowid(pointer)) }
 }
-struct OrbitPassage {
+struct OrbitPassage: Sendable {
   let start: Int
   let end: Int
   let section: String

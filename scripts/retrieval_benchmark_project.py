@@ -33,13 +33,17 @@ def main():
     parser.add_argument("--notes", type=positive_integer, default=500)
     parser.add_argument("--format", choices=("2", "3"), default="2",
                         help="generated vault format")
+    parser.add_argument("--snapshot", action="store_true",
+                        help="include the experimental snapshot suite; requires a snapshot-capable core")
     args = parser.parse_args()
     package = args.package_path.expanduser().resolve()
     output = args.output.expanduser().resolve()
     if not (package / "Package.swift").is_file():
         parser.error("--package-path must contain Package.swift")
-    sources = [ROOT / "tests/OrbitCoreTests" / filename for filename in (
-        "RetrievalPerformanceTests.swift", "RetrievalRankingTests.swift")]
+    filenames = ["RetrievalPerformanceTests.swift", "RetrievalRankingTests.swift"]
+    if args.snapshot:
+        filenames.append("RetrievalSnapshotTests.swift")
+    sources = [ROOT / "tests/OrbitCoreTests" / filename for filename in filenames]
     for source in sources:
         if not source.is_file():
             parser.error("missing test source: " + str(source))

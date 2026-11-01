@@ -1,0 +1,2043 @@
+{
+  "claim": "Core-only exploratory comparison with different freshness guarantees; not an end-to-end speedup",
+  "runs": [
+    {
+      "log": "test_sim_2026-11-01T14-54-06-447Z_pid42212_3946d4b1.log",
+      "archive_bytes": 633757,
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance",
+      "failures": 0,
+      "notes": 503,
+      "process_peak_rss_bytes": 3876683776,
+      "samples": [
+        {
+          "ms": 1329.526959,
+          "source_accesses": 31385,
+          "source_inspections": 27847,
+          "source_reads": 3538,
+          "stage": "direct-cold"
+        },
+        {
+          "ms": 2108.402708,
+          "source_accesses": 46061,
+          "source_inspections": 41009,
+          "source_reads": 5052,
+          "stage": "capture"
+        },
+        {
+          "ms": 2.006541,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "persist"
+        },
+        {
+          "ms": 145.931292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "reopen"
+        },
+        {
+          "ms": 1189.181,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095541,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1209.423083,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1228.108167,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09325,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064041,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1261.305125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1258.80775,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.091458,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.063917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1277.271167,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1274.6025,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.1035,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.093792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1342.458,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1274.829958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.067792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1263.868667,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1310.14175,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.215875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.093,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1294.223958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1263.541042,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.063833,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1266.077542,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1300.580792,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.132833,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.093583,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1352.126667,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1319.754583,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.102875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.070708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1259.946417,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1261.382958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.091625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1282.01625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1267.064042,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.131875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.070292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1262.930042,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1366.28575,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.10925,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.077292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1284.515792,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1260.589125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09425,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        }
+      ],
+      "schema": 1,
+      "workload": "generated-format-3-local-folder"
+    },
+    {
+      "log": "test_sim_2026-11-01T14-56-01-000Z_pid42212_f8d90216.log",
+      "archive_bytes": 633757,
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance",
+      "failures": 0,
+      "notes": 503,
+      "process_peak_rss_bytes": 4007002112,
+      "samples": [
+        {
+          "ms": 1328.966583,
+          "source_accesses": 31385,
+          "source_inspections": 27847,
+          "source_reads": 3538,
+          "stage": "direct-cold"
+        },
+        {
+          "ms": 2102.080667,
+          "source_accesses": 46061,
+          "source_inspections": 41009,
+          "source_reads": 5052,
+          "stage": "capture"
+        },
+        {
+          "ms": 2.713041,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "persist"
+        },
+        {
+          "ms": 169.244417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "reopen"
+        },
+        {
+          "ms": 1202.97625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1.1255,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.135667,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1207.05125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1205.031666,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.102292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064916,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1220.840708,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1257.263084,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095459,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1249.153541,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1251.1105,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.100708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.069209,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1301.614291,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1301.791625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064292,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1236.174208,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1408.107875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.0985,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.068875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1332.195042,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1281.189375,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.098958,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.067083,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1300.24475,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1426.905875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.142125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.131208,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1360.431334,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1249.302917,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.111875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.068792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1283.205208,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1347.032166,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065208,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1250.550167,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1275.414625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096333,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065042,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1278.598916,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1270.567167,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.097917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.072417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1710.712916,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1207.875292,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        }
+      ],
+      "schema": 1,
+      "workload": "generated-format-3-local-folder"
+    },
+    {
+      "log": "test_sim_2026-11-01T14-56-56-826Z_pid42212_78083409.log",
+      "archive_bytes": 633757,
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance",
+      "failures": 0,
+      "notes": 503,
+      "process_peak_rss_bytes": 4461477888,
+      "samples": [
+        {
+          "ms": 1483.079042,
+          "source_accesses": 31385,
+          "source_inspections": 27847,
+          "source_reads": 3538,
+          "stage": "direct-cold"
+        },
+        {
+          "ms": 2275.826042,
+          "source_accesses": 46061,
+          "source_inspections": 41009,
+          "source_reads": 5052,
+          "stage": "capture"
+        },
+        {
+          "ms": 2.364792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "persist"
+        },
+        {
+          "ms": 156.590375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "reopen"
+        },
+        {
+          "ms": 1241.886084,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.897125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.084917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1335.823875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1305.243541,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.106667,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.069375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1438.263084,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1257.951333,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096667,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.0655,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1257.253375,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1258.302583,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.099583,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.069458,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1285.507666,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1265.960291,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065083,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1263.230125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1264.011333,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.094958,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064833,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1359.711,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1275.85775,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.094584,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.066834,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1269.190916,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1283.770875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09975,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.066792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1282.964833,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1278.042958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.097417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.067417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1298.710667,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1316.578458,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.128042,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.09075,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1327.785875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1275.688375,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.098958,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1268.869458,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1297.038958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.097583,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.0705,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1280.816084,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1268.488709,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09475,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        }
+      ],
+      "schema": 1,
+      "workload": "generated-format-3-local-folder"
+    },
+    {
+      "log": "test_sim_2026-11-01T14-57-49-449Z_pid42212_ce171263.log",
+      "archive_bytes": 633757,
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance",
+      "failures": 0,
+      "notes": 503,
+      "process_peak_rss_bytes": 4510302208,
+      "samples": [
+        {
+          "ms": 1346.991625,
+          "source_accesses": 31385,
+          "source_inspections": 27847,
+          "source_reads": 3538,
+          "stage": "direct-cold"
+        },
+        {
+          "ms": 2054.585917,
+          "source_accesses": 46061,
+          "source_inspections": 41009,
+          "source_reads": 5052,
+          "stage": "capture"
+        },
+        {
+          "ms": 2.506958,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "persist"
+        },
+        {
+          "ms": 147.070708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "reopen"
+        },
+        {
+          "ms": 1206.530667,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.879333,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.08,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1195.772167,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1262.106583,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.102167,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.068875,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1271.001958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1249.086833,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065042,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1277.261625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1277.246834,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.101291,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.072791,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1263.225125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1264.234542,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.094792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1265.373083,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1330.714333,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.107541,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.070959,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1313.023291,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1284.036958,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065208,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1266.523125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1319.788,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.066708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1267.536292,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1281.983875,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.100541,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.068209,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1269.858125,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1328.781208,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.143792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.093959,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1307.478542,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1277.061417,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.097375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.065666,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1277.097375,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1277.303041,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.097417,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.074333,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1262.63175,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1316.661625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.096125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        }
+      ],
+      "schema": 1,
+      "workload": "generated-format-3-local-folder"
+    },
+    {
+      "log": "test_sim_2026-11-01T14-58-48-614Z_pid42212_2482398b.log",
+      "archive_bytes": 633757,
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance",
+      "failures": 0,
+      "notes": 503,
+      "process_peak_rss_bytes": 4559945728,
+      "samples": [
+        {
+          "ms": 1332.677458,
+          "source_accesses": 31385,
+          "source_inspections": 27847,
+          "source_reads": 3538,
+          "stage": "direct-cold"
+        },
+        {
+          "ms": 2025.453875,
+          "source_accesses": 46061,
+          "source_inspections": 41009,
+          "source_reads": 5052,
+          "stage": "capture"
+        },
+        {
+          "ms": 2.597125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "persist"
+        },
+        {
+          "ms": 147.115917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "reopen"
+        },
+        {
+          "ms": 1239.7725,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.872625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.076375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1190.409708,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1192.180583,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.0965,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1252.560708,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1304.915,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.098084,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064792,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1254.215583,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1281.459625,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.103917,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.072625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1266.48925,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1255.383542,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.06425,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1255.482917,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1261.437667,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.093834,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064959,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1299.253042,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1321.958417,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.098375,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.06525,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1266.78525,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1262.960333,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.094833,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.066291,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1261.917458,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1276.605208,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.100291,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.066708,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1274.988,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1271.005666,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.09425,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.063916,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1328.3205,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1328.297083,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.099042,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.064625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1322.366542,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1277.270792,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.10125,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 0.071167,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        },
+        {
+          "ms": 1273.270333,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 1281.622083,
+          "source_accesses": 29876,
+          "source_inspections": 26841,
+          "source_reads": 3035,
+          "stage": "direct-warm"
+        },
+        {
+          "ms": 0.095625,
+          "source_accesses": 0,
+          "source_inspections": 0,
+          "source_reads": 0,
+          "stage": "snapshot-warm"
+        }
+      ],
+      "schema": 1,
+      "workload": "generated-format-3-local-folder"
+    }
+  ],
+  "stages": {
+    "capture": {
+      "samples": 5,
+      "p50_ms": 2102.080667,
+      "p95_ms": 2275.826042,
+      "min_ms": 2025.453875,
+      "max_ms": 2275.826042,
+      "source_reads": [
+        5052
+      ],
+      "source_inspections": [
+        41009
+      ]
+    },
+    "direct-cold": {
+      "samples": 5,
+      "p50_ms": 1332.677458,
+      "p95_ms": 1483.079042,
+      "min_ms": 1328.966583,
+      "max_ms": 1483.079042,
+      "source_reads": [
+        3538
+      ],
+      "source_inspections": [
+        27847
+      ]
+    },
+    "direct-warm": {
+      "samples": 125,
+      "p50_ms": 1274.829958,
+      "p95_ms": 1359.711,
+      "min_ms": 1189.181,
+      "max_ms": 1710.712916,
+      "source_reads": [
+        3035
+      ],
+      "source_inspections": [
+        26841
+      ]
+    },
+    "persist": {
+      "samples": 5,
+      "p50_ms": 2.506958,
+      "p95_ms": 2.713041,
+      "min_ms": 2.006541,
+      "max_ms": 2.713041,
+      "source_reads": [
+        0
+      ],
+      "source_inspections": [
+        0
+      ]
+    },
+    "reopen": {
+      "samples": 5,
+      "p50_ms": 147.115917,
+      "p95_ms": 169.244417,
+      "min_ms": 145.931292,
+      "max_ms": 169.244417,
+      "source_reads": [
+        0
+      ],
+      "source_inspections": [
+        0
+      ]
+    },
+    "snapshot-warm": {
+      "samples": 125,
+      "p50_ms": 0.093959,
+      "p95_ms": 0.142125,
+      "min_ms": 0.063833,
+      "max_ms": 1.1255,
+      "source_reads": [
+        0
+      ],
+      "source_inspections": [
+        0
+      ]
+    }
+  },
+  "quantile": "nearest-rank p95; samples within one process are not independent process runs",
+  "acceptance": {
+    "physical_device": "NOT VERIFIED",
+    "icloud": "NOT VERIFIED",
+    "desktop_host": "NOT VERIFIED",
+    "model": "NOT VERIFIED",
+    "two_way_replica": "NOT IMPLEMENTED"
+  }
+}

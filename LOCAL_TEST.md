@@ -157,3 +157,44 @@ The synthetic retrieval evaluation creates an existing format-1 corpus before se
 ## Swift compatibility checks
 
 Build and test the root Swift package through MobileBuildMCP. Run `scripts/swift_compatibility.py --swift <built-orbit-mcp> --output <report.json>` using supported Python. The runner creates all folders/config/cache/state in a disposable temporary directory and compares responses plus stored file hashes. Frozen fixtures also cover exact legacy migration plans, seed histories, schema conflicts and interrupted recovery. These are mechanical checks. Follow [native transition acceptance](docs/swift-migration/transition.md) for the remaining in-app checks and rollback guidance.
+
+## Verify the experimental retrieval snapshot
+
+The source-only snapshot candidate does not change the installed app or MCP tools.
+Use disposable generated fixtures. Read [the design and limitations](docs/retrieval-redesign.md)
+before interpreting timings.
+
+Generate the Release simulator project without building Apple code:
+
+```sh
+python3 scripts/retrieval_benchmark_project.py --output work/retrieval-snapshot/checks --notes 500 --format 3 --snapshot
+```
+
+Use MobileBuildMCP `session_show_defaults`, then `session_set_defaults` with the
+printed project path, scheme `OrbitRetrievalChecks`, configuration `Release`, and
+an available simulator ID. Run `test_sim` with these `extraArgs`:
+
+```json
+["ENABLE_TESTABILITY=YES", "CODE_SIGNING_ALLOWED=NO", "-only-testing:OrbitRetrievalChecks/RetrievalSnapshotTests"]
+```
+
+Repeat the measurement test in five separate runs. Each run alternates 25 direct
+and snapshot queries and asserts expected advice, hashes, lines and zero snapshot
+source access. Capture and reopen timings are separate. Extract the returned
+MobileBuildMCP build logs with:
+
+```sh
+python3 scripts/retrieval_snapshot_report.py /absolute/run1.log /absolute/run2.log /absolute/run3.log /absolute/run4.log /absolute/run5.log --output /absolute/summary.json
+```
+
+The report rejects failed runs, missing samples and source accesses during snapshot
+queries. Inspect each MobileBuildMCP test result too. Quantiles alone do not prove
+correct results. The `direct-cold` label means fresh-fixture first indexing, not
+cold app launch. Peak RSS includes fixture construction and both retrieval paths.
+The local-source-removal test does not simulate real provider eviction. No test
+may use the personal iPhone. Keep actual provider and model captures outside the
+public repository.
+
+Omit `--snapshot` when generating common tests against older package checkouts.
+Candidate tests require the new core API. No Orbit-data migration is needed; the
+snapshot archive schema is independent of disk format 3 and the MCP contract.
