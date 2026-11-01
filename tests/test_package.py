@@ -26,6 +26,10 @@ class PackageTest(unittest.TestCase):
             self.assertTrue((ROOT / manifest['mcpServers']).is_file())
             self.assertTrue((ROOT / manifest['skills']).is_dir())
 
+    def test_remote_marketplace_has_no_top_level_bin(self):
+        self.assertFalse((ROOT / 'bin').exists(),
+                         'Claude marketplace_sync_bin_directory_not_allowed rejects root bin/')
+
     def test_distributable(self):
         run = subprocess.run([sys.executable, str(ROOT / 'scripts/package.py')], capture_output=True, text=True)
         self.assertEqual(run.returncode, 0, run.stderr)
