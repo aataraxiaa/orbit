@@ -1,5 +1,24 @@
 # Orbit handoff
 
+1 November 2026, iPhone 16 preparation: the user identified the connected iPhone 16
+as the test device. The generator now accepts `--device-team` and creates a separate
+minimal host for physical XCTest, since the default tool-hosted target cannot run
+on a device. All nine correctness checks pass in the hosted Release simulator.
+The physical attempt ran zero tests: Xcode reports no signed-in developer account,
+and cached profiles do not include the test phone. No physical acceptance or timing
+is claimed. The personal iPhone 17 Pro Max remains excluded.
+
+1 November 2026, retrieval redesign experiment: `OrbitRetrievalSnapshot` adds a
+read-only shared-core candidate with retained exact bytes, revision-content checks,
+bounded passages and explicit snapshot freshness. It has no app or MCP production
+caller. Existing shipping runtime, app pin, disk format and tool contracts remain
+unchanged. See [design, evidence and remaining gates](docs/retrieval-redesign.md).
+MobileBuildMCP passes 131 Swift tests with two opt-in measurements skipped; the
+Release simulator passes all 10 snapshot tests and five generated comparison runs.
+All 193 reference tests, smoke and the package rebuild pass. The personal iPhone
+was not used. Provider comparison, incremental updates, durable offline saves,
+two-way replication, native host integration and real model answers remain open.
+
 1 November 2026, unreleased retrieval performance work: shared Swift search now
 limits per-note SQL winners before transferring rows, packs evidence without
 repeated whole-response serialization, reuses bounded compiled regexes and replaces

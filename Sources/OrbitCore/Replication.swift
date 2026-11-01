@@ -610,6 +610,24 @@ extension OrbitEngine {
     replicaReport(try replicaFold(root))
   }
 
+  func validateRetrievalSnapshotRevisions(
+    _ root: URL, documents: [OrbitRetrievalSnapshot.Document], expected: JSONObject
+  ) throws {
+    let state = try replicaFold(root)
+    let report = replicaReport(state)
+    for key in ["heads", "blocked_paths", "status", "pending", "invalid", "conflicts"] {
+      guard eEqual(report[key], expected[key]) else {
+        throw OrbitError("Revision evidence changed during retrieval snapshot capture: " + key)
+      }
+    }
+    for document in documents {
+      guard document.heads.count == 1,
+        let version = state.versions[document.heads[0]],
+        let content = rText(version["content"]), digest(Data(content.utf8)) == document.sha256
+      else { throw OrbitError("Snapshot bytes do not match their revision evidence") }
+    }
+  }
+
   public func replicationHistory(_ root: URL, path: String) throws -> JSONObject {
     _ = try replicaPath(root, path)
     let state = try replicaFold(root)

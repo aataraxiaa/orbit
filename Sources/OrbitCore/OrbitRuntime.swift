@@ -18,7 +18,7 @@ func withOrbitRuntime<T>(_ runtime: OrbitRuntime, body: () throws -> T) rethrows
   let previous = storage[key]
   storage[key] = runtime
   defer { if let previous { storage[key] = previous } else { storage.removeObject(forKey: key) } }
-  return try body()
+  return try autoreleasepool(invoking: body)
 }
 public func now() -> String {
   (Thread.current.threadDictionary["orbit.runtime"] as? OrbitRuntime)?.clock() ?? systemNow()
