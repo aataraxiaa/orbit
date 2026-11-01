@@ -17,6 +17,8 @@ def summarize(paths):
         report = reports[0]
         if report.get("schema") != 1 or report.get("failures") != 0:
             raise ValueError(f"{path}: invalid or failing run")
+        if report.get("diagnostic_operation_autorelease_pool"):
+            raise ValueError(f"{path}: diagnostic pool run is not a production measurement")
         if report.get("notes", 0) < 4:
             raise ValueError(f"{path}: missing generated workload")
         samples = report["samples"]
@@ -32,6 +34,9 @@ def summarize(paths):
         runs.append({"log": str(path), **report})
     if len({run["notes"] for run in runs}) != 1:
         raise ValueError("workload sizes differ")
+    environments = {run.get("execution_environment", "unspecified") for run in runs}
+    if len(environments) != 1:
+        raise ValueError("execution environments differ")
     stages = {}
     for stage in sorted({row["stage"] for run in runs for row in run["samples"]}):
         rows = [row for run in runs for row in run["samples"] if row["stage"] == stage]
@@ -44,7 +49,8 @@ def summarize(paths):
     return {"claim": "Core-only exploratory comparison with different freshness guarantees; not an end-to-end speedup",
             "runs": runs, "stages": stages,
             "quantile": "nearest-rank p95; samples within one process are not independent process runs",
-            "acceptance": {"physical_device": "NOT VERIFIED", "icloud": "NOT VERIFIED",
+            "execution_environment": next(iter(environments)),
+            "acceptance": {"physical_device_end_to_end": "NOT VERIFIED", "icloud": "NOT VERIFIED",
                            "desktop_host": "NOT VERIFIED", "model": "NOT VERIFIED",
                            "two_way_replica": "NOT IMPLEMENTED"}}
 

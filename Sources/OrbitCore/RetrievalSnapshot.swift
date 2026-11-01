@@ -49,6 +49,7 @@ public final class OrbitRetrievalSnapshot: Sendable {
     let frequencies: [String: Int]
     let sectionTerms: Set<String>
     let length: Int
+    let navigation: Bool
   }
   private let archive: Archive
   private let passages: [IndexedPassage]
@@ -56,6 +57,8 @@ public final class OrbitRetrievalSnapshot: Sendable {
   private let titles: [String]
   private let names: [[String]]
   private let projects: [String]
+  private let types: [String]
+  private let outgoing: [[String]]
   private let noteIDs: [String?]
   public var orbitID: String { archive.orbitID }
   public var snapshotID: String { archive.snapshotID }
@@ -71,6 +74,7 @@ public final class OrbitRetrievalSnapshot: Sendable {
     var postings: [String: [Int]] = [:]
     var titles: [String] = [], names: [[String]] = [], projects: [String] = []
     var noteIDs: [String?] = []
+    var types: [String] = [], outgoing: [[String]] = []
     for (index, document) in archive.documents.enumerated() {
       guard digest(document.bytes) == document.sha256,
         var text = String(data: document.bytes, encoding: .utf8),
@@ -87,6 +91,8 @@ public final class OrbitRetrievalSnapshot: Sendable {
       titles.append(title)
       names.append(([title] + strings(meta["aliases"])).map(casefold))
       projects.append(eString(meta["project"]))
+      types.append(casefold(eString(meta["type"])))
+      outgoing.append(links(text))
       noteIDs.append(meta["id"] as? String)
       let noteSections = notePassages(text)
       func content(_ passage: OrbitPassage) -> String {
@@ -107,12 +113,21 @@ public final class OrbitRetrievalSnapshot: Sendable {
       for passage in noteSections {
         let body = content(passage)
         if hasContent && body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { continue }
+        let leaf = casefold(passage.section.components(separatedBy: " / ").last ?? "")
+        let navigation = ["relations", "related", "related notes", "links", "navigation", "transfer provenance", "provenance", "note on sync"].contains(leaf)
+        let prose = replaced(body, "\\[\\[[^\\]\\n]+\\]\\]", "")
+        let bodyLines = eLines(body).filter {
+          !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && eMatches("^#{1,6}\\s+", $0).isEmpty
+        }
+        let linkLines = bodyLines.filter { !eMatches("^\\s*[-*]?\\s*\\[\\[", $0).isEmpty }.count
+        let navigationOnly = navigation || Self.terms(prose).isEmpty
+          || (!bodyLines.isEmpty && linkLines * 2 >= bodyLines.count)
         let terms = Self.terms(body)
         let sectionTerms = Set(Self.terms(passage.section))
         let frequencies = Dictionary(terms.map { ($0, 1) }, uniquingKeysWith: +)
         for term in Set(frequencies.keys).union(nameTerms).union(sectionTerms) { postings[term, default: []].append(passages.count) }
         passages.append(IndexedPassage(document: index, passage: passage,
-          frequencies: frequencies, sectionTerms: sectionTerms, length: terms.count))
+          frequencies: frequencies, sectionTerms: sectionTerms, length: terms.count, navigation: navigationOnly))
       }
     }
     self.archive = archive
@@ -122,10 +137,13 @@ public final class OrbitRetrievalSnapshot: Sendable {
     self.names = names
     self.projects = projects
     self.noteIDs = noteIDs
+    self.types = types
+    self.outgoing = outgoing
   }
 
   private static func terms(_ text: String) -> [String] {
-    let questionWords: Set<String> = ["can", "could", "would", "should", "do", "does", "did", "please"]
+    let questionWords: Set<String> = ["can", "could", "would", "should", "do", "does", "did", "please",
+      "tell", "me", "about", "give", "an", "overview", "of", "what", "is", "the", "a", "you", "i", "how"]
     return tokens(text).filter { !questionWords.contains($0) }
   }
 
@@ -137,17 +155,46 @@ public final class OrbitRetrievalSnapshot: Sendable {
   ) throws -> Result {
     try Task.checkCancellation()
     let terms = Set(Self.terms(query))
-    let exact = casefold(query.trimmingCharacters(in: .whitespacesAndNewlines))
+    let exact = Self.terms(query).joined(separator: " ")
+    let overview = path == nil && (!eMatches("(?i)\\b(tell me about|overview|what is)\\b", query).isEmpty
+      || names.contains { $0.contains { Self.terms($0).joined(separator: " ") == exact } })
     var candidates = Set(terms.flatMap { postings[$0] ?? [] })
-    let exactDocuments = Set(names.indices.filter { !exact.isEmpty && names[$0].contains(exact) })
+    let exactDocuments = Set(names.indices.filter { index in
+      !exact.isEmpty && names[index].contains { Self.terms($0).joined(separator: " ") == exact }
+    })
+    let topicDocuments = Set(names.indices.filter { index in
+      overview && !terms.isEmpty && ["project", "map"].contains(types[index])
+        && names[index].contains {
+          let name = Self.terms($0).joined(separator: " ")
+          return name == exact || name.hasPrefix(exact + " ")
+        }
+    })
+    var linkedDocuments = Set<Int>()
+    for source in topicDocuments.sorted().prefix(8) {
+      for target in outgoing[source].prefix(32) {
+        try Task.checkCancellation()
+        let normalized = casefold(target.hasSuffix(".md") ? String(target.dropLast(3)) : target)
+        let matches = names.indices.filter { index in
+          let sourcePath = archive.documents[index].path
+          return casefold(String(sourcePath.dropLast(3))) == normalized
+            || casefold(URL(fileURLWithPath: sourcePath).deletingPathExtension().lastPathComponent) == normalized
+            || names[index].contains(normalized)
+        }
+        if matches.count == 1 { linkedDocuments.insert(matches[0]) }
+      }
+    }
     for index in passages.indices where exactDocuments.contains(passages[index].document)
+      || topicDocuments.contains(passages[index].document)
+      || linkedDocuments.contains(passages[index].document)
       || (path != nil && archive.documents[passages[index].document].path == path)
     { candidates.insert(index) }
     var winners: [Int: (Int, Double)] = [:]
+    var scores: [Int: Double] = [:]
     for index in candidates.sorted() {
       try Task.checkCancellation()
       let passage = passages[index]
       let document = archive.documents[passage.document]
+      if path == nil && passage.navigation { continue }
       if let path, document.path != path { continue }
       if let scope, document.path != scope, projects[passage.document] != scope,
         !document.path.hasPrefix(scope.trimmingCharacters(in: CharacterSet(charactersIn: "/")) + "/")
@@ -161,6 +208,18 @@ public final class OrbitRetrievalSnapshot: Sendable {
         if passage.sectionTerms.contains(term) { score += idf * 0.2 }
       }
       if exactDocuments.contains(passage.document) { score += 100 }
+      if topicDocuments.contains(passage.document) { score += types[passage.document] == "project" ? 60 : 35 }
+      if linkedDocuments.contains(passage.document) { score += 20 }
+      if overview {
+        let leaf = casefold(passage.passage.section.components(separatedBy: " / ").last ?? "")
+        if ["what it is", "overview", "summary", "problems", "current status", "status", "principles"].contains(leaf) {
+          score += 15
+        }
+        if names[passage.document].contains(where: { $0.hasPrefix("people") || $0.hasPrefix("contacts") }) {
+          score -= 30
+        }
+      }
+      scores[index] = score
       if winners[passage.document] == nil || score > winners[passage.document]!.1 {
         winners[passage.document] = (index, score)
       }
@@ -182,12 +241,25 @@ public final class OrbitRetrievalSnapshot: Sendable {
     }
     var evidence: [Evidence] = []
     var truncated = ranked.count > max(1, min(limit, 100))
-    for (index, _) in ranked.prefix(max(1, min(limit, 100))) {
+    let selected = Array(ranked.prefix(max(1, min(limit, 100))))
+    for (position, winner) in selected.enumerated() {
+      let index = winner.0
       let entry = passages[index]
       let document = archive.documents[entry.document]
-      let allLines = eLines(entry.passage.body).enumerated().map {
-        Line(number: entry.passage.start + $0.offset, text: $0.element)
+      var selectedPassages = [index]
+      if overview {
+        selectedPassages += passages.indices.filter {
+          $0 != index && passages[$0].document == entry.document && !passages[$0].navigation
+        }.sorted { (scores[$0] ?? 0) > (scores[$1] ?? 0) }.prefix(3)
       }
+      let allLines = selectedPassages.flatMap { passageIndex in
+        let passage = passages[passageIndex].passage
+        return eLines(passage.body).enumerated().map {
+          Line(number: passage.start + $0.offset, text: $0.element)
+        }
+      }
+      let used = try JSONEncoder().encode(result(evidence, true)).count
+      let itemBudget = used + (budget - used) / (selected.count - position)
       var lines: [Line] = []
       func item(_ lines: [Line], complete: Bool) -> Evidence {
         Evidence(path: document.path, noteID: noteIDs[entry.document], title: titles[entry.document],
@@ -195,15 +267,16 @@ public final class OrbitRetrievalSnapshot: Sendable {
           lines: lines, passageComplete: complete)
       }
       for line in allLines {
+        try Task.checkCancellation()
         let candidate = item(lines + [line], complete: false)
-        if try JSONEncoder().encode(result(evidence + [candidate], true)).count > budget { break }
+        if try JSONEncoder().encode(result(evidence + [candidate], true)).count > itemBudget { break }
         lines.append(line)
       }
       guard lines.contains(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
       else { truncated = true; continue }
-      let complete = lines.count == allLines.count
+      let complete = selectedPassages.count == 1 && lines.count == allLines.count
       evidence.append(item(lines, complete: complete))
-      if !complete { truncated = true }
+      if lines.count != allLines.count { truncated = true }
     }
     return result(evidence, truncated)
   }
@@ -214,7 +287,11 @@ public final class OrbitRetrievalSnapshot: Sendable {
     try Task.checkCancellation()
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.sortedKeys]
-    try encoder.encode(archive).write(to: url, options: [.atomic, .completeFileProtectionUnlessOpen])
+    var options: Data.WritingOptions = [.atomic]
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    options.insert(.completeFileProtectionUnlessOpen)
+    #endif
+    try encoder.encode(archive).write(to: url, options: options)
     try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
   }
 

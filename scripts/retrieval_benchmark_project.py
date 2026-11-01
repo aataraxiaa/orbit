@@ -47,7 +47,7 @@ def main():
         parser.error("--package-path must contain Package.swift")
     filenames = ["RetrievalPerformanceTests.swift", "RetrievalRankingTests.swift"]
     if args.snapshot:
-        filenames.append("RetrievalSnapshotTests.swift")
+        filenames.extend(["RetrievalSnapshotTests.swift", "RuntimeLifetimeTests.swift"])
     sources = [ROOT / "tests/OrbitCoreTests" / filename for filename in filenames]
     for source in sources:
         if not source.is_file():
@@ -68,7 +68,10 @@ def main():
 
 @main struct RetrievalHost: App {
     var body: some Scene {
-        WindowGroup { Text("Disposable Orbit retrieval checks") }
+        WindowGroup {
+            Text("Disposable Orbit retrieval checks")
+                .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        }
     }
 }
 ''', encoding="utf-8")

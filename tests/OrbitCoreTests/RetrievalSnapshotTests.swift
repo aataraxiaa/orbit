@@ -164,11 +164,39 @@ final class RetrievalSnapshotTests: XCTestCase {
     }
   }
 
+  func testOverviewUsesProjectFactsRatherThanNavigationAndPeople() throws {
+    let files = [
+      "Projects/Orchard/Overview.md": "---\nid: orchard\ntitle: Orchard rollout\ntype: project\n---\n# Orchard rollout\n\n## What it is\nDeliver pears to independent grocers.\n\n## Problems\nEarlier crates bruised fruit.\n\n## Transfer provenance\nTell me about Orchard rollout. Original Orchard rollout sources were copied intact.\n\n## Relations\n- [[Knowledge/Cold chain]]\n",
+      "Knowledge/Status.md": "---\nid: status\ntitle: Orchard rollout project map\ntype: map\n---\n# Orchard rollout\n\n## Current status\nThe pilot remains limited to three shops.\n\n## Relations\n- [[Projects/Orchard/Overview|Orchard rollout]]\n",
+      "Knowledge/People.md": "---\nid: people\ntitle: People - Orchard rollout\ntype: map\n---\n# People\n\nTell me about Orchard rollout. Contact names and identifiers.\n",
+      "Knowledge/Cold chain.md": "---\nid: cold\ntitle: Cold chain\ntype: concept\n---\n# Cold chain\n\nA refrigerated handoff protects delicate cargo.\n",
+    ]
+    for (path, text) in files { try atomic(root.appendingPathComponent(path), Data(text.utf8)) }
+    _ = try engine.replicationSeed(root, files: files)
+    let result = try engine.captureRetrievalSnapshot(root).retrieve(query: "Tell me about Orchard rollout", limit: 3)
+    XCTAssertEqual(result.evidence.first?.noteID, "orchard")
+    XCTAssertTrue(result.evidence.first?.lines.contains { $0.text.contains("bruised fruit") } == true)
+    XCTAssertTrue(result.evidence.contains { $0.noteID == "status" && $0.lines.contains { $0.text.contains("three shops") } })
+    XCTAssertFalse(result.evidence.contains { $0.noteID == "people" })
+    XCTAssertTrue(result.evidence.contains { $0.noteID == "cold" })
+    XCTAssertFalse(result.evidence.flatMap(\.lines).contains { $0.text.contains("Original Orchard") })
+    XCTAssertFalse(result.evidence.flatMap(\.lines).contains { $0.text == "## Relations" })
+    XCTAssertFalse(result.evidence.first?.passageComplete ?? true)
+    try verify(result, files: files)
+  }
+
   func testSnapshotTiming() throws {
     guard ProcessInfo.processInfo.environment["ORBIT_BENCHMARK"] == "1" else {
       throw XCTSkip("Opt-in disposable snapshot comparison")
     }
     let count = Int(ProcessInfo.processInfo.environment["ORBIT_BENCHMARK_NOTES"] ?? "500") ?? 500
+    func checkpoint(_ stage: String) {
+      var usage = rusage()
+      getrusage(RUSAGE_SELF, &usage)
+      print("ORBIT_SNAPSHOT_STAGE \(stage) peak_rss_bytes=\(usage.ru_maxrss)")
+      fflush(stdout)
+    }
+    checkpoint("fixture-begin")
     var files = try seed(includeGenesis: false)
     for index in 0..<count {
       let text = "# Generated \(index)\n\n" + (0..<12).map {
@@ -178,15 +206,19 @@ final class RetrievalSnapshotTests: XCTestCase {
       files[path] = text
       try atomic(root.appendingPathComponent(path), Data(text.utf8))
     }
-    _ = try engine.replicationSeed(root, files: files)
+    checkpoint("seed-begin")
+    try autoreleasepool { _ = try engine.replicationSeed(root, files: files) }
+    checkpoint("seed-end")
     var samples: [JSONObject] = []
     func measure(_ stage: String, _ operation: () throws -> Void) throws {
       access.reset()
+      checkpoint(stage + "-begin")
       let started = DispatchTime.now().uptimeNanoseconds
       try operation()
       let elapsed = Double(DispatchTime.now().uptimeNanoseconds - started) / 1_000_000
       samples.append(["stage": stage, "ms": elapsed, "source_accesses": access.calls,
         "source_reads": access.reads, "source_inspections": access.inspections])
+      checkpoint(stage + "-end")
     }
     try measure("direct-cold") {
       let result = try engine.search(root, query: "practice public speaking", limit: 3)
@@ -223,11 +255,20 @@ final class RetrievalSnapshotTests: XCTestCase {
     }
     var usage = rusage()
     getrusage(RUSAGE_SELF, &usage)
+    #if targetEnvironment(simulator)
+    let executionEnvironment = "simulator"
+    #elseif os(iOS)
+    let executionEnvironment = "physical-device"
+    #else
+    let executionEnvironment = "macos"
+    #endif
     let report: JSONObject = ["schema": 1, "workload": "generated-format-3-local-folder",
+      "execution_environment": executionEnvironment,
+      "os_version": ProcessInfo.processInfo.operatingSystemVersionString,
       "notes": files.count, "samples": samples, "archive_bytes": try Data(contentsOf: url).count,
       "process_peak_rss_bytes": usage.ru_maxrss,
       "failures": testRun?.failureCount ?? 0,
-      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or physical-device acceptance"]
+      "claim": "Core-only; snapshot freshness differs; no iCloud, host, model or end-to-end acceptance"]
     print("ORBIT_SNAPSHOT " + String(decoding: try canonical(report), as: UTF8.self))
   }
 
