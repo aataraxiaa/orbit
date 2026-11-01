@@ -226,12 +226,14 @@ extension OrbitEngine {
     var entities = Set<OrbitByteString>()
     var destinations = Set<String>()
     var writePaths = Set<String>()
+    var writesByPath: [String: JSONObject] = [:]
     for write in writes {
       _ = try replicaPath(root, write["path"])
       let path = rString(write["path"])
       guard writePaths.insert(path).inserted else {
         throw OrbitError("Duplicate snapshot write path")
       }
+      writesByPath[path] = write
       for key in ["before", "after"]
       where write[key] != nil && !(write[key] is NSNull) && !(write[key] is String) {
         throw OrbitError("Snapshot text must be UTF-8 text or null")
@@ -262,7 +264,7 @@ extension OrbitEngine {
       let paths = rStrings(version["paths"])
       guard !paths.isEmpty, paths.contains(path) else { throw OrbitError("Missing version path") }
       for p in paths { _ = try replicaPath(root, p) }
-      let matching = writes.filter { paths.contains(rString($0["path"])) }
+      let matching = paths.compactMap { writesByPath[$0] }
       let retired = truthy(version["retired"])
       if retired {
         guard let value = version["retired"] as? NSNumber,
@@ -309,7 +311,7 @@ extension OrbitEngine {
         _ = try safe(root, relative)
         let raw = try readData(path)
         guard raw.count <= replicationLimit else { throw OrbitError("Snapshot exceeds size limit") }
-        let record = try replicaValidate(root, readJSON(path), path.lastPathComponent)
+        let record = try replicaValidate(root, decodeEvidenceObject(raw), path.lastPathComponent)
         state.records[rString(record["id"])] = record
       } catch is CancellationError { throw CancellationError() } catch {
         state.invalid.append(["path": relative, "error": String(describing: error)])
@@ -322,10 +324,11 @@ extension OrbitEngine {
       let relative = ".orbit/observations/" + path.lastPathComponent
       do {
         _ = try safe(root, relative)
-        guard try readData(path).count <= replicationLimit else {
+        let raw = try readData(path)
+        guard raw.count <= replicationLimit else {
           throw OrbitError("Observation exceeds size limit")
         }
-        let record = try readJSON(path)
+        let record = try decodeEvidenceObject(raw)
         guard rString(record["vault_id"]) == (try replicaIdentity(root)),
           record["protocol"] as? Int == 1
         else { throw OrbitError("Invalid observation identity/protocol") }
@@ -389,14 +392,18 @@ extension OrbitEngine {
 
   private func replicaUnfamiliar(_ root: URL, _ state: ReplicaState) throws -> [String: JSONObject]
   {
+    var knownByPath: [String: [String]] = [:]
+    for version in state.versions.values {
+      if let content = rText(version["content"]) {
+        knownByPath[rString(version["path"]), default: []].append(content)
+      }
+    }
     let paths = try replicaLocalPaths(root).union(
       state.versions.values.flatMap { rStrings($0["paths"]) })
     var observations: [String: JSONObject] = [:]
     for path in paths.sorted() {
       guard let text = try replicaText(root, path) else { continue }
-      if state.versions.values.contains(where: {
-        rString($0["path"]) == path && rTextEqual(rText($0["content"]), text)
-      }) {
+      if knownByPath[path, default: []].contains(where: { rTextEqual($0, text) }) {
         continue
       }
       let observation: JSONObject = [

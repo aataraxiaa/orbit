@@ -31,7 +31,7 @@ func eEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
 func eMatches(_ pattern: String, _ text: String, _ options: NSRegularExpression.Options = [])
   -> [[String]]
 {
-  guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return [] }
+  guard let regex = compiledRegex(pattern, options) else { return [] }
   let ns = text as NSString
   return regex.matches(in: text, range: NSRange(location: 0, length: ns.length)).map { match in
     (0..<match.numberOfRanges).map {
@@ -43,7 +43,7 @@ func eReplace(
   _ pattern: String, _ text: String, _ replacement: String,
   _ options: NSRegularExpression.Options = []
 ) -> String {
-  guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+  guard let regex = compiledRegex(pattern, options) else {
     return text
   }
   return regex.stringByReplacingMatches(
