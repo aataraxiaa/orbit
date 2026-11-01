@@ -202,7 +202,7 @@ final class RetrievalSnapshotTests: XCTestCase {
     XCTAssertTrue(text.contains("Deliver pears"))
     XCTAssertTrue(text.contains("Crates bruise"))
     XCTAssertTrue(text.contains("redesign is parked"))
-    XCTAssertTrue(text.contains("2026-10-23"))
+    XCTAssertTrue(result.evidence.flatMap { $0.paragraphs ?? [] }.contains { $0.section.contains("2026-10-23") })
     XCTAssertTrue(text.contains("Expansion is pending"))
     XCTAssertTrue(text.contains("not live delivery"))
     XCTAssertFalse(result.evidence.contains { $0.noteID == "old" })
@@ -235,8 +235,25 @@ final class RetrievalSnapshotTests: XCTestCase {
     let isolated = try snapshot(documents.filter { $0.path.hasPrefix("Allowed/") }).retrieve(query: "Tell me about Orchard rollout", limit: 3, scope: "Allowed")
     XCTAssertEqual(scoped.evidence.map(\.path), isolated.evidence.map(\.path))
     XCTAssertEqual(scoped.evidence.map { $0.lines.map(\.number) }, isolated.evidence.map { $0.lines.map(\.number) })
-    XCTAssertTrue(scoped.evidence.flatMap(\.lines).contains { $0.text.contains("2026-10-23") })
+    XCTAssertTrue(scoped.evidence.flatMap { $0.paragraphs ?? [] }.contains { $0.section.contains("2026-10-23") })
     XCTAssertFalse(scoped.evidence.flatMap(\.lines).contains { $0.text.contains("Unrelated") })
+  }
+
+  func testParagraphProofKeepsAdjacentQualificationsAndAuthoritativeSection() throws {
+    let text = "---\ntitle: Orchard\ntype: project\n---\n# Orchard\n\n## Status 2026-10-23\nThe rollout is complete.\nThis is an unverified assumption, not a confirmed result.\n"
+    let files = ["Projects/Orchard.md": text]
+    try atomic(root.appendingPathComponent("Projects/Orchard.md"), Data(text.utf8))
+    _ = try engine.replicationSeed(root, files: files)
+    let result = try engine.captureRetrievalSnapshot(root).retrieve(query: "Tell me about Orchard", limit: 1, maximumBytes: 2400)
+    let evidence = try XCTUnwrap(result.evidence.first)
+    let paragraph = try XCTUnwrap(evidence.paragraphs?.first)
+    XCTAssertTrue(paragraph.section.contains("Status 2026-10-23"))
+    XCTAssertEqual(paragraph.end - paragraph.start, 1)
+    let lines = evidence.lines.filter { (paragraph.start...paragraph.end).contains($0.number) }
+    XCTAssertEqual(lines.count, 2)
+    XCTAssertTrue(lines[1].text.contains("unverified assumption"))
+    XCTAssertFalse(evidence.lines.contains { $0.text.hasPrefix("##") })
+    try verify(result, files: files)
   }
 
   func testSnapshotTiming() throws {

@@ -7,6 +7,11 @@ public final class OrbitRetrievalSnapshot: Sendable {
     public let number: Int
     public let text: String
   }
+  public struct ParagraphContext: Codable, Sendable {
+    public let section: String
+    public let start: Int
+    public let end: Int
+  }
   public struct Evidence: Codable, Sendable {
     public let path: String
     public let noteID: String?
@@ -16,6 +21,7 @@ public final class OrbitRetrievalSnapshot: Sendable {
     public let section: String
     public let lines: [Line]
     public let passageComplete: Bool
+    public let paragraphs: [ParagraphContext]?
   }
   public struct Result: Codable, Sendable {
     public let orbitID: String
@@ -311,56 +317,80 @@ public final class OrbitRetrievalSnapshot: Sendable {
         }
         for candidate in complementary where selectedPassages.count < 4 && !selectedPassages.contains(candidate) { selectedPassages.append(candidate) }
       }
-      let blocks = selectedPassages.map { passageIndex in
+      struct Unit {
+        let section: String
+        let lines: [Line]
+      }
+      let blocks: [[Unit]] = selectedPassages.map { passageIndex in
         let passage = passages[passageIndex].passage
-        let lines = eLines(passage.body).enumerated().map {
-          Line(number: passage.start + $0.offset, text: $0.element)
+        var units: [Unit] = []
+        var paragraph: [Line] = []
+        var fence: String?
+        func flush() {
+          if !paragraph.isEmpty { units.append(Unit(section: passage.section, lines: paragraph)); paragraph = [] }
         }
+        for (offset, text) in eLines(passage.body).enumerated() {
+          let line = Line(number: passage.start + offset, text: text)
+          let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+          let marker = eMatches("^\\s{0,3}(`{3,}|~{3,})", text).first?.last
+          if let marker {
+            if fence == nil { flush(); fence = marker }
+            else if marker.first == fence?.first && marker.count >= (fence?.count ?? 0) { fence = nil }
+            paragraph.append(line)
+            if fence == nil { flush() }
+            continue
+          }
+          if fence != nil { paragraph.append(line); continue }
+          if trimmed.isEmpty { flush(); continue }
+          if !eMatches("^#{1,6}\\s", text).isEmpty { flush(); continue }
+          if !eMatches("^\\s*(?:[-*+] |[0-9]+[.)] )", text).isEmpty { flush() }
+          paragraph.append(line)
+        }
+        flush()
         if overview && ["status", "decision", "supersession"].contains(overviewFacet(passageIndex)) {
-          func priority(_ line: Line) -> Int {
-            if !eMatches("^#{1,6}\\s", line.text).isEmpty { return 100 }
+          func priority(_ unit: Unit) -> Int {
+            let text = unit.lines.map(\.text).joined(separator: "\n")
             var value = 0
-            if !eMatches("(?i)\\[(decision|done|correction)\\]", line.text).isEmpty { value += 20 }
-            if !eMatches("(?i)\\b(parked|superseded|draft|proposed|no longer|not updated|not changed|not written)\\b", line.text).isEmpty { value += 30 }
-            if !eMatches("(?i)\\b(completed|pending|due today)\\b", line.text).isEmpty { value += 5 }
+            if !eMatches("(?i)\\[(decision|done|correction)\\]", text).isEmpty { value += 20 }
+            if !eMatches("(?i)\\b(parked|superseded|draft|proposed|no longer|not updated|not changed|not written)\\b", text).isEmpty { value += 30 }
+            if !eMatches("(?i)\\b(completed|pending|due today)\\b", text).isEmpty { value += 5 }
             return value
           }
-          return lines.sorted {
+          return units.sorted {
             if priority($0) != priority($1) { return priority($0) > priority($1) }
-            return $0.number < $1.number
+            return $0.lines[0].number < $1.lines[0].number
           }
         }
-        return lines
+        return units
       }
-      let allLines: [Line]
+      let allUnits: [Unit]
       if overview {
-        let lead = overviewFacet(index) == "status" && !passageDate(index).isEmpty ? Array(blocks[0].prefix(6)) : []
+        let lead = overviewFacet(index) == "status" && !passageDate(index).isEmpty ? Array(blocks[0].prefix(5)) : []
         let remaining = blocks.enumerated().map { $0.offset == 0 ? Array($0.element.dropFirst(lead.count)) : $0.element }
-        allLines = lead + (0..<(remaining.map(\.count).max() ?? 0)).flatMap { offset in remaining.compactMap { offset < $0.count ? $0[offset] : nil } }
-      } else { allLines = blocks.flatMap { $0 } }
+        allUnits = lead + (0..<(remaining.map(\.count).max() ?? 0)).flatMap { offset in remaining.compactMap { offset < $0.count ? $0[offset] : nil } }
+      } else { allUnits = blocks.flatMap { $0 } }
       let used = try JSONEncoder().encode(result(evidence, true)).count
       let itemBudget = used + (budget - used) / (selected.count - position)
-      var lines: [Line] = []
-      func item(_ lines: [Line], complete: Bool) -> Evidence {
-        Evidence(path: document.path, noteID: noteIDs[entry.document], title: titles[entry.document],
+      var accepted: [Unit] = []
+      func item(_ units: [Unit], complete: Bool) -> Evidence {
+        let contexts = units.map { ParagraphContext(section: $0.section, start: $0.lines[0].number, end: $0.lines.last!.number) }
+        return Evidence(path: document.path, noteID: noteIDs[entry.document], title: titles[entry.document],
           sha256: document.sha256, heads: document.heads, section: entry.passage.section,
-          lines: lines.sorted { $0.number < $1.number }, passageComplete: complete)
+          lines: units.flatMap(\.lines).sorted { $0.number < $1.number }, passageComplete: complete, paragraphs: contexts)
       }
-      for line in allLines {
+      for unit in allUnits {
         try Task.checkCancellation()
-        let candidate = item(lines + [line], complete: false)
+        let candidate = item(accepted + [unit], complete: false)
         if try JSONEncoder().encode(result(evidence + [candidate], true)).count > itemBudget {
           if overview { continue }
           break
         }
-        lines.append(line)
+        accepted.append(unit)
       }
-      guard lines.contains(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        && eMatches("^#{1,6}\\s", $0.text).isEmpty })
-      else { truncated = true; continue }
-      let complete = selectedPassages.count == 1 && lines.count == allLines.count
-      evidence.append(item(lines, complete: complete))
-      if lines.count != allLines.count { truncated = true }
+      guard !accepted.isEmpty else { truncated = true; continue }
+      let complete = selectedPassages.count == 1 && accepted.flatMap(\.lines).count == eLines(entry.passage.body).count
+      evidence.append(item(accepted, complete: complete))
+      if accepted.count != allUnits.count { truncated = true }
     }
     return result(evidence, truncated)
   }
