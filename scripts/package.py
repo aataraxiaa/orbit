@@ -2,7 +2,7 @@
 """Package the committed native desktop runtime and a separate source archive.
 
 This script never builds Swift or establishes desktop-host acceptance. Build and
-verify bin/orbit-mcp and its matching resources through MobileBuildMCP first.
+verify runtime/orbit-mcp and its matching resources through MobileBuildMCP first.
 """
 import hashlib
 import json
@@ -27,10 +27,10 @@ def usable(path):
 
 def validate_runtime(binary, resources):
     if not binary.is_file() or not os.access(binary, os.X_OK):
-        raise ValueError('Missing executable native runtime: build bin/orbit-mcp through MobileBuildMCP first')
+        raise ValueError('Missing executable native runtime: build runtime/orbit-mcp through MobileBuildMCP first')
     with binary.open('rb') as stream:
         if stream.read(4) not in MACHO_MAGICS:
-            raise ValueError('bin/orbit-mcp must be a built Mach-O executable, not a script or runtime launcher')
+            raise ValueError('runtime/orbit-mcp must be a built Mach-O executable, not a script or runtime launcher')
     if not resources.is_dir() or not any(resources.glob('**/contract.json')):
         raise ValueError('Missing matching OrbitCore resource bundle with contract.json')
 
@@ -45,7 +45,7 @@ def stage_plugin(plugin, binary, resources):
                         ignore=shutil.ignore_patterns(*EXCLUDED, '*.pyc'))
     for name in RUNTIME_FILES:
         shutil.copy2(ROOT / name, plugin / name)
-    native = plugin / 'bin'
+    native = plugin / 'runtime'
     native.mkdir()
     shutil.copy2(binary, native / 'orbit-mcp')
     (native / 'orbit-mcp').chmod(0o755)
@@ -55,6 +55,8 @@ def stage_plugin(plugin, binary, resources):
 
 
 def validate_native_manifests(plugin):
+    if (plugin / 'bin').exists():
+        raise ValueError('Claude marketplace plugins must not contain top-level bin/')
     for filename in ('.mcp.json', '.codex.mcp.json'):
         servers = json.loads((plugin / filename).read_text(encoding='utf-8'))['mcpServers']
         if not servers:
@@ -62,10 +64,10 @@ def validate_native_manifests(plugin):
         for server in servers.values():
             command, arguments = server['command'], server.get('args', [])
             executable = arguments[0] if command == '/usr/bin/env' and arguments else command
-            if not executable.endswith('/bin/orbit-mcp'):
-                raise ValueError('Desktop manifests must launch bin/orbit-mcp without Python')
+            if not executable.endswith('/runtime/orbit-mcp'):
+                raise ValueError('Desktop manifests must launch runtime/orbit-mcp without Python')
     manifest = json.loads((plugin / 'manifest.json').read_text(encoding='utf-8'))
-    if manifest['server']['type'] != 'binary' or manifest['server']['entry_point'] != 'bin/orbit-mcp':
+    if manifest['server']['type'] != 'binary' or manifest['server']['entry_point'] != 'runtime/orbit-mcp':
         raise ValueError('MCPB must declare the native binary entry point')
     if 'python' in manifest.get('compatibility', {}).get('runtimes', {}):
         raise ValueError('Native MCPB must not require a Python runtime')
@@ -97,14 +99,14 @@ def source_files():
     for optional in ('Package.resolved', 'LICENSE', 'LICENSE.md'):
         if (ROOT / optional).is_file():
             files.add(Path(optional))
-    for name in (*RUNTIME_DIRECTORIES, 'Sources', 'scripts', 'tests', 'docs', '.agents', 'bin'):
+    for name in (*RUNTIME_DIRECTORIES, 'Sources', 'scripts', 'tests', 'docs', '.agents', 'runtime'):
         files.update(path.relative_to(ROOT) for path in (ROOT / name).rglob('*')
                      if path.is_file() and usable(path.relative_to(ROOT)))
     return sorted(files)
 
 
 def main():
-    binary, resources = ROOT / 'bin/orbit-mcp', ROOT / 'bin' / BUNDLE_NAME
+    binary, resources = ROOT / 'runtime/orbit-mcp', ROOT / 'runtime' / BUNDLE_NAME
     # Validate before replacing a previous staged package.
     validate_runtime(binary, resources)
     DEST.mkdir(exist_ok=True)

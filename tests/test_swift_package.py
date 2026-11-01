@@ -9,7 +9,7 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-BINARY = Path(os.environ.get('ORBIT_SWIFT_BINARY', str(ROOT / 'bin/orbit-mcp')))
+BINARY = Path(os.environ.get('ORBIT_SWIFT_BINARY', str(ROOT / 'runtime/orbit-mcp')))
 BUNDLE = BINARY.parent / 'OrbitCore_OrbitCore.bundle'
 
 
@@ -24,11 +24,12 @@ class SwiftPackageTest(unittest.TestCase):
             self.assertEqual(built.returncode, 0, built.stderr)
             with zipfile.ZipFile(base / 'candidate/orbit-swift-plugin.zip') as archive:
                 self.assertFalse(any(name.endswith('.py') for name in archive.namelist()))
+                self.assertFalse(any(name.split('/')[0] == 'bin' for name in archive.namelist()))
                 archive.extractall(base / 'relocated')
             relocated = base / 'relocated'
             self.assertEqual((relocated / 'references/setup.md').read_bytes(), (ROOT / 'references/setup.md').read_bytes())
             self.assertIn('New Orbits use format 3', (relocated / 'skills/orbit-setup/SKILL.md').read_text())
-            (relocated / 'bin/orbit-mcp').chmod(0o755)
+            (relocated / 'runtime/orbit-mcp').chmod(0o755)
             manifests = [json.loads((relocated / name).read_text())['mcpServers']['orbit']
                          for name in ('.mcp.json', '.codex.mcp.json')]
             manifests.append(json.loads((relocated / 'manifest.json').read_text())['server']['mcp_config'])
@@ -78,7 +79,7 @@ class SwiftPackageTest(unittest.TestCase):
                 self.assertEqual(list(configuration), ['orbit-swift-acceptance'])
                 self.assertNotIn('orbit', configuration)
             self.assertEqual(configurations[1]['orbit-swift-acceptance']['command'], '/usr/bin/env')
-            self.assertEqual(configurations[1]['orbit-swift-acceptance']['args'][0], './bin/orbit-mcp')
+            self.assertEqual(configurations[1]['orbit-swift-acceptance']['args'][0], './runtime/orbit-mcp')
             self.assertEqual(json.loads((plugin / '.codex-plugin/plugin.json').read_text())['version'], '0.7.0-dev.1')
             manifests = [configuration['orbit-swift-acceptance'] for configuration in configurations]
             manifests.append(json.loads((plugin / 'manifest.json').read_text())['server']['mcp_config'])

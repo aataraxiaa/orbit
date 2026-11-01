@@ -23,7 +23,7 @@ async def verify(plugin, output):
     report = {"observed_at": datetime.now(timezone.utc).isoformat(),
               "client": "official Python MCP SDK", "sdk_version": importlib.metadata.version("mcp"),
               "desktop_host_acceptance": "NOT VERIFIED", "checks": []}
-    report["binary_sha256"] = hashlib.sha256((plugin / "bin/orbit-mcp").read_bytes()).hexdigest()
+    report["binary_sha256"] = hashlib.sha256((plugin / "runtime/orbit-mcp").read_bytes()).hexdigest()
     with tempfile.TemporaryDirectory(prefix="orbit-sdk-acceptance-") as temporary:
         base = Path(temporary).resolve()
         relocated = base / "plugin with spaces"

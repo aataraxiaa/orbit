@@ -1,6 +1,6 @@
 # Install and test Orbit
 
-Orbit 0.7.0-beta.2 uses the native universal Swift executable on macOS 13 or later. Download the [Swift prerelease packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.2) or update Orbit through the existing marketplace. Neither the plugin nor MCPB requires Python.
+Orbit 0.7.0-beta.3 uses the native universal Swift executable on macOS 13 or later. Download the [Swift prerelease packages](https://github.com/aataraxiaa/orbit/releases/tag/v0.7.0-beta.3) or update Orbit through the existing marketplace. Neither the plugin nor MCPB requires Python.
 
 Python 3.10+ is a development dependency for the reference regression suite, fixture generators and package assembly. Python engine files remain in the source checkout and are excluded from production packages. This prerelease is authorized for in-app testing before formal native-host/iCloud/model acceptance; do not report those checks as passed.
 
@@ -73,7 +73,7 @@ See [acceptance](references/acceptance.md) and [tool contracts](references/tools
 
 ## Manifest launch regression
 
-Codex reads `.codex.mcp.json` with `/usr/bin/env`, `cwd: "."` and the plugin-relative `./bin/orbit-mcp` argument.
+Codex reads `.codex.mcp.json` with `/usr/bin/env`, `cwd: "."` and the plugin-relative `./runtime/orbit-mcp` argument.
 Claude reads `.mcp.json` with `${CLAUDE_PLUGIN_ROOT}`. The MCPB uses `${__dirname}`.
 Do not reuse the Claude placeholder in Codex: it previously reached the launcher literally
 and failed before initialization. Package tests launch all extracted configurations,

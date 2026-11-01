@@ -219,18 +219,20 @@ class MCPTest(unittest.TestCase):
                             self.assertEqual(transport['cwd'], '.')
                             self.assertFalse(any('${' in arg for arg in transport['args']))
                         configurations.append((transport, variable, extracted / transport['cwd'] if 'cwd' in transport else None))
-                (extracted / 'bin/orbit-mcp').chmod(0o755)
+                (extracted / 'runtime/orbit-mcp').chmod(0o755)
                 self.env['PATH'] = '/usr/bin:/bin'
                 for transport, variable, cwd in configurations:
                     launch = [transport['command'], *transport['args']]
                     self.assertFalse(any('python' in value.lower() for value in launch))
-                    self.assertTrue(any('bin/orbit-mcp' in value for value in launch))
+                    self.assertTrue(any('runtime/orbit-mcp' in value for value in launch))
                     command = [value.replace(variable, str(extracted)) if variable else value for value in launch]
                     responses = self.run_server([
                         request(1, 'initialize', {'protocolVersion': '2025-06-18', 'capabilities': {},
                                                   'clientInfo': {'name': 'package-regression', 'version': '1'}}),
                         request(2, 'tools/list')], command, cwd)
-                    self.assertEqual(responses[0]['result']['serverInfo']['version'], manifest['version'])
+                    engine_source = (ROOT / 'Sources/OrbitCore/OrbitEngine.swift').read_text()
+                    engine_version = engine_source.split('packageVersion = "', 1)[1].split('"', 1)[0]
+                    self.assertEqual(responses[0]['result']['serverInfo']['version'], engine_version)
                     self.assertEqual(len(responses[1]['result']['tools']), 19)
 
 

@@ -3,7 +3,7 @@
     "orbit": {
       "command": "/usr/bin/env",
       "args": [
-        "./bin/orbit-mcp"
+        "./runtime/orbit-mcp"
       ],
       "cwd": "."
     }

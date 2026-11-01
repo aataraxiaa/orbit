@@ -1,5 +1,7 @@
 # Native Swift runtime transition
 
+Orbit 0.7.0-beta.3 only relocates installed runtime files from `bin/` to `runtime/` for Claude marketplace validation. Upgrades from beta.2 require no changes to Orbit data, metadata, folder layout, named configuration or persistent state. The executable and resources are unchanged; MCP initialization still reports implementation version beta.2. For format-3 folders, run the read-only compatibility plan and report that no data changes are required when it returns unchanged. Preserve the complete backup described below before any authorized data migration; no data migration is needed for this package update. Interrupted or repeated compatibility checks can be rerun safely.
+
 Orbit 0.7.0-beta.1 is a native Swift runtime replacement. It keeps disk format 3 and the existing revision protocol. The package version does not identify a new disk format.
 
 For an existing format-3 Orbit, the migration tool's default plan verifies compatibility without changing content. Report its actual source release, format and findings. Do not rewrite the marker merely because the package language or version changed. For formats 1 and 2, retain the existing explicitly authorized legacy routes and their previews, backup journals, resume and rollback behavior.

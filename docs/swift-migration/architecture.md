@@ -1,6 +1,6 @@
 # Shared Swift implementation
 
-`Package.swift` exposes the `OrbitCore` library and `orbit-mcp` executable. Package revision, command contract version 1, and on-disk format 3 are separate. The development package identifies itself as `0.7.0-beta.2`. It retains existing `0.6.0` format metadata and explicit legacy migrations. No release or personal-folder migration is authorized by this work.
+`Package.swift` exposes the `OrbitCore` library and `orbit-mcp` executable. Package revision, command contract version 1, and on-disk format 3 are separate. The shared engine identifies itself as `0.7.0-beta.2`; the packaging-only `0.7.0-beta.3` release retains those compiled bytes and relocates them to `runtime/`. It retains existing `0.6.0` format metadata and explicit legacy migrations. No release or personal-folder migration is authorized by this work.
 
 `OrbitEngine` receives registry, cache and state URLs. `execute(action, argumentsJSON:)` validates the complete public contract and binds the original ordered request bytes for retry hashing. A persisted approved request must retain its action, arguments bytes, UUID and immutable target identity. Dictionary callers receive stable sorted encoding for requests they originate. They must not reconstruct another host's ordered request during an ambiguous retry.
 
