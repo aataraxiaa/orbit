@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage an independently named native acceptance candidate from a built runtime.
 
-The normal release builder is package.py and consumes committed bin/ artifacts.
+The normal release builder is package.py and consumes committed runtime/ artifacts.
 This helper can isolate native host verification from personal registrations. It
 never establishes desktop-host acceptance or publishes a release.
 """
@@ -40,22 +40,22 @@ def main():
         acceptance = args.acceptance_root.resolve()
         acceptance.mkdir(parents=True, exist_ok=True)
         acceptance_env = {'ORBIT_CONFIG': str(acceptance / 'config.json'), 'ORBIT_CACHE': str(acceptance / 'cache'), 'ORBIT_STATE': str(acceptance / 'state')}
-    for host, launch in [('.mcp.json', '${CLAUDE_PLUGIN_ROOT}/bin/orbit-mcp'), ('.codex.mcp.json', './bin/orbit-mcp')]:
+    for host, launch in [('.mcp.json', '${CLAUDE_PLUGIN_ROOT}/runtime/orbit-mcp'), ('.codex.mcp.json', './runtime/orbit-mcp')]:
         server = {'command': launch, 'args': []}
         if acceptance_env:
             server['args'] = ['--config', acceptance_env['ORBIT_CONFIG'], '--cache', acceptance_env['ORBIT_CACHE'], '--state', acceptance_env['ORBIT_STATE']]
         if host == '.codex.mcp.json':
             # Resolve the system launcher before cwd; resolve the native path inside cwd.
             server['command'] = '/usr/bin/env'
-            server['args'] = ['./bin/orbit-mcp', *server['args']]
+            server['args'] = ['./runtime/orbit-mcp', *server['args']]
             server['cwd'] = '.'
         (plugin / host).write_text(json.dumps({'mcpServers': {plugin_name: server}}, indent=2) + '\n')
     manifest = json.loads((ROOT / 'manifest.json').read_text())
     if args.acceptance_root:
         manifest['display_name'] = 'Orbit Swift acceptance'
         manifest['description'] = 'Disposable verification of the native Orbit runtime.'
-    manifest.update(name=plugin_name, version=version, server={'type': 'binary', 'entry_point': 'bin/orbit-mcp',
-                    'mcp_config': {'command': '${__dirname}/bin/orbit-mcp', 'args': []}},
+    manifest.update(name=plugin_name, version=version, server={'type': 'binary', 'entry_point': 'runtime/orbit-mcp',
+                    'mcp_config': {'command': '${__dirname}/runtime/orbit-mcp', 'args': []}},
                     compatibility={'platforms': ['darwin']})
     if acceptance_env:
         manifest['server']['mcp_config']['args'] = ['--config', acceptance_env['ORBIT_CONFIG'], '--cache', acceptance_env['ORBIT_CACHE'], '--state', acceptance_env['ORBIT_STATE']]

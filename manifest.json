@@ -2,16 +2,16 @@
   "manifest_version": "0.3",
   "name": "orbit",
   "display_name": "Orbit",
-  "version": "0.7.0-beta.2",
+  "version": "0.7.0-beta.3",
   "description": "Save, connect, and recall knowledge in named folders of Markdown files. Obsidian-compatible.",
   "author": {
     "name": "Orbit"
   },
   "server": {
     "type": "binary",
-    "entry_point": "bin/orbit-mcp",
+    "entry_point": "runtime/orbit-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/orbit-mcp",
+      "command": "${__dirname}/runtime/orbit-mcp",
       "args": []
     }
   },

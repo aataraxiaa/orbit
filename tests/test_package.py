@@ -35,19 +35,20 @@ class PackageTest(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stderr)
         with zipfile.ZipFile(ROOT / 'dist/orbit-plugin.zip') as archive:
             names = archive.namelist()
+            self.assertFalse(any(name.split('/')[0] == 'bin' for name in names))
             self.assertIn('.claude-plugin/plugin.json', names)
             self.assertIn('.codex-plugin/plugin.json', names)
-            for required in ('bin/orbit-mcp', '.mcp.json', '.codex.mcp.json', 'manifest.json',
+            for required in ('runtime/orbit-mcp', '.mcp.json', '.codex.mcp.json', 'manifest.json',
                              'references/schemas/Session.md', 'skills/orbit-format/SKILL.md',
                              'skills/orbit-migrate/SKILL.md', 'skills/orbit-migrate/references/format-1-to-2.md'):
                 self.assertIn(required, names)
-            self.assertTrue(any(name.startswith('bin/OrbitCore_OrbitCore.bundle/') and name.endswith('contract.json')
+            self.assertTrue(any(name.startswith('runtime/OrbitCore_OrbitCore.bundle/') and name.endswith('contract.json')
                                 for name in names))
             self.assertFalse(any(name.endswith('.py') or name.startswith('scripts/') for name in names))
-            self.assertTrue(stat.S_IMODE(archive.getinfo('bin/orbit-mcp').external_attr >> 16) & stat.S_IXUSR)
+            self.assertTrue(stat.S_IMODE(archive.getinfo('runtime/orbit-mcp').external_attr >> 16) & stat.S_IXUSR)
             manifest = json.loads(archive.read('manifest.json'))
             self.assertEqual(manifest['server']['type'], 'binary')
-            self.assertEqual(manifest['server']['entry_point'], 'bin/orbit-mcp')
+            self.assertEqual(manifest['server']['entry_point'], 'runtime/orbit-mcp')
             self.assertNotIn('python', manifest.get('compatibility', {}).get('runtimes', {}))
             self.assertFalse(any('__pycache__' in n or 'write.lock' in n for n in names))
         with zipfile.ZipFile(ROOT / 'dist/orbit.mcpb') as archive:
@@ -57,8 +58,10 @@ class PackageTest(unittest.TestCase):
             for required in ('orbit/Package.swift', 'orbit/Sources/OrbitCore/OrbitEngine.swift',
                              'orbit/scripts/orbit.py', 'orbit/scripts/mcp_server.py',
                              'orbit/tests/test_orbit.py', 'orbit/tests/OrbitCoreTests/ContractTests.swift',
-                             'orbit/dist/marketplace/plugins/orbit/bin/orbit-mcp'):
+                             'orbit/dist/marketplace/plugins/orbit/runtime/orbit-mcp'):
                 self.assertIn(required, source_names)
+            self.assertFalse(any(name.startswith(('orbit/bin/', 'orbit/dist/marketplace/plugins/orbit/bin/'))
+                                 for name in source_names))
             self.assertFalse(any('/.build/' in name or '/__pycache__/' in name for name in source_names))
         receipt = json.loads((ROOT / 'dist/receipt.json').read_text())
         self.assertEqual(receipt['runtime'], 'native Swift')
@@ -70,6 +73,9 @@ class PackageTest(unittest.TestCase):
             self.assertEqual(manifest['name'], 'orbit-local')
 
     def test_rebuild_removes_superseded_python_from_staged_plugin(self):
+        old_binary = ROOT / 'dist/marketplace/plugins/orbit/bin/orbit-mcp'
+        old_binary.parent.mkdir(parents=True, exist_ok=True)
+        old_binary.write_bytes(b'stale runtime')
         stale = ROOT / 'dist/marketplace/plugins/orbit/scripts/stale-python.py'
         stale.parent.mkdir(parents=True, exist_ok=True)
         stale.write_text('raise RuntimeError("must not ship")\n')
@@ -78,6 +84,7 @@ class PackageTest(unittest.TestCase):
         self.addCleanup(unrelated.unlink, missing_ok=True)
         run = subprocess.run([sys.executable, str(ROOT / 'scripts/package.py')], capture_output=True, text=True)
         self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertFalse(old_binary.parent.exists())
         self.assertFalse(stale.exists())
         self.assertFalse((stale.parent).exists())
         with zipfile.ZipFile(ROOT / 'dist/orbit-project.zip') as archive:

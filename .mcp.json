@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "orbit": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/bin/orbit-mcp",
+      "command": "${CLAUDE_PLUGIN_ROOT}/runtime/orbit-mcp",
       "args": []
     }
   }
