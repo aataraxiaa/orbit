@@ -23,6 +23,23 @@ private final class SearchDB {
       throw RetrievalError(message, code)
     }
     sqlite3_busy_timeout(pointer, 3000)
+    sqlite3_create_collation(pointer, "orbit_path", SQLITE_UTF8, nil) { _, aCount, a, bCount, b in
+      let left = String(decoding: UnsafeRawBufferPointer(start: a, count: Int(aCount)), as: UTF8.self)
+      let right = String(decoding: UnsafeRawBufferPointer(start: b, count: Int(bCount)), as: UTF8.self)
+      return left == right ? 0 : (left < right ? -1 : 1)
+    }
+    sqlite3_create_function_v2(pointer, "orbit_exact_name", 3, SQLITE_UTF8 | SQLITE_DETERMINISTIC,
+      nil, { context, _, values in
+        func text(_ index: Int) -> String {
+          guard let bytes = sqlite3_value_text(values?[index]) else { return "" }
+          return String(cString: bytes)
+        }
+        let query = (try? JSONSerialization.jsonObject(with: Data(text(2).utf8),
+          options: [.fragmentsAllowed])) as? String ?? ""
+        let names = (try? JSONSerialization.jsonObject(with: Data(text(1).utf8))) as? [String] ?? []
+        let exact = ([text(0)] + names).contains { casefold($0) == query }
+        sqlite3_result_int(context, exact ? 1 : 0)
+      }, nil, nil, nil)
     chmod(url.path, 0o600)
   }
   deinit { close() }
@@ -90,6 +107,13 @@ struct OrbitPassage {
   let end: Int
   let section: String
   let body: String
+}
+
+/// Additional Unicode scalars when appending to an array in the pretty JSON evidence envelope.
+private func evidenceAppendSize(_ value: Any, arrayLevel: Int, empty: Bool) throws -> Int {
+  let valueSize = try OrderedJSON.sorted(value).rendered(pretty: true, level: arrayLevel + 1)
+    .unicodeScalars.count
+  return valueSize + (empty ? 4 * arrayLevel + 4 : 2 * arrayLevel + 4)
 }
 func notePassages(_ text: String) -> [OrbitPassage] {
   let lines = eLines(text)
@@ -387,26 +411,16 @@ extension OrbitEngine {
     let bounded = max(1, min(limit, 100))
     var selected: [JSONObject] = []
     var overview: [String: JSONObject] = [:]
-    var best = Set<String>()
+    var total = 0
     func aliases(_ row: JSONObject) -> [String] {
       (try? JSONSerialization.jsonObject(with: Data(eString(row["aliases"]).utf8))) as? [String]
         ?? []
-    }
-    func ordering(_ a: JSONObject, _ b: JSONObject) -> Bool {
-      let exactA = ([eString(a["title"])] + aliases(a)).map { casefold($0) }.contains(
-        casefold(query).trimmingCharacters(in: .whitespacesAndNewlines))
-      let exactB = ([eString(b["title"])] + aliases(b)).map { casefold($0) }.contains(
-        casefold(query).trimmingCharacters(in: .whitespacesAndNewlines))
-      if exactA != exactB { return exactA }
-      let rankA = a["rank"] as? Double ?? 0
-      let rankB = b["rank"] as? Double ?? 0
-      return rankA == rankB ? eString(a["path"]) < eString(b["path"]) : rankA < rankB
     }
     for attempt in 0..<2 {
       let db = try SearchDB(URL(fileURLWithPath: eString(freshness["cache"])))
       try db.execute("BEGIN")
       var sql =
-        "SELECT n.*,p.start,p.end,p.section,p.id AS passage_id,bm25(search,5,4,2,1,3) AS rank FROM search JOIN passages p ON p.id=search.rowid JOIN notes n ON n.path=p.path WHERE search MATCH ? AND n.path NOT IN ('ORBIT.md')"
+        "SELECT n.path,p.start,p.end,p.section,p.id AS passage_id,bm25(search,5,4,2,1,3) AS rank FROM search JOIN passages p ON p.id=search.rowid JOIN notes n ON n.path=p.path WHERE search MATCH ? AND n.path NOT IN ('ORBIT.md')"
       var params: [Any] = [match]
       if let noteType {
         sql += " AND n.note_type=?"
@@ -423,17 +437,22 @@ extension OrbitEngine {
         sql += " AND (n.project=? OR n.path=? OR substr(n.path,1,?)=?)"
         params += [scope, scope, prefix.unicodeScalars.count, prefix]
       }
-      best = []
-      selected = []
+      let exactQuery = casefold(query).trimmingCharacters(in: .whitespacesAndNewlines)
+      // Materialize BM25 before windowing: FTS auxiliary functions require their match context.
+      // Deduplicate before LIMIT so a long note cannot displace other notes or exact aliases.
+      selected = try db.query(
+        """
+        WITH matches AS MATERIALIZED (\(sql)),
+        passages_ranked AS (
+          SELECT *,row_number() OVER (PARTITION BY path ORDER BY rank,start) AS position FROM matches
+        )
+        SELECT n.*,p.start,p.end,p.section,p.passage_id,p.rank,count(*) OVER () AS total_notes
+        FROM passages_ranked p JOIN notes n ON n.path=p.path WHERE p.position=1
+        ORDER BY orbit_exact_name(n.title,n.aliases,?) DESC,
+                 p.rank,n.path COLLATE orbit_path LIMIT ?
+        """, params + [eJSON(exactQuery), bounded])
+      total = eInt(selected.first?["total_notes"])
       overview = [:]
-      for row in try db.query(sql + " ORDER BY rank,n.path,p.start", params) {
-        let path = eString(row["path"])
-        if best.contains(path) { continue }
-        best.insert(path)
-        selected.append(row)
-        selected.sort(by: ordering)
-        if selected.count > bounded { selected.removeLast() }
-      }
       for index in selected.indices {
         let path = eString(selected[index]["path"])
         selected[index]["body"] =
@@ -456,7 +475,7 @@ extension OrbitEngine {
       freshness = try retrievalRefresh(root, rebuild: true)
     }
     var result: JSONObject = [
-      "mode": "sqlite-fts5-passages", "total": best.count, "results": [JSONObject](),
+      "mode": "sqlite-fts5-passages", "total": total, "results": [JSONObject](),
       "freshness": freshness,
       "coverage": ["state": "complete", "semantic": false, "truncated": false],
       "hint":
@@ -464,6 +483,7 @@ extension OrbitEngine {
     ]
     var results: [JSONObject] = []
     var truncated = false
+    var resultSize = eJSON(result).unicodeScalars.count
     for row in selected {
       let path = eString(row["path"])
       let start = eInt(row["start"])
@@ -487,32 +507,31 @@ extension OrbitEngine {
         "end": excerpts.values.map { eInt($0["end"]) }.max() ?? 0, "section": row["section"] ?? "",
         "snippets": [JSONObject](),
       ]
-      results.append(candidate)
-      result["results"] = results
-      if eJSON(result).unicodeScalars.count > 12000 {
-        results.removeLast()
+      let candidateSize = try evidenceAppendSize(candidate, arrayLevel: 1, empty: results.isEmpty)
+      if resultSize + candidateSize > 12000 {
         truncated = true
         break
       }
+      resultSize += candidateSize
+      results.append(candidate)
       var snippets: [JSONObject] = []
       var exhausted = false
       for excerpt in excerpts.sorted(by: { $0.key < $1.key }).map({ $0.value }) {
         for (offset, line) in eLines(eString(excerpt["body"])).enumerated() {
-          snippets.append(["line": eInt(excerpt["start"]) + offset, "text": line])
-          candidate["snippets"] = snippets
-          results[results.count - 1] = candidate
-          result["results"] = results
-          if eJSON(result).unicodeScalars.count > 12000 {
-            snippets.removeLast()
-            candidate["snippets"] = snippets
-            results[results.count - 1] = candidate
+          let snippet: JSONObject = ["line": eInt(excerpt["start"]) + offset, "text": line]
+          let snippetSize = try evidenceAppendSize(snippet, arrayLevel: 3, empty: snippets.isEmpty)
+          if resultSize + snippetSize > 12000 {
             truncated = true
             exhausted = true
             break
           }
+          resultSize += snippetSize
+          snippets.append(snippet)
         }
         if exhausted { break }
       }
+      candidate["snippets"] = snippets
+      results[results.count - 1] = candidate
       if exhausted { break }
     }
     result["results"] = results

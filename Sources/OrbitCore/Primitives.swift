@@ -88,10 +88,24 @@ public func safe(_ root: URL, _ relative: String) throws -> URL {
   }
   return candidate
 }
+private let regexCache: NSCache<NSString, NSRegularExpression> = {
+  let cache = NSCache<NSString, NSRegularExpression>()
+  cache.countLimit = 128
+  return cache
+}()
+
+func compiledRegex(_ pattern: String, _ options: NSRegularExpression.Options = []) -> NSRegularExpression? {
+  let key = "\(options.rawValue):\(pattern)" as NSString
+  if let regex = regexCache.object(forKey: key) { return regex }
+  guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return nil }
+  regexCache.setObject(regex, forKey: key)
+  return regex
+}
+
 func matchGroups(_ pattern: String, _ text: String, options: NSRegularExpression.Options = [])
   -> [[String]]
 {
-  guard let re = try? NSRegularExpression(pattern: pattern, options: options) else { return [] }
+  guard let re = compiledRegex(pattern, options) else { return [] }
   return re.matches(in: text, range: NSRange(text.startIndex..., in: text)).map { m in
     (0..<m.numberOfRanges).map { i in Range(m.range(at: i), in: text).map { String(text[$0]) } ?? ""
     }
@@ -101,7 +115,7 @@ func replaced(
   _ text: String, _ pattern: String, _ replacement: String,
   options: NSRegularExpression.Options = []
 ) -> String {
-  guard let re = try? NSRegularExpression(pattern: pattern, options: options) else { return text }
+  guard let re = compiledRegex(pattern, options) else { return text }
   return re.stringByReplacingMatches(
     in: text, range: NSRange(text.startIndex..., in: text), withTemplate: replacement)
 }

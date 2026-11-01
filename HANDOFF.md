@@ -1,6 +1,19 @@
 # Orbit handoff
 
+1 November 2026, unreleased retrieval performance work: shared Swift search now
+limits per-note SQL winners before transferring rows, packs evidence without
+repeated whole-response serialization, reuses bounded compiled regexes and replaces
+quadratic revision scans with path indexes. Markdown format 3, cache schema and
+public contracts are unchanged. See [design and measured results](docs/retrieval-performance.md).
+MobileBuildMCP passes 122 Swift tests, with the opt-in benchmark skipped in that
+suite and exercised separately on the simulator. All 193 reference tests, smoke,
+24 differential cases and 157 mixed-replica steps pass. The universal native binary
+and local packages are rebuilt. No release tag or phone installation is produced here.
+The app's remote core pin is unchanged. Focused host changes remove duplicate read operations and unrelated history from model prompts; its iteration session owns the remaining app work.
+Simulator core timings do not establish faster physical-phone assistant answers.
+
 1 November 2026: 0.7.0-beta.3 is a packaging-only prerelease. Claude remote marketplace validation rejects a top-level `bin/` directory. The committed executable and resource bundle now live under `runtime/`, and all current launch/package paths follow that location. Their bytes are unchanged from beta.2; MCP initialization and OrbitCore source retain implementation version `0.7.0-beta.2`, while installable manifests identify beta.3. Disk format, schemas, registry and persistent state are unchanged. Native marketplace update acceptance remains separate from mechanical package checks. See [release notes](docs/releases/0.7.0-beta.3.md).
+
 
 31 October 2026 physical follow-up: app PR3 consumes exact OrbitCore revision `5a4d5835b648a369ffac127f47623c0fa312f355` from beta2. App source `4d538a4` adds legacy read-only presentation without inventing stored IDs. All 38 existing app tests and two focused format-2 tests pass. The signed build is installed. Normal preview/Apply preserves the exact approved bytes, project identity, tags, aliases, unknown metadata and links across the tested Mac/phone round trip. Both revisions remain in history. App restart restores bookmarks and read-only modes. See the current [verification evidence](docs/swift-migration/verification.md#physical-follow-up). App PR3 remains open and unmerged.
 

@@ -1,0 +1,350 @@
+{
+  "fixture": {
+    "notes": 500,
+    "passages": 6500,
+    "format": 3
+  },
+  "evidence_sha256": "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+  "all_samples_retained": true,
+  "excluded_samples": 0,
+  "sides": {
+    "baseline": {
+      "run_count": 5,
+      "sample_count": 25,
+      "raw_warm_ms": [
+        2404.944,
+        2235.342,
+        2215.194,
+        2793.371,
+        2630.824,
+        3432.779,
+        2537.892,
+        2363.129,
+        2449.189,
+        2468.778,
+        2359.802,
+        2664.736,
+        2372.589,
+        2291.888,
+        2339.824,
+        2290.296,
+        2213.332,
+        2355.659,
+        2272.85,
+        2279.155,
+        2127.677,
+        2289.346,
+        2241.313,
+        2245.77,
+        2312.791
+      ],
+      "median_ms": 2339.824,
+      "range_ms": [
+        2127.677,
+        3432.779
+      ],
+      "batch_medians_ms": [
+        2404.944,
+        2468.778,
+        2359.802,
+        2279.155,
+        2245.77
+      ],
+      "median_of_batch_medians_ms": 2359.802,
+      "batches": [
+        {
+          "repeat": 0,
+          "log": "test_sim_2026-11-01T12-16-23-382Z_pid39080_b74c4af4.log",
+          "warm_ms": [
+            2404.944,
+            2235.342,
+            2215.194,
+            2793.371,
+            2630.824
+          ],
+          "median_ms": 2404.944,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 1,
+          "log": "test_sim_2026-11-01T12-17-46-375Z_pid39080_f985f2fa.log",
+          "warm_ms": [
+            3432.779,
+            2537.892,
+            2363.129,
+            2449.189,
+            2468.778
+          ],
+          "median_ms": 2468.778,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 2,
+          "log": "test_sim_2026-11-01T12-18-37-237Z_pid39080_9159c2a4.log",
+          "warm_ms": [
+            2359.802,
+            2664.736,
+            2372.589,
+            2291.888,
+            2339.824
+          ],
+          "median_ms": 2359.802,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 3,
+          "log": "test_sim_2026-11-01T12-19-24-600Z_pid39080_13eefe85.log",
+          "warm_ms": [
+            2290.296,
+            2213.332,
+            2355.659,
+            2272.85,
+            2279.155
+          ],
+          "median_ms": 2279.155,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 4,
+          "log": "test_sim_2026-11-01T12-20-12-188Z_pid39080_484d8348.log",
+          "warm_ms": [
+            2127.677,
+            2289.346,
+            2241.313,
+            2245.77,
+            2312.791
+          ],
+          "median_ms": 2245.77,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          }
+        }
+      ]
+    },
+    "candidate": {
+      "run_count": 5,
+      "sample_count": 25,
+      "raw_warm_ms": [
+        1749.721,
+        4142.211,
+        4173.247,
+        3874.181,
+        4774.835,
+        1469.422,
+        1477.425,
+        1523.346,
+        1559.709,
+        1737.492,
+        1421.931,
+        1430.295,
+        1440.262,
+        1512.784,
+        1603.23,
+        1387.851,
+        1416.999,
+        1473.78,
+        1467.295,
+        1458.983,
+        1666.364,
+        1529.189,
+        1617.305,
+        1547.849,
+        1439.564
+      ],
+      "median_ms": 1523.346,
+      "range_ms": [
+        1387.851,
+        4774.835
+      ],
+      "batch_medians_ms": [
+        4142.211,
+        1523.346,
+        1440.262,
+        1458.983,
+        1547.849
+      ],
+      "median_of_batch_medians_ms": 1523.346,
+      "batches": [
+        {
+          "repeat": 0,
+          "log": "test_sim_2026-11-01T12-16-53-919Z_pid39080_3703e275.log",
+          "warm_ms": [
+            1749.721,
+            4142.211,
+            4173.247,
+            3874.181,
+            4774.835
+          ],
+          "median_ms": 4142.211,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 1,
+          "log": "test_sim_2026-11-01T12-18-18-029Z_pid39080_633c34f7.log",
+          "warm_ms": [
+            1469.422,
+            1477.425,
+            1523.346,
+            1559.709,
+            1737.492
+          ],
+          "median_ms": 1523.346,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 2,
+          "log": "test_sim_2026-11-01T12-19-04-519Z_pid39080_88258554.log",
+          "warm_ms": [
+            1421.931,
+            1430.295,
+            1440.262,
+            1512.784,
+            1603.23
+          ],
+          "median_ms": 1440.262,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 3,
+          "log": "test_sim_2026-11-01T12-19-54-528Z_pid39080_1aacc5e1.log",
+          "warm_ms": [
+            1387.851,
+            1416.999,
+            1473.78,
+            1467.295,
+            1458.983
+          ],
+          "median_ms": 1458.983,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "repeat": 4,
+          "log": "test_sim_2026-11-01T12-20-37-775Z_pid39080_ab965332.log",
+          "warm_ms": [
+            1666.364,
+            1529.189,
+            1617.305,
+            1547.849,
+            1439.564
+          ],
+          "median_ms": 1547.849,
+          "evidence_hashes": [
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea",
+            "a3e44214b356dfb8cc9361e88d8b3e05011781ea60815a4f8911726f7936daea"
+          ],
+          "test_counts": {
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          }
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "median_latency_change_percent": -34.89484679189546,
+    "batch_median_latency_change_percent": -35.4460247088527,
+    "percent_definition": "(candidate / baseline - 1) * 100; negative means lower latency",
+    "interpretation": "Descriptive medians only; no categorical verdict or outlier removal."
+  }
+}
