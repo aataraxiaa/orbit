@@ -198,3 +198,19 @@ public repository.
 Omit `--snapshot` when generating common tests against older package checkouts.
 Candidate tests require the new core API. No Orbit-data migration is needed; the
 snapshot archive schema is independent of disk format 3 and the MCP contract.
+
+For an explicitly authorized test phone, add `--device-team YOURTEAMID` to generate
+a signed disposable host application. Physical devices cannot run the default
+tool-hosted simulator target. The host has a separate bundle identity and uses only
+the temporary fixtures created by the tests.
+
+Identify the phone's hardware model before selecting its device ID. Set a separate
+MobileBuildMCP profile with that device ID, the generated project, scheme
+`OrbitRetrievalChecks` and configuration `Release`. Run `test_device` with
+`ENABLE_TESTABILITY=YES` and `-allowProvisioningUpdates` in `extraArgs`. Xcode needs
+a signed-in developer account and a provisioning profile containing the test phone.
+Run the nine correctness tests before the measurement by selecting
+`-only-testing:OrbitRetrievalChecks/RetrievalSnapshotTests` and excluding
+`-skip-testing:OrbitRetrievalChecks/RetrievalSnapshotTests/testSnapshotTiming`.
+Then select only `testSnapshotTiming` for the physical comparison. Do not substitute
+the personal phone when signing or availability blocks the test phone.

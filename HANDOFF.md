@@ -1,5 +1,13 @@
 # Orbit handoff
 
+1 November 2026, iPhone 16 preparation: the user identified the connected iPhone 16
+as the test device. The generator now accepts `--device-team` and creates a separate
+minimal host for physical XCTest, since the default tool-hosted target cannot run
+on a device. All nine correctness checks pass in the hosted Release simulator.
+The physical attempt ran zero tests: Xcode reports no signed-in developer account,
+and cached profiles do not include the test phone. No physical acceptance or timing
+is claimed. The personal iPhone 17 Pro Max remains excluded.
+
 1 November 2026, retrieval redesign experiment: `OrbitRetrievalSnapshot` adds a
 read-only shared-core candidate with retained exact bytes, revision-content checks,
 bounded passages and explicit snapshot freshness. It has no app or MCP production
